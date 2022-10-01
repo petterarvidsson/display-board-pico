@@ -17,7 +17,7 @@ exactly this problem.
 
 ## How does the driver work?
 It allows setting the D/C bit within the DMA transaction. This is done
-by adding a 32 bit header to the data send to the PIO via DMA. The 16
+by adding a 32 bit header to the data sent to the PIO via DMA. The 16
 MSBs are the number of 32 bit words to send. The LSB (the lowermost
 bit) is the D/C pin of the display. The 15 bits in between are unused,
 but must all be set to zero in the current implementation.
@@ -56,4 +56,4 @@ gdb-multiarch -x gdbcommands
 blc
 ```
 
-Where `blc` will build load and start the process.
+Where `blc` will build, load and start the process.
