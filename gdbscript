@@ -1,0 +1,15 @@
+target extended-remote | openocd -l openocd.log -p -s /usr/local/share/openocd/scripts -f interface/picoprobe.cfg -f target/rp2040.cfg
+
+define bl
+  make -C build
+  if $_shell_exitcode == 0
+    file build/src/pio_display.elf
+    load
+    monitor reset init
+  end
+end
+
+define blc
+  bl
+  continue
+end
