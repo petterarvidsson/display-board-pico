@@ -2,33 +2,40 @@
 .side_set 1
 
 .wrap_target
-    out Y, 21           sideset 0 ; Number of 32 bit words to send (received value << 16) << 5 (multiply with 32)
-    out X, 10           sideset 0 ; Discard 10 bits
-    out X, 1            sideset 0 ; D/C
-    set pins 0          sideset 0 ; Unset D/C
-    jmp Y-- start       sideset 0 ; Decrement Y with 1
 start:
+    out Y, 21           sideset 0 ; Number of 32 bit words to send (received value << 16) << 5 (multiply with 32)
+    out X, 9            sideset 0 ; Discard 9 bits
+    out X, 1            sideset 0 ; SHIFT CS
+    jmp !X no_shift     sideset 0 ; Check if shift is needed
+    set pins 10         sideset 0 ; Set SHIFT CS
+no_shift:
+    out X, 1            sideset 0 ; D/C
+    set pins 00         sideset 0 ; Unset D/C, unset SHIFT CS
+    jmp Y-- send        sideset 0 ; Decrement Y with 1
+    jmp start           sideset 0 ; Nothing to send
+send:
     jmp !X loop         sideset 0 ; Check if data
-    set pins 1          sideset 0 ; If data, set D/C
+    set pins 01         sideset 0 ; If data, set D/C
 loop:
     out pins, 1         sideset 0 ; Stall on clock low
     jmp Y-- loop        sideset 1 ; clock high to transfer data
 .wrap
 
 % c-sdk {
-static inline void spi_program_init(PIO pio, uint sm, uint offset, uint data, uint data_or_command, uint clock) {
+static inline void spi_program_init(PIO pio, uint sm, uint offset, uint data, uint data_or_command_and_shift_cs, uint clock) {
     pio_sm_config c = spi_program_get_default_config(offset);
 
     sm_config_set_out_pins(&c, data, 1);
-    sm_config_set_set_pins(&c, data_or_command, 1);
+    sm_config_set_set_pins(&c, data_or_command_and_shift_cs, 2);
     sm_config_set_sideset_pins(&c, clock);
 
     pio_gpio_init(pio, data);
-    pio_gpio_init(pio, data_or_command);
+    pio_gpio_init(pio, data_or_command_and_shift_cs);
+    pio_gpio_init(pio, data_or_command_and_shift_cs + 1);
     pio_gpio_init(pio, clock);
 
     pio_sm_set_consecutive_pindirs(pio, sm, data, 1, true);
-    pio_sm_set_consecutive_pindirs(pio, sm, data_or_command, 1, true);
+    pio_sm_set_consecutive_pindirs(pio, sm, data_or_command_and_shift_cs, 2, true);
     pio_sm_set_consecutive_pindirs(pio, sm, clock, 1, true);
 
     sm_config_set_out_shift(&c, false, true, 32);
