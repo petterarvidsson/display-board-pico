@@ -1,7 +1,7 @@
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
-#include "i2c-controller.h"
+#include "i2c_controller.h"
 #define I2C_SCL 5
 #define I2C_SDA 4
 

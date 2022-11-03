@@ -1,7 +1,7 @@
 #include "pico/stdlib.h"
 #include "stdio.h"
 #include "pio_display.h"
-#include "i2c-controller.h"
+#include "i2c_controller.h"
 
 static uint32_t data[] = {
   1 << 16, 0x8d14afe3,
