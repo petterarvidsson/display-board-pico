@@ -1,14 +1,14 @@
-add_executable(pio_display)
+add_executable(display_board)
 
-pico_generate_pio_header(pio_display ${CMAKE_CURRENT_LIST_DIR}/spi.pio)
+pico_generate_pio_header(display_board ${CMAKE_CURRENT_LIST_DIR}/spi.pio)
 
-target_sources(pio_display PRIVATE pio-display.c)
+target_sources(display_board PRIVATE pio-display.c)
 
-target_link_libraries(pio_display PRIVATE
+target_link_libraries(display_board PRIVATE
         pico_stdlib
         hardware_pio
         hardware_dma
         pico_time
         )
 
-pico_add_extra_outputs(pio_display)
+pico_add_extra_outputs(display_board)

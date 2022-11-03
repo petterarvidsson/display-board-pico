@@ -3,7 +3,7 @@ target extended-remote | openocd -l openocd.log -p -s /usr/local/share/openocd/s
 define bl
   make -C build
   if $_shell_exitcode == 0
-    file build/src/pio_display.elf
+    file build/src/display-board.elf
     load
     monitor reset init
   end
