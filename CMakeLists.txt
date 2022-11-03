@@ -6,4 +6,5 @@ project(display-board)
 
 pico_sdk_init()
 
+add_subdirectory(./pio-display)
 add_subdirectory(./src)
