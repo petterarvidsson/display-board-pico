@@ -1,6 +1,8 @@
 #include "pico/stdlib.h"
 #include "stdio.h"
 #include "pio_display.h"
+#include "i2c-controller.h"
+
 static uint32_t data[] = {
   1 << 16, 0x8d14afe3,
   1 << 16, 0xe3B00210,
@@ -106,10 +108,19 @@ static uint32_t data[] = {
 int main() {
     stdio_init_all();
     pio_display_init();
+    i2c_controller_init();
 
-    absolute_time_t start = get_absolute_time();
-    pio_display_update(data, sizeof(data) / sizeof(*data));
-    pio_display_wait_for_finish_blocking();
-    absolute_time_t end = get_absolute_time();
-    printf("DONE1 %llu %llu %llu us\n",to_us_since_boot(start), to_us_since_boot(end), absolute_time_diff_us(start, end));
+    int32_t value = 0;
+    for(;;) {
+      absolute_time_t start = get_absolute_time();
+      pio_display_update(data, sizeof(data) / sizeof(*data));
+      int32_t new_value = i2c_controller_update_blocking();
+      absolute_time_t i2c_end = get_absolute_time();
+      pio_display_wait_for_finish_blocking();
+      absolute_time_t end = get_absolute_time();
+      if(new_value != value) {
+        value = new_value;
+        printf("VALUE: %d TIME I2C: %lluus TOTAL %lluus\n", value, absolute_time_diff_us(start, i2c_end), absolute_time_diff_us(start, end));
+      }
+    }
 }
