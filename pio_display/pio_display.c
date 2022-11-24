@@ -118,18 +118,22 @@ void pio_display_init() {
   dma_channel_wait_for_finish_blocking(channel);
 
   // Initialize shift register with 1s
-  // dma_channel_transfer_from_buffer_now(channel, shift40, sizeof(shift40) / sizeof(*shift40));
-  // dma_channel_wait_for_finish_blocking(channel);
+  dma_channel_transfer_from_buffer_now(channel, shift40, sizeof(shift40) / sizeof(*shift40));
+  dma_channel_wait_for_finish_blocking(channel);
+
 }
 
 void pio_display_update(const uint32_t * const data, const size_t size) {
   // Activate first display
-  // gpio_put(CS, 0);
-  // dma_channel_transfer_from_buffer_now(channel, shift1, sizeof(shift1) / sizeof(*shift1));
-  // dma_channel_wait_for_finish_blocking(channel);
+  gpio_put(CS, 0);
+  dma_channel_transfer_from_buffer_now(channel, shift1, sizeof(shift1) / sizeof(*shift1));
+  dma_channel_wait_for_finish_blocking(channel);
+
+  // We need to wait for PIO to send the clock pulse to shift in the first bit
+  busy_wait_us(10);
+  gpio_put(CS, 1);
 
   // Push data to all displays
-  /// gpio_put(CS, 1);
   dma_channel_transfer_from_buffer_now(channel, data, size);
 }
 
