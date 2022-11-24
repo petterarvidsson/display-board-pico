@@ -110,28 +110,26 @@ static const size_t data_size = sizeof(data) / sizeof(*data);
 static const size_t data2_size = sizeof(data) / sizeof(*data);
 
 static uint32_t *current_data = data;
-
+static int32_t values[9];
 int main() {
     stdio_init_all();
     pio_display_init();
     i2c_controller_init();
-
-    int32_t value = 0;
+    pio_display_update(current_data, data_size);
     for(;;) {
-      int32_t new_value = i2c_controller_update_blocking();
-
-      if(new_value != value) {
-        value = new_value;
-        absolute_time_t start = get_absolute_time();
-        pio_display_update(current_data, data_size);
-        pio_display_wait_for_finish_blocking();
-        absolute_time_t end = get_absolute_time();
-        printf("SIZE: %d CURRENT: %d VALUE: %d TIME %lluus\n", data_size, current_data, value, absolute_time_diff_us(start, end));
+      pio_display_wait_for_finish_blocking();
+      pio_display_update(current_data, data_size);
+      uint8_t changed = i2c_controller_update_blocking(values);
+      if(changed) {
         if(current_data == data) {
           current_data = data2;
         } else {
           current_data = data;
         }
+        for(uint8_t i = 0; i < 9; i++) {
+          printf("E%d: %d ",i ,values[i]);
+        }
+        printf("\n");
       }
     }
 }
