@@ -115,10 +115,10 @@ int main() {
     stdio_init_all();
     pio_display_init();
     i2c_controller_init();
-    pio_display_update(current_data, data_size);
+    pio_display_update();
     for(;;) {
       pio_display_wait_for_finish_blocking();
-      pio_display_update(current_data, data_size);
+      pio_display_update();
       uint8_t changed = i2c_controller_update_blocking(values);
       if(changed) {
         if(current_data == data) {

@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "stdio.h"
+#include <string.h>
 #include "hardware/pio.h"
 #include "hardware/dma.h"
 #include "spi.pio.h"
@@ -27,56 +28,24 @@ static uint32_t shift40[] = {
 };
 
 static uint32_t initialize[] = {
-  2 << 16, 0x8d14af81, 0xffe3e3e3,
+  2 << 16, 0x8d14af81, 0xffe3e3e3
+};
+
+static uint32_t header[] = {
   1 << 16, 0xe3B00210,
   (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B10210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B20210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B30210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B40210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B50210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B60210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  1 << 16, 0xe3B70210,
-  (32 << 16) | 1,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000 ,0x00000000, 0x00000000, 0x00000000, 0x00000000
 };
+
+#define DISPLAY_ROW (32 * 4)
+#define DISPLAY_ROW_HEADER (3 * 4)
+#define DISPLAY_ROWS 8
+#define DISPLAY_ROW_SIZE (DISPLAY_ROW + DISPLAY_ROW_HEADER)
+#define DISPLAY_SIZE (DISPLAY_ROW_SIZE * DISPLAY_ROWS)
+#define DISPLAYS 40
+#define FRAMEBUFFER_SIZE  DISPLAY_SIZE * DISPLAYS
+#define FRAMEBUFFER_SIZE_32 (FRAMEBUFFER_SIZE / 4)
+
+static uint8_t framebuffer[FRAMEBUFFER_SIZE];
 
 static uint dma_init(PIO pio, uint sm) {
   int channel = dma_claim_unused_channel(true);
@@ -91,6 +60,26 @@ static uint dma_init(PIO pio, uint sm) {
                         0,
                         false);
   return channel;
+}
+
+uint8_t *get_display(const uint8_t i) {
+  return framebuffer + (i * DISPLAY_SIZE);
+}
+
+void fill(uint8_t * const fb, const uint8_t pattern) {
+  for(uint8_t i = 0; i < DISPLAY_ROWS; i++)
+    memset(fb + i * DISPLAY_ROW_SIZE + DISPLAY_ROW_HEADER, pattern, DISPLAY_ROW);
+}
+
+void clear(uint8_t * const fb) {
+  fill(fb, 0x00);
+}
+
+void pixel(uint8_t * const fb, const uint8_t x, const uint8_t y, const pixel_state_t on) {
+    uint8_t real_y = y / 8;
+    int pos = real_y * DISPLAY_ROW_SIZE + x + DISPLAY_ROW_HEADER;
+    uint8_t seg = fb[pos];
+    fb[pos] ^= (-on ^ seg) & (1 << (y % 8));
 }
 
 void pio_display_init() {
@@ -121,9 +110,21 @@ void pio_display_init() {
   dma_channel_transfer_from_buffer_now(channel, shift40, sizeof(shift40) / sizeof(*shift40));
   dma_channel_wait_for_finish_blocking(channel);
 
+  for(uint8_t i = 0; i < DISPLAYS; i++) {
+    uint8_t *display = get_display(i);
+    for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
+      memcpy(display + j * DISPLAY_ROW_SIZE, header, DISPLAY_ROW_HEADER);
+      if(j == 0)
+        display[0] = 0x02;
+      display[j * DISPLAY_ROW_SIZE + 6] = 0xB0 + j;
+    }
+    fill(display, 0x00);
+  }
+  pio_display_update();
+  pio_display_wait_for_finish_blocking();
 }
 
-void pio_display_update(const uint32_t * const data, const size_t size) {
+void pio_display_update() {
   // Activate first display
   gpio_put(CS, 0);
   dma_channel_transfer_from_buffer_now(channel, shift1, sizeof(shift1) / sizeof(*shift1));
@@ -134,7 +135,7 @@ void pio_display_update(const uint32_t * const data, const size_t size) {
   gpio_put(CS, 1);
 
   // Push data to all displays
-  dma_channel_transfer_from_buffer_now(channel, data, size);
+  dma_channel_transfer_from_buffer_now(channel, framebuffer, FRAMEBUFFER_SIZE_32);
 }
 
 void pio_display_wait_for_finish_blocking() {
