@@ -130,7 +130,7 @@ void pio_display_update(const uint32_t * const data, const size_t size) {
   dma_channel_wait_for_finish_blocking(channel);
 
   // We need to wait for PIO to send the clock pulse to shift in the first bit
-  busy_wait_us(10);
+  busy_wait_us_32(10);
   gpio_put(CS, 1);
 
   // Push data to all displays
