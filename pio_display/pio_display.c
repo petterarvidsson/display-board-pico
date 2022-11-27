@@ -62,20 +62,20 @@ static uint dma_init(PIO pio, uint sm) {
   return channel;
 }
 
-uint8_t *get_display(const uint8_t i) {
+uint8_t *pio_display_get(const uint8_t i) {
   return framebuffer + (i * DISPLAY_SIZE);
 }
 
-void fill(uint8_t * const fb, const uint8_t pattern) {
+void pio_display_fill(uint8_t * const fb, const uint8_t pattern) {
   for(uint8_t i = 0; i < DISPLAY_ROWS; i++)
     memset(fb + i * DISPLAY_ROW_SIZE + DISPLAY_ROW_HEADER, pattern, DISPLAY_ROW);
 }
 
-void clear(uint8_t * const fb) {
-  fill(fb, 0x00);
+void pio_display_clear(uint8_t * const fb) {
+  pio_display_fill(fb, 0x00);
 }
 
-void pixel(uint8_t * const fb, const uint8_t x, const uint8_t y, const pixel_state_t on) {
+void pio_display_pixel(uint8_t * const fb, const uint8_t x, const uint8_t y, const bool on) {
     uint8_t real_y = y / 8;
     int pos = real_y * DISPLAY_ROW_SIZE + x + DISPLAY_ROW_HEADER;
     uint8_t seg = fb[pos];
@@ -111,14 +111,14 @@ void pio_display_init() {
   dma_channel_wait_for_finish_blocking(channel);
 
   for(uint8_t i = 0; i < DISPLAYS; i++) {
-    uint8_t *display = get_display(i);
+    uint8_t *display = pio_display_get(i);
     for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
       memcpy(display + j * DISPLAY_ROW_SIZE, header, DISPLAY_ROW_HEADER);
       if(j == 0)
         display[0] = 0x02;
       display[j * DISPLAY_ROW_SIZE + 6] = 0xB0 + j;
     }
-    fill(display, 0x00);
+    pio_display_fill(display, 0x00);
   }
   pio_display_update();
   pio_display_wait_for_finish_blocking();
@@ -138,6 +138,12 @@ void pio_display_update() {
   dma_channel_transfer_from_buffer_now(channel, framebuffer, FRAMEBUFFER_SIZE_32);
 }
 
+
+
 void pio_display_wait_for_finish_blocking() {
   dma_channel_wait_for_finish_blocking(channel);
+}
+
+bool pio_display_can_wait_without_blocking() {
+  return !dma_channel_is_busy(channel);
 }

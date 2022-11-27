@@ -115,10 +115,21 @@ int main() {
     stdio_init_all();
     pio_display_init();
     i2c_controller_init();
+    absolute_time_t start;
+    absolute_time_t end;
+    uint32_t us = 0;
+    start = get_absolute_time();
     pio_display_update();
-    for(;;) {
-      pio_display_wait_for_finish_blocking();
-      pio_display_update();
+
+    for(uint32_t i = 0;;) {
+      if(pio_display_can_wait_without_blocking()) {
+        pio_display_wait_for_finish_blocking();
+        end = get_absolute_time();
+        i++;
+        us += absolute_time_diff_us(start, end);
+        start = get_absolute_time();
+        pio_display_update();
+      }
       uint8_t changed = i2c_controller_update_blocking(values);
       if(changed) {
         if(current_data == data) {
@@ -129,7 +140,7 @@ int main() {
         for(uint8_t i = 0; i < 9; i++) {
           printf("E%d: %d ",i ,values[i]);
         }
-        printf("\n");
+        printf("\n%d\n", us / i);
       }
     }
 }
