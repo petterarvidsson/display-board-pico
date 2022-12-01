@@ -43,8 +43,8 @@ void i2c_controller_init() {
   bi_decl(bi_2pins_with_func(I2C_SDA, I2C_SCL, GPIO_FUNC_I2C));
 }
 
-uint8_t i2c_controller_update_blocking(int32_t *values) {
-  uint8_t changed = 0;
+bool i2c_controller_update_blocking(int32_t * const values, const int32_t * const max, const int32_t * const min) {
+  uint8_t changed = false;
   i2c_write_blocking(i2c_default, addr0, &reg0, 1, true);
   i2c_read_blocking(i2c_default, addr0, (uint8_t*)&rxdata, 2, false);
   i2c_write_blocking(i2c_default, addr1, &reg0, 1, true);
@@ -54,11 +54,16 @@ uint8_t i2c_controller_update_blocking(int32_t *values) {
     uint8_t a = (rxdata >> controller_connections[i][0]) & 0x1;
     uint8_t b = (rxdata >> controller_connections[i][1]) & 0x1;
     if(a == 1 && a != old_a[i]) {
-      changed = 1;
       if(b) {
-        values[i]--;
+        if(values[i] > min[i]) {
+          changed = true;
+          values[i]--;
+        }
       } else {
-        values[i]++;
+        if(values[i] < max[i]) {
+          changed = true;
+          values[i]++;
+        }
       }
     }
     old_a[i] = a;

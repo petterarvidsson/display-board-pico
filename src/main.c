@@ -5,6 +5,8 @@
 
 
 static int32_t values[9];
+static const int32_t max[9] = {127, 127, 127, 127, 127, 127, 127, 127, 127};
+static const int32_t min[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 int main() {
     stdio_init_all();
     pio_display_init();
@@ -46,7 +48,7 @@ int main() {
         start = get_absolute_time();
         pio_display_update();
       }
-      uint8_t changed = i2c_controller_update_blocking(values);
+      uint8_t changed = i2c_controller_update_blocking(values, max, min);
       if(changed) {
         for(uint8_t i = 0; i < 9; i++) {
           printf("E%d: %d ",i ,values[i]);

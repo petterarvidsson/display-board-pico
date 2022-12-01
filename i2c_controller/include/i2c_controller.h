@@ -3,4 +3,4 @@
 
 void i2c_controller_init();
 
-uint8_t i2c_controller_update_blocking(int32_t *values);
+bool i2c_controller_update_blocking(int32_t * const values, const int32_t * const max, const int32_t * const min);
