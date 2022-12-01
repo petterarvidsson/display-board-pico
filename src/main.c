@@ -29,9 +29,9 @@ int main() {
             uint8_t *display = pio_display_get(i);
             pio_display_clear(display);
             //pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
-            pio_display_printc(display, x, y, SIZE_13, true, 'P');
+            //pio_display_print(display, x, y, SIZE_13, true, "PQ");
             //pio_display_fill_rectangle(display, 0, 0, 4, 4);
-
+            pio_display_print_center(display, y,  SIZE_13, true, "Hello world!");
           }
           x = x + dx;
           y = y + dy;
