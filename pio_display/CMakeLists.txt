@@ -11,4 +11,4 @@ target_link_libraries(pio_display PRIVATE
         pico_time
         )
 
-target_include_directories(pio_display PUBLIC include/)
+target_include_directories(pio_display PUBLIC include/ PRIVATE ./)

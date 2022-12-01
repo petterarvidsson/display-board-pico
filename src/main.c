@@ -28,17 +28,20 @@ int main() {
           for(uint8_t i = 0; i < 40; i++) {
             uint8_t *display = pio_display_get(i);
             pio_display_clear(display);
-            pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
+            //pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
+            pio_display_printc(display, x, y, SIZE_13, true, 'P');
+            //pio_display_fill_rectangle(display, 0, 0, 4, 4);
+
           }
           x = x + dx;
           y = y + dy;
-          if(x > 120) {
+          if(x > 108) {
           dx = -1;
           }
           if(x < 1) {
             dx = 1;
           }
-          if(y > 56) {
+          if(y > 44) {
             dy = -1;
           }
           if(y < 1) {

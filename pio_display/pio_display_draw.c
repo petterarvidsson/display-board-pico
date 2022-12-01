@@ -1,7 +1,13 @@
 #include "pio_display.h"
 
 /* Include all fonts */
-//#include <fonts.inc>
+#include <fonts.inc>
+
+static uint8_t font_bytes[] = {1, 1, 2, 2};
+static uint8_t font_width[] = {7, 8, 16, 16};
+static uint8_t font_height[] = {13, 18, 28, 32};
+static uint8_t font_offset[] = {13, 18, 28*2, 32*2};
+static uint8_t *fonts[] = {font_13, font_18, font_28, NULL};
 
 void pio_display_fill_rectangle(uint8_t * const fb,
                                 const uint8_t startx, const uint8_t starty,
@@ -13,22 +19,22 @@ void pio_display_fill_rectangle(uint8_t * const fb,
   }
 }
 
-/* void printc(uint8_t * const fb, const uint8_t startx, const uint8_t starty, const font_size_t font_size, const pixel_state_t on, const char c) { */
-/*     uint32_t index = (uint32_t)c * font_offset[font_size]; */
-/*     for(uint8_t i = 0; i < font_height[font_size]; i++) { */
-/*         uint8_t y = starty + i; */
-/*         for(uint8_t b = 0; b < font_bytes[font_size]; b++) { */
-/*             uint8_t segment = fonts[font_size][index + (i * font_bytes[font_size]) + b]; */
-/*             for(uint8_t j = 0; j < 8; j++) { */
-/*                 uint8_t p = (segment >> j) & 0x01; */
-/*                 if(p) { */
-/*                     uint8_t x = startx + (8 - j) + (8 * b); */
-/*                     pixel(fb, x, y, on); */
-/*                 } */
-/*             } */
-/*         } */
-/*     } */
-/* } */
+void pio_display_printc(uint8_t * const fb, const uint8_t startx, const uint8_t starty, const font_size_t font_size, const bool on, const char c) {
+    uint32_t index = (uint32_t)c * font_offset[font_size];
+    for(uint8_t i = 0; i < font_height[font_size]; i++) {
+        uint8_t y = starty + font_height[font_size] - i;
+        for(uint8_t b = 0; b < font_bytes[font_size]; b++) {
+            uint8_t segment = fonts[font_size][index + (i * font_bytes[font_size]) + b];
+            for(uint8_t j = 0; j < 8; j++) {
+                uint8_t p = (segment >> j) & 0x01;
+                if(p) {
+                    uint8_t x = startx + (8 - j) + (8 * b);
+                     pio_display_pixel(fb, x, y, on);
+                }
+            }
+        }
+    }
+}
 
 /* void print(uint8_t * const fb, const uint8_t startx, const uint8_t starty, const font_size_t font_size, const pixel_state_t on, const char * const str) { */
 /*     const char * c = str; */
