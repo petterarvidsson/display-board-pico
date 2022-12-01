@@ -22,11 +22,11 @@ int main() {
         end = get_absolute_time();
         i++;
         us += absolute_time_diff_us(start, end);
-        if(i % 16 == 0) {
+        if(i % 1 == 0) {
           for(uint8_t i = 0; i < 40; i++) {
             uint8_t *display = pio_display_get(i);
             pio_display_clear(display);
-            pio_display_pixel(display, x, y, true);
+            pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
           }
           x = x + dx;
           y = y + dy;
