@@ -6,6 +6,7 @@ target_link_libraries(display_board PRIVATE
         pico_stdlib
         pio_display
         i2c_controller
+        sdhi
         pico_time
         )
 

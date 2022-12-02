@@ -2,15 +2,48 @@
 #include "stdio.h"
 #include "pio_display.h"
 #include "i2c_controller.h"
+#include "sdhi.h"
 
+#define C_NONE -1
+#define C_TEST 0
+static const sdhi_control_t const controls[] = {
+  {
+    .id = C_TEST,
+    .title = "test control",
+    .group = 0,
+    .initial = 0,
+    .min = 0,
+    .max = 127
+  }
+};
+static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
+static const sdhi_group_t * const groups = NULL;
+static const sdhi_panel_t const panels[] = {
+  {
+    "Test",
+    {
+      C_TEST, C_NONE, C_NONE,
+      C_NONE, C_NONE, C_NONE,
+      C_NONE, C_NONE
+    }
+  }
+};
+static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);
+static sdhi_t sdhi = {
+  controls,
+  controls_size,
+  groups,
+  0,
+  panels,
+  panels_size
+};
+static int32_t values[C_TEST + 1] = {0};
 
-static int32_t values[9];
-static const int32_t max[9] = {127, 127, 127, 127, 127, 127, 127, 127, 127};
-static const int32_t min[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 int main() {
     stdio_init_all();
     pio_display_init();
     i2c_controller_init();
+    sdhi_init(sdhi);
     absolute_time_t start;
     absolute_time_t end;
     uint32_t us = 0;
@@ -51,12 +84,6 @@ int main() {
         start = get_absolute_time();
         pio_display_update();
       }
-      uint8_t changed = i2c_controller_update_blocking(values, max, min);
-      if(changed) {
-        for(uint8_t i = 0; i < 9; i++) {
-          printf("E%d: %d ",i ,values[i]);
-        }
-        printf("\n%d\n", us / i);
-      }
+      sdhi_update_values_blocking(values, sdhi);
     }
 }

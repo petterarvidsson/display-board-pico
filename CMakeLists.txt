@@ -8,4 +8,5 @@ pico_sdk_init()
 
 add_subdirectory(./i2c_controller)
 add_subdirectory(./pio_display)
+add_subdirectory(./sdhi)
 add_subdirectory(./src)
