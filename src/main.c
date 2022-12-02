@@ -4,11 +4,15 @@
 #include "i2c_controller.h"
 #include "sdhi.h"
 
-#define C_NONE -1
-#define C_TEST 0
+enum controls {
+  NONE = -1,
+  TEST = 0,
+  CONTROLS
+};
+
 static const sdhi_control_t const controls[] = {
   {
-    .id = C_TEST,
+    .id = TEST,
     .title = "test control",
     .group = 0,
     .initial = 0,
@@ -22,9 +26,9 @@ static const sdhi_panel_t const panels[] = {
   {
     "Test",
     {
-      C_TEST, C_NONE, C_NONE,
-      C_NONE, C_NONE, C_NONE,
-      C_NONE, C_NONE
+      TEST, NONE, NONE,
+      NONE, NONE, NONE,
+      NONE, NONE
     }
   }
 };
@@ -37,7 +41,7 @@ static sdhi_t sdhi = {
   panels,
   panels_size
 };
-static int32_t values[C_TEST + 1] = {0};
+static int32_t values[CONTROLS] = {0};
 
 int main() {
     stdio_init_all();
