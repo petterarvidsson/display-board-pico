@@ -90,7 +90,10 @@ static uint8_t header[] = {
 #define FRAMEBUFFER_SIZE  DISPLAY_SIZE * DISPLAYS
 #define FRAMEBUFFER_SIZE_32 (FRAMEBUFFER_SIZE / 4)
 
-static uint8_t framebuffer[FRAMEBUFFER_SIZE];
+
+static uint8_t current_framebuffer = 0;
+static uint8_t framebuffer1[FRAMEBUFFER_SIZE];
+static uint8_t framebuffer2[FRAMEBUFFER_SIZE];
 
 static uint dma_init(PIO pio, uint sm) {
   int channel = dma_claim_unused_channel(true);
@@ -109,7 +112,10 @@ static uint dma_init(PIO pio, uint sm) {
 }
 
 uint8_t *pio_display_get(const uint8_t i) {
-  return framebuffer + (i * DISPLAY_SIZE);
+  if(current_framebuffer == 0)
+    return framebuffer1 + (i * DISPLAY_SIZE);
+  else
+    return framebuffer2 + (i * DISPLAY_SIZE);
 }
 
 void pio_display_fill(uint8_t * const fb, const uint8_t pattern) {
@@ -166,11 +172,23 @@ void pio_display_init() {
     }
     pio_display_fill(display, 0x00);
   }
-  pio_display_update();
+  current_framebuffer = 1;
+  for(uint8_t i = 0; i < DISPLAYS; i++) {
+    uint8_t *display = pio_display_get(i);
+    for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
+      memcpy(display + j * DISPLAY_ROW_SIZE, header, DISPLAY_ROW_HEADER);
+      if(j == 0)
+        display[3] = 0x02;
+      display[j * DISPLAY_ROW_SIZE + 5] = 0xB0 + j;
+    }
+    pio_display_fill(display, 0x00);
+  }
+
+  pio_display_update_and_flip();
   pio_display_wait_for_finish_blocking();
 }
 
-void pio_display_update() {
+void pio_display_update_and_flip() {
   // Activate first display
   gpio_put(CS, 0);
   dma_channel_transfer_from_buffer_now(channel, shift1, sizeof(shift1) / sizeof(*shift1));
@@ -180,8 +198,14 @@ void pio_display_update() {
   busy_wait_us_32(10);
   gpio_put(CS, 1);
 
-  // Push data to all displays
-  dma_channel_transfer_from_buffer_now(channel, framebuffer, FRAMEBUFFER_SIZE_32);
+  // Push data to all displays and flip buffer
+  if(current_framebuffer == 0) {
+    dma_channel_transfer_from_buffer_now(channel, framebuffer1, FRAMEBUFFER_SIZE_32);
+    current_framebuffer = 1;
+  } else {
+    dma_channel_transfer_from_buffer_now(channel, framebuffer2, FRAMEBUFFER_SIZE_32);
+    current_framebuffer = 0;
+  }
 }
 
 

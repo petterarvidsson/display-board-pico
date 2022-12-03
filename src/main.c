@@ -54,39 +54,37 @@ int main() {
     start = get_absolute_time();
     uint8_t x = 0, y = 0;
     int8_t dx = 1, dy = 1;
-    pio_display_update();
+    pio_display_update_and_flip();
     for(uint32_t i = 0;;) {
       if(pio_display_can_wait_without_blocking()) {
         pio_display_wait_for_finish_blocking();
         end = get_absolute_time();
         i++;
         us += absolute_time_diff_us(start, end);
-        if(i % 1 == 0) {
-          for(uint8_t i = 0; i < 40; i++) {
-            uint8_t *display = pio_display_get(i);
-            pio_display_clear(display);
-            //pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
-            //pio_display_print(display, x, y, SIZE_13, true, "PQ");
-            //pio_display_fill_rectangle(display, 0, 0, 4, 4);
-            pio_display_print_center(display, y,  SIZE_13, true, "Hello world!");
-          }
-          x = x + dx;
-          y = y + dy;
-          if(x > 108) {
-          dx = -1;
-          }
-          if(x < 1) {
-            dx = 1;
-          }
-          if(y > 44) {
-            dy = -1;
-          }
-          if(y < 1) {
-            dy = 1;
-          }
-        }                                       \
         start = get_absolute_time();
-        pio_display_update();
+        pio_display_update_and_flip();
+        for(uint8_t i = 0; i < 40; i++) {
+          uint8_t *display = pio_display_get(i);
+          pio_display_clear(display);
+          //pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
+          //pio_display_print(display, x, y, SIZE_13, true, "PQ");
+          //pio_display_fill_rectangle(display, 0, 0, 4, 4);
+          pio_display_print_center(display, y,  SIZE_13, true, "Hello world!");
+        }
+        x = x + dx;
+        y = y + dy;
+        if(x > 108) {
+          dx = -1;
+        }
+        if(x < 1) {
+          dx = 1;
+        }
+        if(y > 44) {
+          dy = -1;
+        }
+        if(y < 1) {
+          dy = 1;
+        }                                       \
       }
       sdhi_update_values_blocking(values, sdhi);
     }
