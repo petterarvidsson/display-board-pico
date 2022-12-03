@@ -5,7 +5,6 @@ typedef struct {
   const uint16_t id;
   const char * const title;
   const uint16_t group;
-  const int32_t initial;
   const int32_t min;
   const int32_t max;
 } sdhi_control_t;

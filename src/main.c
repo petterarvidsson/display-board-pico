@@ -7,6 +7,8 @@
 enum controls {
   NONE = -1,
   TEST = 0,
+  TEST2,
+  TEST3,
   CONTROLS
 };
 
@@ -15,9 +17,22 @@ static const sdhi_control_t const controls[] = {
     .id = TEST,
     .title = "test control",
     .group = 0,
-    .initial = 0,
     .min = 0,
     .max = 127
+  },
+  {
+    .id = TEST2,
+    .title = "test control2",
+    .group = 0,
+    .min = 0,
+    .max = 64
+  },
+  {
+    .id = TEST3,
+    .title = "test control2",
+    .group = 1,
+    .min = 0,
+    .max = 64
   }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
@@ -26,8 +41,8 @@ static const sdhi_panel_t const panels[] = {
   {
     "Test",
     {
-      TEST, NONE, NONE,
-      NONE, NONE, NONE,
+      TEST, TEST2, NONE,
+      NONE, TEST3, NONE,
       NONE, NONE
     }
   }
@@ -41,7 +56,7 @@ static sdhi_t sdhi = {
   panels,
   panels_size
 };
-static int32_t values[CONTROLS] = {0};
+static int32_t values[CONTROLS] = {0, 0, 0};
 
 int main() {
     stdio_init_all();
@@ -52,9 +67,8 @@ int main() {
     absolute_time_t end;
     uint32_t us = 0;
     start = get_absolute_time();
-    uint8_t x = 0, y = 0;
-    int8_t dx = 1, dy = 1;
     pio_display_update_and_flip();
+    sdhi_update_displays(values, sdhi);
     for(uint32_t i = 0;;) {
       if(pio_display_can_wait_without_blocking()) {
         pio_display_wait_for_finish_blocking();
@@ -63,28 +77,7 @@ int main() {
         us += absolute_time_diff_us(start, end);
         start = get_absolute_time();
         pio_display_update_and_flip();
-        for(uint8_t i = 0; i < 40; i++) {
-          uint8_t *display = pio_display_get(i);
-          pio_display_clear(display);
-          //pio_display_fill_rectangle(display, x, y, x + 4, y + 4);
-          //pio_display_print(display, x, y, SIZE_13, true, "PQ");
-          //pio_display_fill_rectangle(display, 0, 0, 4, 4);
-          pio_display_print_center(display, y,  SIZE_13, true, "Hello world!");
-        }
-        x = x + dx;
-        y = y + dy;
-        if(x > 108) {
-          dx = -1;
-        }
-        if(x < 1) {
-          dx = 1;
-        }
-        if(y > 44) {
-          dy = -1;
-        }
-        if(y < 1) {
-          dy = 1;
-        }                                       \
+        sdhi_update_displays(values, sdhi);
       }
       sdhi_update_values_blocking(values, sdhi);
     }

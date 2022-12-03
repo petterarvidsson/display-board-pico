@@ -19,6 +19,7 @@ void pio_display_printc(uint8_t * const fb, const uint8_t startx, const uint8_t 
 void pio_display_print(uint8_t * const fb, const uint8_t startx, const uint8_t starty, const pio_display_font_size_t font_size, const bool on, const char * const str);
 pio_display_box_t text_box(const pio_display_font_size_t font_size, const char * const str);
 void pio_display_print_center(uint8_t * const fb, const uint8_t y, const pio_display_font_size_t font_size, const bool on, const char * const str);
+void pio_display_clear_current_framebuffer();
 void pio_display_update_and_flip();
 void pio_display_wait_for_finish_blocking();
 bool pio_display_can_wait_without_blocking();

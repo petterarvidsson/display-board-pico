@@ -166,7 +166,7 @@ void pio_display_init() {
     uint8_t *display = pio_display_get(i);
     for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
       memcpy(display + j * DISPLAY_ROW_SIZE, header, DISPLAY_ROW_HEADER);
-      if(j == 0)
+      if(j == 0 && i != 0)
         display[3] = 0x02;
       display[j * DISPLAY_ROW_SIZE + 5] = 0xB0 + j;
     }
@@ -177,7 +177,7 @@ void pio_display_init() {
     uint8_t *display = pio_display_get(i);
     for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
       memcpy(display + j * DISPLAY_ROW_SIZE, header, DISPLAY_ROW_HEADER);
-      if(j == 0)
+      if(j == 0 && i != 0)
         display[3] = 0x02;
       display[j * DISPLAY_ROW_SIZE + 5] = 0xB0 + j;
     }
@@ -186,6 +186,11 @@ void pio_display_init() {
 
   pio_display_update_and_flip();
   pio_display_wait_for_finish_blocking();
+}
+void pio_display_clear_current_framebuffer() {
+  for(uint8_t i = 0; i < DISPLAYS; i++) {
+    pio_display_clear(pio_display_get(i));
+  }
 }
 
 void pio_display_update_and_flip() {
