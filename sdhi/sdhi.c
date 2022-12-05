@@ -87,7 +87,7 @@ bool sdhi_update_values_blocking(int32_t * const values, const sdhi_t sdhi) {
 }
 
 
-static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group) {
+static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
   int32_t group = -1;
   uint8_t top_start = x * 2 + y * 11;
   uint8_t top = x * 2 + 1 + y * 11;
@@ -100,6 +100,11 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
 
   if(control != NULL) {
     group = control->group;
+    pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, control->title);
+    char value[16];
+    snprintf(value, 16, "%d", values[control->id]);
+    pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
+    pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - control->min) / (float)(control->max - control->min) * 96), 63);
   }
 
   if(group != top_group) {
@@ -157,7 +162,7 @@ void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi) {
       const int32_t bottom_group = find_group(x, y + 1, sdhi);
       const int32_t start_group = find_group(x - 1, y, sdhi);
       const int32_t end_group = find_group(x + 1, y, sdhi);
-      draw_control(control, x, y, top_group, bottom_group, start_group, end_group);
+      draw_control(control, x, y, top_group, bottom_group, start_group, end_group, values);
     }
   }
 }
