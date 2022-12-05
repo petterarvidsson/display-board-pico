@@ -3,7 +3,7 @@
 #include <pio_display.h>
 #include <sdhi.h>
 
-#define WIDTH 6
+#define WIDTH 4
 #define HALF_WIDTH (WIDTH / 2)
 #define ROW_TOP (32 - HALF_WIDTH)
 #define ROW_BOTTOM (32 + HALF_WIDTH)
