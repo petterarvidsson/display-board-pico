@@ -1,12 +1,25 @@
 #pragma once
 #include "pico/stdlib.h"
 
+typedef enum {
+  SDHI_CONTROL_TYPE_INTEGER
+} sdhi_control_type_t;
+
+typedef struct {
+  const int32_t min;
+  const int32_t max;
+} sdhi_control_type_integer_t;
+
+typedef union {
+  const sdhi_control_type_integer_t integer;
+} sdhi_control_type_configuration_t;
+
 typedef struct {
   const uint16_t id;
   const char * const title;
   const uint16_t group;
-  const int32_t min;
-  const int32_t max;
+  const sdhi_control_type_t type;
+  const sdhi_control_type_configuration_t configuration;
 } sdhi_control_t;
 
 typedef struct {

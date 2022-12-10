@@ -56,8 +56,8 @@ static void set_panel_values(const int32_t * const values, const sdhi_t sdhi) {
   for(uint8_t i = 0; i < 8; i++) {
     const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
     if(control != NULL) {
-      panel_min[i] = control->min;
-      panel_max[i] = control->max;
+      panel_min[i] = control->configuration.integer.min;
+      panel_max[i] = control->configuration.integer.max;
       panel_values[i] = values[control->id];
     }
   }
@@ -101,7 +101,7 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     char value[16];
     snprintf(value, 16, "%d", values[control->id]);
     pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
-    pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - control->min) / (float)(control->max - control->min) * 96), 63);
+    pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - control->configuration.integer.min) / (float)(control->configuration.integer.max - control->configuration.integer.min) * 96), 63);
   }
 
   if(group != top_group) {

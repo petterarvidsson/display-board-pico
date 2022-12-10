@@ -23,64 +23,91 @@ static const sdhi_control_t const controls[] = {
     .id = TEST1,
     .title = "test control1",
     .group = 0,
-    .min = 0,
-    .max = 127
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
   },
   {
     .id = TEST2,
     .title = "test control2",
     .group = 0,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST3,
     .title = "test control3",
     .group = 0,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST4,
     .title = "test control4",
     .group = 0,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST5,
     .title = "test control5",
     .group = 1,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST6,
     .title = "test control6",
     .group = 1,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST7,
     .title = "test control7",
     .group = 2,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST8,
     .title = "test control8",
     .group = 3,
-    .min = 0,
-    .max = 64
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 64
+    }
   },
   {
     .id = TEST9,
     .title = "test control9",
     .group = 1,
-    .min = 0,
-    .max = 20
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 20
+    }
   }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
