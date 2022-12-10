@@ -143,7 +143,7 @@ static void draw_panel_control(const sdhi_t sdhi) {
   uint8_t bottom = 2 * 2 + 1 + (2 + 1) * 11;
   uint8_t bottom_end = 2 * 2 + 2 + (2 + 1) * 11;
 
-  pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, "Panel");
+  pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, sdhi.panel_selector_title);
   pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, sdhi.panels[current_panel].title);
 
   draw_right_row(pio_display_get(top_start));

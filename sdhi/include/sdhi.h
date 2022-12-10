@@ -24,6 +24,7 @@ typedef struct {
   const uint32_t controls_size;
   const sdhi_group_t * const groups;
   const uint32_t groups_size;
+  const char * const panel_selector_title;
   const sdhi_panel_t * const panels;
   const uint32_t panels_size;
 } sdhi_t;

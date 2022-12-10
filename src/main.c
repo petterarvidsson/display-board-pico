@@ -14,6 +14,7 @@ enum controls {
   TEST6,
   TEST7,
   TEST8,
+  TEST9,
   CONTROLS
 };
 
@@ -73,18 +74,32 @@ static const sdhi_control_t const controls[] = {
     .group = 3,
     .min = 0,
     .max = 64
+  },
+  {
+    .id = TEST9,
+    .title = "test control9",
+    .group = 1,
+    .min = 0,
+    .max = 64
   }
-
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const sdhi_group_t * const groups = NULL;
 static const sdhi_panel_t const panels[] = {
   {
-    "Test",
+    "Panel 1",
     {
       TEST1, TEST2, TEST7,
       TEST4, TEST3, TEST8,
       TEST5, TEST6
+    }
+  },
+  {
+    "Panel 2",
+    {
+      NONE,  NONE,  NONE,
+      TEST9, NONE,  NONE,
+      NONE,  NONE
     }
   }
 };
@@ -94,6 +109,7 @@ static sdhi_t sdhi = {
   controls_size,
   groups,
   0,
+  "Change panel",
   panels,
   panels_size
 };
@@ -109,7 +125,7 @@ int main() {
   uint32_t us = 0;
   start = get_absolute_time();
   pio_display_update_and_flip();
-  //sdhi_update_displays(values, sdhi);
+  sdhi_update_displays(values, sdhi);
   for(uint32_t i = 0;;) {
     if(pio_display_can_wait_without_blocking()) {
       pio_display_wait_for_finish_blocking();
@@ -118,8 +134,9 @@ int main() {
       us += absolute_time_diff_us(start, end);
       start = get_absolute_time();
       pio_display_update_and_flip();
+      sdhi_update_values_blocking(values, sdhi);
       sdhi_update_displays(values, sdhi);
-      //sdhi_update_values_blocking(values, sdhi);
     }
+    sdhi_update_values_blocking(values, sdhi);
   }
 }
