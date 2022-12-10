@@ -42,7 +42,7 @@ static inline void spi_program_init(PIO pio, uint sm, uint offset, uint data, ui
 
     pio_sm_init(pio, sm, offset, &c);
 
-    pio_sm_set_clkdiv_int_frac(pio, sm, 4, 0);
+    pio_sm_set_clkdiv_int_frac(pio, sm, 10, 0);
 
     pio_sm_set_enabled(pio, sm, true);
 }

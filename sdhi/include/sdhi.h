@@ -30,3 +30,4 @@ typedef struct {
 
 void sdhi_init(const sdhi_t sdhi);
 bool sdhi_update_values_blocking(int32_t * const values, const sdhi_t sdhi);
+void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi);

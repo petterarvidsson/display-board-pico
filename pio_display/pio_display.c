@@ -162,6 +162,9 @@ void pio_display_init() {
   dma_channel_transfer_from_buffer_now(channel, shift40, (sizeof(shift40) / sizeof(*shift40)) / 4);
   dma_channel_wait_for_finish_blocking(channel);
 
+  // After turning on display a 100ms delay is required before writing any data
+  sleep_ms(100);
+
   for(uint8_t i = 0; i < DISPLAYS; i++) {
     uint8_t *display = pio_display_get(i);
     for(uint8_t j = 0; j < DISPLAY_ROWS; j++) {
