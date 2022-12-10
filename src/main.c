@@ -18,15 +18,21 @@ enum controls {
   CONTROLS
 };
 
+static const char * const enum_values[] = {
+  "Snare",
+  "Bass",
+  "Hi-hat"
+};
+
 static const sdhi_control_t const controls[] = {
   {
     .id = TEST1,
-    .title = "test control1",
+    .title = "Drum",
     .group = 0,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 127
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = enum_values,
+      .size = sizeof(enum_values) / sizeof(char *)
     }
   },
   {
@@ -103,10 +109,11 @@ static const sdhi_control_t const controls[] = {
     .id = TEST9,
     .title = "test control9",
     .group = 1,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 20
+    .type = SDHI_CONTROL_TYPE_REAL,
+    .configuration.real = {
+      .min = -14.5,
+      .max = 14.5,
+      .step = 0.5
     }
   }
 };

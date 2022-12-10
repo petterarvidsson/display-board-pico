@@ -56,8 +56,20 @@ static void set_panel_values(const int32_t * const values, const sdhi_t sdhi) {
   for(uint8_t i = 0; i < 8; i++) {
     const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
     if(control != NULL) {
-      panel_min[i] = control->configuration.integer.min;
-      panel_max[i] = control->configuration.integer.max;
+      switch(control->type) {
+      case SDHI_CONTROL_TYPE_INTEGER:
+        panel_min[i] = control->configuration.integer.min;
+        panel_max[i] = control->configuration.integer.max;
+        break;
+      case SDHI_CONTROL_TYPE_REAL:
+        panel_min[i] = (int32_t)(control->configuration.real.min / control->configuration.real.step);
+        panel_max[i] = (int32_t)(control->configuration.real.max / control->configuration.real.step);
+        break;
+      case SDHI_CONTROL_TYPE_ENUMERATION:
+        panel_min[i] = 0;
+        panel_max[i] = (int32_t)control->configuration.enumeration.size - 1;
+        break;
+      }
       panel_values[i] = values[control->id];
     }
   }
@@ -98,10 +110,29 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
   if(control != NULL) {
     group = control->group;
     pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, control->title);
-    char value[16];
-    snprintf(value, 16, "%d", values[control->id]);
-    pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
-    pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - control->configuration.integer.min) / (float)(control->configuration.integer.max - control->configuration.integer.min) * 96), 63);
+    switch(control->type) {
+    case SDHI_CONTROL_TYPE_INTEGER: {
+      char value[16];
+      snprintf(value, 16, "%d", values[control->id]);
+      pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
+      int32_t min = control->configuration.integer.min;
+      int32_t max = control->configuration.integer.max;
+      pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - min) / (float)(max - min) * 96), 63);
+      break;
+    }
+    case SDHI_CONTROL_TYPE_REAL: {
+      char value[16];
+      snprintf(value, 16, "%.2f", values[control->id] * control->configuration.real.step);
+      pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
+      int32_t min = (int32_t)(control->configuration.real.min / control->configuration.real.step);
+      int32_t max = (int32_t)(control->configuration.real.max / control->configuration.real.step);
+      pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - min) / (float)(max - min) * 96), 63);
+      break;
+    }
+    case SDHI_CONTROL_TYPE_ENUMERATION:
+      pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, control->configuration.enumeration.values[values[control->id]]);
+      break;
+    }
   }
 
   if(group != top_group) {
@@ -141,7 +172,7 @@ static void draw_panel_control(const sdhi_t sdhi) {
   uint8_t bottom_end = 2 * 2 + 2 + (2 + 1) * 11;
 
   pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, sdhi.panel_selector_title);
-  pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, sdhi.panels[current_panel].title);
+  pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, sdhi.panels[current_panel].title);
 
   draw_right_row(pio_display_get(top_start));
   draw_row(pio_display_get(top));

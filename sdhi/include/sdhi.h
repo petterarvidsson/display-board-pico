@@ -2,7 +2,9 @@
 #include "pico/stdlib.h"
 
 typedef enum {
-  SDHI_CONTROL_TYPE_INTEGER
+  SDHI_CONTROL_TYPE_INTEGER,
+  SDHI_CONTROL_TYPE_REAL,
+  SDHI_CONTROL_TYPE_ENUMERATION
 } sdhi_control_type_t;
 
 typedef struct {
@@ -10,8 +12,21 @@ typedef struct {
   const int32_t max;
 } sdhi_control_type_integer_t;
 
+typedef struct {
+  const float min;
+  const float max;
+  const float step;
+} sdhi_control_type_real_t;
+
+typedef struct {
+  const char const * const * values;
+  const uint16_t size;
+} sdhi_control_type_enumeration_t;
+
 typedef union {
   const sdhi_control_type_integer_t integer;
+  const sdhi_control_type_real_t real;
+  const sdhi_control_type_enumeration_t enumeration;
 } sdhi_control_type_configuration_t;
 
 typedef struct {
