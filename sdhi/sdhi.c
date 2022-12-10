@@ -133,6 +133,36 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
 
 }
 
+static void draw_panel_control(const sdhi_t sdhi) {
+  uint8_t top_start = 2 * 2 + 2 * 11;
+  uint8_t top = 2 * 2 + 1 + 2 * 11;
+  uint8_t top_end = 2 * 2 + 2 + 2 * 11;
+  uint8_t start = 2 + 2 * 11 + 7;
+  uint8_t end = 2 + 1 + 2 * 11 + 7;
+  uint8_t bottom_start = 2 * 2 + (2 + 1) * 11;
+  uint8_t bottom = 2 * 2 + 1 + (2 + 1) * 11;
+  uint8_t bottom_end = 2 * 2 + 2 + (2 + 1) * 11;
+
+  pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, "Panel");
+  pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, sdhi.panels[current_panel].title);
+
+  draw_right_row(pio_display_get(top_start));
+  draw_row(pio_display_get(top));
+  draw_left_row(pio_display_get(top_end));
+
+  draw_right_row(pio_display_get(bottom_start));
+  draw_row(pio_display_get(bottom));
+  draw_left_row(pio_display_get(bottom_end));
+
+  draw_lower_column(pio_display_get(top_start));
+  draw_row(pio_display_get(start));
+  draw_upper_column(pio_display_get(bottom_start));
+
+  draw_lower_column(pio_display_get(top_end));
+  draw_row(pio_display_get(end));
+  draw_upper_column(pio_display_get(bottom_end));
+
+}
 
 static uint8_t control_index(uint8_t x, uint8_t y) {
   return y * 3 + x;
@@ -165,4 +195,5 @@ void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi) {
       draw_control(control, x, y, top_group, bottom_group, start_group, end_group, values);
     }
   }
+  draw_panel_control(sdhi);
 }
