@@ -78,11 +78,8 @@ static void set_values(int32_t * const values, const sdhi_t sdhi) {
 bool sdhi_update_values_blocking(int32_t * const values, const sdhi_t sdhi) {
   set_panel_values(values, sdhi);
   bool updated = i2c_controller_update_blocking(panel_values, panel_max, panel_min);
-  current_panel = panel_values[8];
   set_values(values, sdhi);
-  if(updated) {
-    printf("PANEL: %d\n", current_panel);
-  }
+  current_panel = panel_values[8];
   return updated;
 }
 

@@ -80,7 +80,7 @@ static const sdhi_control_t const controls[] = {
     .title = "test control9",
     .group = 1,
     .min = 0,
-    .max = 64
+    .max = 20
   }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
