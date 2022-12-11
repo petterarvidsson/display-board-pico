@@ -95,6 +95,16 @@ bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi) {
   return updated;
 }
 
+int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+  return values[id];
+}
+float sdhi_real(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+  return values[id] * find_control(id, sdhi)->configuration.real.step;
+}
+
+uint32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+  return (uint32_t)values[id];
+}
 
 static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
   int32_t group = -1;

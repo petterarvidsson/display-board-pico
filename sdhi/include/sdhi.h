@@ -60,3 +60,6 @@ typedef struct {
 void sdhi_init(const sdhi_t sdhi);
 bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi);
 void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi);
+int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
+float sdhi_real(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
+uint32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
