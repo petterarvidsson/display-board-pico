@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
+#include "pico/mutex.h"
 #include "hardware/i2c.h"
 #include "i2c_controller.h"
 #define I2C_SCL 5
@@ -30,6 +31,11 @@ static uint8_t old_a[] = {
 
 static uint32_t rxdata;
 
+static int32_t change[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+auto_init_mutex(mutex);
 
 void i2c_controller_init() {
   i2c = i2c0;
@@ -43,30 +49,50 @@ void i2c_controller_init() {
   bi_decl(bi_2pins_with_func(I2C_SDA, I2C_SCL, GPIO_FUNC_I2C));
 }
 
-bool i2c_controller_update_blocking(int32_t * const values, const int32_t * const max, const int32_t * const min) {
-  uint8_t changed = false;
-  i2c_write_blocking(i2c_default, addr0, &reg0, 1, true);
-  i2c_read_blocking(i2c_default, addr0, (uint8_t*)&rxdata, 2, false);
-  i2c_write_blocking(i2c_default, addr1, &reg0, 1, true);
-  i2c_read_blocking(i2c_default, addr1, ((uint8_t*)&rxdata + 2), 2, false);
+void i2c_controller_run_loop() {
+  for(;;) {
+    i2c_write_blocking(i2c_default, addr0, &reg0, 1, true);
+    i2c_read_blocking(i2c_default, addr0, (uint8_t*)&rxdata, 2, false);
+    i2c_write_blocking(i2c_default, addr1, &reg0, 1, true);
+    i2c_read_blocking(i2c_default, addr1, ((uint8_t*)&rxdata + 2), 2, false);
 
-  for(uint8_t i = 0; i < CONTROLLERS; i++) {
-    uint8_t a = (rxdata >> controller_connections[i][0]) & 0x1;
-    uint8_t b = (rxdata >> controller_connections[i][1]) & 0x1;
-    if(a == 1 && a != old_a[i]) {
-      if(b) {
-        if(values[i] > min[i]) {
-          changed = true;
-          values[i]--;
-        }
-      } else {
-        if(values[i] < max[i]) {
-          changed = true;
-          values[i]++;
+
+    mutex_enter_blocking(&mutex);
+    for(uint8_t i = 0; i < CONTROLLERS; i++) {
+      uint8_t a = (rxdata >> controller_connections[i][0]) & 0x1;
+      uint8_t b = (rxdata >> controller_connections[i][1]) & 0x1;
+      if(a == 1 && a != old_a[i]) {
+        if(b) {
+            change[i]--;
+        } else {
+            change[i]++;
         }
       }
+      old_a[i] = a;
     }
-    old_a[i] = a;
+    mutex_exit(&mutex);
   }
+}
+
+bool i2c_controller_update(int32_t * const values, const int32_t * const max, const int32_t * const min) {
+  bool changed = false;
+
+  mutex_enter_blocking(&mutex);
+  for(uint8_t i = 0; i < CONTROLLERS; i++) {
+    if(change[i] != 0) {
+      values[i] += change[i];
+
+      if(values[i] < min[i]) {
+        values[i] = min[i];
+      }
+      if(values[i] > max[i]) {
+        values[i] = max[i];
+      }
+      change[i] = 0;
+      changed = true;
+    }
+  }
+  mutex_exit(&mutex);
+
   return changed;
 }

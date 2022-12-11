@@ -1,4 +1,5 @@
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "stdio.h"
 #include "pio_display.h"
 #include "i2c_controller.h"
@@ -154,6 +155,8 @@ int main() {
   pio_display_init();
   i2c_controller_init();
   sdhi_init(sdhi);
+  multicore_launch_core1(i2c_controller_run_loop);
+
   absolute_time_t start;
   absolute_time_t end;
   uint32_t us = 0;
@@ -168,9 +171,8 @@ int main() {
       us += absolute_time_diff_us(start, end);
       start = get_absolute_time();
       pio_display_update_and_flip();
-      sdhi_update_values_blocking(values, sdhi);
       sdhi_update_displays(values, sdhi);
     }
-    sdhi_update_values_blocking(values, sdhi);
+    sdhi_update_values(values, sdhi);
   }
 }
