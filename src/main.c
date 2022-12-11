@@ -4,6 +4,7 @@
 #include "pio_display.h"
 #include "i2c_controller.h"
 #include "sdhi.h"
+#include "midi.h"
 
 enum controls {
   NONE = -1,
@@ -150,12 +151,20 @@ static sdhi_t sdhi = {
 };
 static int32_t values[CONTROLS] = {0, 0, 0};
 
+static void real_time() {
+  for(;;) {
+    i2c_controller_run();
+    midi_run();
+  }
+}
+
 int main() {
   stdio_init_all();
   pio_display_init();
   i2c_controller_init();
   sdhi_init(sdhi);
-  multicore_launch_core1(i2c_controller_run_loop);
+  midi_init();
+  multicore_launch_core1(real_time);
 
   absolute_time_t start;
   absolute_time_t end;
