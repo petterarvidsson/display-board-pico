@@ -152,28 +152,32 @@ static sdhi_t sdhi = {
 static int32_t values[CONTROLS] = {0, 0, 0};
 
 static void real_time() {
-  for(;;) {
-    i2c_controller_run();
+  for(uint32_t i = 0;;i++) {
+    //i2c_controller_run();
     midi_run();
   }
 }
 
 int main() {
   stdio_init_all();
-  pio_display_init();
-  i2c_controller_init();
-  sdhi_init(sdhi);
-  midi_init();
+  //pio_display_init();
+  //i2c_controller_init();
+  //sdhi_init(sdhi);
+  queue_t *midi = midi_init();
   multicore_launch_core1(real_time);
 
   absolute_time_t start;
   absolute_time_t end;
   uint32_t us = 0;
-  start = get_absolute_time();
-  pio_display_update_and_flip();
-  sdhi_update_displays(values, sdhi);
+  //start = get_absolute_time();
+  //pio_display_update_and_flip();
+  //sdhi_update_displays(values, sdhi);
+  printf("Start MIDI\n");
   for(uint32_t i = 0;;) {
-    if(pio_display_can_wait_without_blocking()) {
+    midi_message_t message;
+    queue_remove_blocking(midi, &message);
+    printf("%d\n", message.type);
+    /*if(pio_display_can_wait_without_blocking()) {
       pio_display_wait_for_finish_blocking();
       end = get_absolute_time();
       i++;
@@ -182,6 +186,6 @@ int main() {
       pio_display_update_and_flip();
       sdhi_update_displays(values, sdhi);
     }
-    sdhi_update_values(values, sdhi);
+    sdhi_update_values(values, sdhi);*/
   }
 }

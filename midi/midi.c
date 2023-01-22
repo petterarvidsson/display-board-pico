@@ -1,5 +1,6 @@
-#include "pico/util/queue.h"
 #include "hardware/uart.h"
+#include "hardware/gpio.h"
+#include "pico/platform.h"
 #include "midi.h"
 
 static uint8_t buffer[3];
@@ -22,10 +23,13 @@ static void read_raw(uint8_t *data, midi_message_t *midi) {
     midi->value.raw = raw;
 }
 
-void midi_init() {
+queue_t * midi_init() {
   position = 0;
   queue_init(&messages, sizeof(midi_message_t), 32);
   uart_init(uart1, 31250);
+  gpio_set_function(8, GPIO_FUNC_UART);
+  gpio_set_function(9, GPIO_FUNC_UART);
+  return &messages;
 }
 
 #define MIDI_NOTE_ON 0x90
@@ -48,13 +52,13 @@ void midi_run() {
         read_raw(buffer, &message);
         break;
       }
+
       if(!queue_try_add(&messages, &message)) {
-        printf("Discarded due to full queue\n");
+        panic("MIDI queue is full!");
       }
       position = 0;
     }
   }
-
 }
 
 uint32_t midi_get_available_messages(midi_message_t * available, const uint32_t available_size) {

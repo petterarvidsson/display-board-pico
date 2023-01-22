@@ -1,4 +1,5 @@
 #pragma once
+#include "pico/util/queue.h"
 #include "stdint.h"
 #include "stdbool.h"
 
@@ -30,6 +31,6 @@ typedef struct {
   midi_message_value_t value;
 } midi_message_t;
 
-void midi_init();
+queue_t * midi_init();
 void midi_run();
 uint32_t midi_get_available_messages(midi_message_t * messages, const uint32_t messages_size);
