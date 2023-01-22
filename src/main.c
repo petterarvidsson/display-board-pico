@@ -163,7 +163,7 @@ int main() {
   //pio_display_init();
   //i2c_controller_init();
   //sdhi_init(sdhi);
-  queue_t *midi = midi_init();
+  midi_init();
   multicore_launch_core1(real_time);
 
   absolute_time_t start;
@@ -173,10 +173,29 @@ int main() {
   //pio_display_update_and_flip();
   //sdhi_update_displays(values, sdhi);
   printf("Start MIDI\n");
+  midi_message_t messages[8];
   for(uint32_t i = 0;;) {
-    midi_message_t message;
-    queue_remove_blocking(midi, &message);
-    printf("%d\n", message.type);
+    uint32_t received = midi_get_available_messages(messages, 8);
+    if(received > 0) {
+      for(uint32_t j = 0; j < received; j++) {
+        if(messages[j].type == MIDI_NOTE_ON_MESSAGE) {
+          printf("ON: %d %d %d\n", messages[j].value.note.channel, messages[j].value.note.note, messages[j].value.note.velocity);
+          uint32_t can_be_sent = midi_can_send_messages();
+          if(can_be_sent > 0) {
+            midi_send_messages(messages + j, 1);
+          }
+        }
+        if(messages[j].type == MIDI_NOTE_OFF_MESSAGE) {
+          printf("OFF: %d %d %d\n", messages[j].value.note.channel, messages[j].value.note.note, messages[j].value.note.velocity);
+          uint32_t can_be_sent = midi_can_send_messages();
+          if(can_be_sent > 0) {
+            midi_send_messages(messages + j, 1);
+          }
+        }
+        if(messages[j].type == MIDI_RAW_MESSAGE)
+          printf("RAW: %d %d %d\n", messages[j].value.raw.x, messages[j].value.raw.y, messages[j].value.raw.z);
+      }
+    }
     /*if(pio_display_can_wait_without_blocking()) {
       pio_display_wait_for_finish_blocking();
       end = get_absolute_time();

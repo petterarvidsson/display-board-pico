@@ -31,6 +31,8 @@ typedef struct {
   midi_message_value_t value;
 } midi_message_t;
 
-queue_t * midi_init();
+void midi_init();
 void midi_run();
 uint32_t midi_get_available_messages(midi_message_t * messages, const uint32_t messages_size);
+uint32_t midi_can_send_messages();
+void midi_send_messages(midi_message_t * messages, const uint32_t messages_size);
