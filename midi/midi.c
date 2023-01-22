@@ -6,7 +6,13 @@
 #define MIDI_NOTE_ON 0x90
 #define MIDI_NOTE_OFF 0x80
 
-#define OUT_MESSAGES_SIZE 8
+#define OUT_MESSAGES_SIZE 16
+#define MAX_CONTROLLER_MESSAGES 8
+
+typedef struct {
+  uint8_t note;
+  uint8_t channel;
+} midi_mapped_note_t;
 
 static uint8_t in_buffer[3];
 static uint8_t in_position;
@@ -74,16 +80,42 @@ void midi_write_message(const midi_message_t message) {
   }
 }
 
+#define MIDI_NOTES 127
+
+static midi_mapped_note_t not_mapped = {
+  .note = 0x80
+};
+static midi_mapped_note_t mapping[MIDI_NOTES];
+
 void midi_init() {
   in_position = 0;
   out_position = 0;
   out_size = 0;
   queue_init(&in, sizeof(midi_message_t), 32);
   queue_init(&out, sizeof(midi_message_t), OUT_MESSAGES_SIZE);
+
+  for(uint8_t i = 0; i < MIDI_NOTES; i++) {
+    mapping[i] = not_mapped;
+  }
+
   uart_init(uart1, 31250);
   uart_set_format(uart1, 8, 1, UART_PARITY_NONE);
   gpio_set_function(8, GPIO_FUNC_UART);
   gpio_set_function(9, GPIO_FUNC_UART);
+}
+
+void send_mapped(const midi_mapped_note_t map, const midi_message_type_t type, const uint8_t velocity) {
+  midi_message_t message = {
+    .type = type,
+    .value.note = {
+      .channel = map.channel,
+      .note = map.note,
+      .velocity = velocity
+    }
+  };
+  if(!queue_try_add(&out, &message)) {
+    panic("MIDI out queue is full!");
+  }
 }
 
 void midi_run() {
@@ -92,20 +124,25 @@ void midi_run() {
     if(in_position == 2) {
       midi_message_t message;
       switch(in_buffer[0]) {
-      case MIDI_NOTE_OFF:
+      case MIDI_NOTE_OFF: {
         read_note(MIDI_NOTE_OFF_MESSAGE, &message);
-        if(!queue_try_add(&in, &message)) {
-          panic("MIDI in queue is full!");
+        midi_mapped_note_t map = mapping[message.value.note.note];
+        if(map.note != 0x80) {
+          send_mapped(map, MIDI_NOTE_OFF_MESSAGE, message.value.note.velocity);
         }
         in_position = 0;
         break;
-      case MIDI_NOTE_ON:
+      }
+      case MIDI_NOTE_ON: {
         read_note(MIDI_NOTE_ON_MESSAGE, &message);
-        if(!queue_try_add(&in, &message)) {
-          panic("MIDI in queue is full!");
+        midi_mapped_note_t map = mapping[message.value.note.note];
+        printf("%d %d\n", message.value.note.note, map.note);
+        if(map.note != 0x80) {
+          send_mapped(map, MIDI_NOTE_ON_MESSAGE, message.value.note.velocity);
         }
         in_position = 0;
         break;
+      }
       default:
         in_buffer[0] = in_buffer[1];
         in_buffer[1] = in_buffer[2];
@@ -134,11 +171,22 @@ uint32_t midi_get_available_messages(midi_message_t * available, const uint32_t 
 }
 
 uint32_t midi_can_send_messages() {
-  return OUT_MESSAGES_SIZE - queue_get_level(&out);
+  return MIN(OUT_MESSAGES_SIZE - queue_get_level(&out), MAX_CONTROLLER_MESSAGES);
 }
 
 void midi_send_messages(midi_message_t * messages, const uint32_t messages_size) {
   for(uint32_t i = 0; i < messages_size; i++) {
     queue_add_blocking(&out, messages + i);
   }
+}
+
+void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const uint8_t out_note) {
+  const midi_mapped_note_t map = {
+    .channel = out_channel,
+    .note = out_note
+  };
+  mapping[note & 0x7F] = map;
+}
+void midi_clear_mapped_note(const uint8_t note) {
+  mapping[note & 0x7F] = not_mapped;
 }
