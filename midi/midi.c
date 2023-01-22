@@ -94,19 +94,24 @@ void midi_run() {
       switch(in_buffer[0]) {
       case MIDI_NOTE_OFF:
         read_note(MIDI_NOTE_OFF_MESSAGE, &message);
+        if(!queue_try_add(&in, &message)) {
+          panic("MIDI in queue is full!");
+        }
+        in_position = 0;
         break;
       case MIDI_NOTE_ON:
         read_note(MIDI_NOTE_ON_MESSAGE, &message);
+        if(!queue_try_add(&in, &message)) {
+          panic("MIDI in queue is full!");
+        }
+        in_position = 0;
         break;
       default:
-        read_raw(&message);
+        in_buffer[0] = in_buffer[1];
+        in_buffer[1] = in_buffer[2];
+        in_position = 2;
         break;
       }
-
-      if(!queue_try_add(&in, &message)) {
-        panic("MIDI in queue is full!");
-      }
-      in_position = 0;
     } else {
       in_position++;
     }
