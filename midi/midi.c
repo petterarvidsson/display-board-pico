@@ -33,31 +33,32 @@ static void read_note(midi_message_type_t type, midi_message_t *midi) {
   midi->value.note = midi_note;
 }
 
-static void read_raw(midi_message_t *midi) {
-  raw_message_t raw = {
-    .x = in_buffer[0],
-    .y = in_buffer[1],
-    .z = in_buffer[2]
-  };
-  midi->type = MIDI_RAW_MESSAGE;
-  midi->value.raw = raw;
-}
-
 static void write_size(uint8_t size) {
   out_size = size;
   out_position = 0;
 }
 
-static uint32_t midi_write_note(const midi_message_t message, uint8_t status_prefix) {
-  note_message_t note_on = message.value.note;
+static void midi_write_note(const note_message_t note_on, uint8_t status_prefix) {
   out_buffer[0] = status_prefix + (note_on.channel & 0x0F);
   out_buffer[1] = note_on.note & 0x7F;
   out_buffer[2] = note_on.velocity &0x7F;
   write_size(3);
 }
 
-static uint32_t midi_write_raw(const midi_message_t message) {
-  raw_message_t raw = message.value.raw;
+static void midi_write_controller(const controller_message_t controller) {
+  out_buffer[0] = 0xB0 + (controller.channel & 0x0F);
+  out_buffer[1] = controller.number & 0x7F;
+  out_buffer[2] = controller.value & 0x7F;
+  write_size(3);
+}
+
+static void midi_write_program_change(const program_message_t program) {
+  out_buffer[0] = 0xC0 + (program.channel & 0x0F);
+  out_buffer[1] = program.number & 0x7F;
+  write_size(2);
+}
+
+static void midi_write_raw(const raw_message_t raw) {
   out_buffer[0] = raw.x;
   out_buffer[1] = raw.y;
   out_buffer[2] = raw.z;
@@ -66,14 +67,20 @@ static uint32_t midi_write_raw(const midi_message_t message) {
 
 void midi_write_message(const midi_message_t message) {
   switch(message.type) {
+  case MIDI_CONTROLLER_MESSAGE:
+    midi_write_controller(message.value.controller);
+    return;
   case MIDI_NOTE_ON_MESSAGE:
-    midi_write_note(message, MIDI_NOTE_ON);
+    midi_write_note(message.value.note, MIDI_NOTE_ON);
     return;
   case MIDI_NOTE_OFF_MESSAGE:
-    midi_write_note(message, MIDI_NOTE_OFF);
+    midi_write_note(message.value.note, MIDI_NOTE_OFF);
+    return;
+  case MIDI_PROGRAM_CHANGE_MESSAGE:
+    midi_write_program_change(message.value.program);
     return;
   case MIDI_RAW_MESSAGE:
-    midi_write_raw(message);
+    midi_write_raw(message.value.raw);
     return;
   default:
     return;
@@ -187,6 +194,36 @@ void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const u
   };
   mapping[note & 0x7F] = map;
 }
+
 void midi_clear_mapped_note(const uint8_t note) {
   mapping[note & 0x7F] = not_mapped;
+}
+
+void midi_send_bank_change(const uint8_t channel, const uint8_t bank) {
+  midi_message_t messages[] = {
+    {
+      .type = MIDI_CONTROLLER_MESSAGE,
+      .value.controller = {
+        .channel = channel & 0x0F,
+        .number = 0,
+        .value = 127
+      }
+    },
+    {
+      .type = MIDI_CONTROLLER_MESSAGE,
+      .value.controller = {
+        .channel = channel & 0x0F,
+        .number = 32,
+        .value = 0
+      }
+    },
+    {
+      .type = MIDI_PROGRAM_CHANGE_MESSAGE,
+      .value.controller = {
+        .channel = channel & 0x0F,
+        .number = bank
+      }
+    }
+  };
+  midi_send_messages(messages, sizeof(messages) / sizeof(midi_message_t));
 }

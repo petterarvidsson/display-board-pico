@@ -6,116 +6,96 @@
 #include "sdhi.h"
 #include "midi.h"
 
+// Drums
+// BD BassDrum
+// SD SnareDrum
+// LT LowTom
+// MT MidTom
+// HT HighTom
+// RS RimShot
+// CP ClaP
+// CB CowBell
+// CY CYmbal
+// OH OpenHihat
+// CH ClosedHihat
+
+// Panel 1 Sound
+// Drum type
+// Drum sound
+// Volume
+// Attack
+// Decay
+// Sustain
+// Release
+
+// Panel 2 Filter & Effects
+// Cutoff
+// Resonance
+// Reverb
+// Chorus
+
 enum controls {
   NONE = -1,
-  TEST1 = 0,
-  TEST2,
-  TEST3,
-  TEST4,
-  TEST5,
-  TEST6,
-  TEST7,
-  TEST8,
-  TEST9,
+  DRUM_TYPE = 0,
+  DRUM_SOUND,
+  VOLUME,
+  ATTACK,
+  DECAY,
+  SUSTAIN,
+  RELEASE,
+  CUTOFF,
+  RESONANCE,
+  REVERB,
+  CHORUS,
   CONTROLS
 };
 
-static const char * const enum_values[] = {
-  "Snare",
-  "Bass",
-  "Hi-hat"
+static const shdi_control_type_enumeration_value_t kick_values[] = {
+  { .name = "Kick",       .value = 36 },
+  { .name = "Kick tight", .value = 35 },
+  { .name = "Kick soft",  .value = 33 }
+};
+
+static const shdi_control_type_enumeration_value_t sound_values[] = {
+  { .name = "Standard",   .value = 0 },
+  { .name = "Standard 2", .value = 1 },
+  { .name = "Dry",        .value = 2 },
+  { .name = "Brilliant",  .value = 3 },
+  { .name = "Room",       .value = 8 },
+  { .name = "Dark room",  .value = 9 },
+  { .name = "Rock",       .value = 16 },
+  { .name = "Rock 2",     .value = 17 },
+  { .name = "Electro",    .value = 24 },
+  { .name = "Analog",     .value = 25 },
+  { .name = "Analog 2",   .value = 26 },
+  { .name = "Dance",      .value = 27 },
+  { .name = "Hip Hop",    .value = 28 },
+  { .name = "Jungle",     .value = 29 },
+  { .name = "Jazz",       .value = 32 },
+  { .name = "Jazz 2",     .value = 33 },
+  { .name = "Brush",      .value = 40 },
+  { .name = "Symphony",   .value = 48 }
 };
 
 static const sdhi_control_t const controls[] = {
   {
-    .id = TEST1,
-    .title = "Drum",
+    .id = DRUM_TYPE,
+    .title = "Type",
     .group = 0,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
-      .values = enum_values,
-      .size = sizeof(enum_values) / sizeof(char *)
+      .values = kick_values,
+      .size = sizeof(kick_values) / sizeof(shdi_control_type_enumeration_value_t)
     }
   },
   {
-    .id = TEST2,
-    .title = "test control2",
+    .id = DRUM_SOUND,
+    .title = "Variation",
     .group = 0,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST3,
-    .title = "test control3",
-    .group = 0,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST4,
-    .title = "test control4",
-    .group = 0,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST5,
-    .title = "test control5",
-    .group = 1,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST6,
-    .title = "test control6",
-    .group = 1,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST7,
-    .title = "test control7",
-    .group = 2,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST8,
-    .title = "test control8",
-    .group = 3,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 64
-    }
-  },
-  {
-    .id = TEST9,
-    .title = "test control9",
-    .group = 1,
-    .type = SDHI_CONTROL_TYPE_REAL,
-    .configuration.real = {
-      .min = -14.5,
-      .max = 14.5,
-      .step = 0.5
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = sound_values,
+      .size = sizeof(sound_values) / sizeof(shdi_control_type_enumeration_value_t)
     }
   }
 };
@@ -123,18 +103,18 @@ static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const sdhi_group_t * const groups = NULL;
 static const sdhi_panel_t const panels[] = {
   {
-    "Panel 1",
+    "Sound",
     {
-      TEST1, TEST2, TEST7,
-      TEST4, TEST3, TEST8,
-      TEST5, TEST6
+      DRUM_TYPE, DRUM_SOUND, NONE,
+      NONE,  NONE,  NONE,
+      NONE,  NONE
     }
   },
   {
-    "Panel 2",
+    "Filter",
     {
       NONE,  NONE,  NONE,
-      TEST9, NONE,  NONE,
+      NONE,  NONE,  NONE,
       NONE,  NONE
     }
   }
@@ -149,7 +129,7 @@ static sdhi_t sdhi = {
   panels,
   panels_size
 };
-static int32_t values[CONTROLS] = {0, 0, 0};
+static int32_t values[CONTROLS];
 
 static void real_time() {
   for(uint32_t i = 0;;i++) {
@@ -157,6 +137,9 @@ static void real_time() {
     midi_run();
   }
 }
+
+static uint8_t bd_drum_type = 36;
+static uint8_t bd_drum_sound = 0;
 
 int main() {
   stdio_init_all();
@@ -173,7 +156,7 @@ int main() {
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
   printf("Start MIDI\n");
-  midi_set_mapped_note(36, 2, 36);
+  midi_set_mapped_note(36, 1, 36);
   midi_message_t messages[8];
   for(uint32_t i = 0;;) {
     uint32_t received = midi_get_available_messages(messages, 8);
@@ -189,6 +172,15 @@ int main() {
       pio_display_update_and_flip();
       sdhi_update_displays(values, sdhi);
     }
-    sdhi_update_values(values, sdhi);
+    if(sdhi_update_values(values, sdhi)) {
+      if(bd_drum_type != sdhi_enumeration(DRUM_TYPE, values, sdhi)) {
+        bd_drum_type = sdhi_enumeration(DRUM_TYPE, values, sdhi);
+        midi_set_mapped_note(36, 1, bd_drum_type);
+      }
+      if(bd_drum_sound != sdhi_enumeration(DRUM_SOUND, values, sdhi)) {
+        bd_drum_sound = sdhi_enumeration(DRUM_SOUND, values, sdhi);
+        midi_send_bank_change(1, bd_drum_sound);
+      }
+    }
   }
 }

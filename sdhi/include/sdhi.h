@@ -19,7 +19,12 @@ typedef struct {
 } sdhi_control_type_real_t;
 
 typedef struct {
-  const char const * const * values;
+  const char const * name;
+  const int32_t value;
+} shdi_control_type_enumeration_value_t;
+
+typedef struct {
+  const shdi_control_type_enumeration_value_t *values;
   const uint16_t size;
 } sdhi_control_type_enumeration_t;
 
@@ -62,4 +67,4 @@ bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi);
 void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi);
 int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
 float sdhi_real(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
-uint32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
+int32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi);

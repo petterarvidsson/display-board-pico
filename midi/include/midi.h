@@ -4,10 +4,18 @@
 #include "stdbool.h"
 
 typedef enum {
+  MIDI_CONTROLLER_MESSAGE,
   MIDI_NOTE_ON_MESSAGE,
   MIDI_NOTE_OFF_MESSAGE,
+  MIDI_PROGRAM_CHANGE_MESSAGE,
   MIDI_RAW_MESSAGE
 } midi_message_type_t;
+
+typedef struct {
+    uint8_t channel;
+    uint8_t number;
+    uint8_t value;
+} controller_message_t;
 
 typedef struct {
   uint8_t channel;
@@ -16,13 +24,20 @@ typedef struct {
 } note_message_t;
 
 typedef struct {
+    uint8_t channel;
+    uint8_t number;
+} program_message_t;
+
+typedef struct {
   uint8_t x;
   uint8_t y;
   uint8_t z;
 } raw_message_t;
 
 typedef union {
+  controller_message_t controller;
   raw_message_t raw;
+  program_message_t program;
   note_message_t note;
 } midi_message_value_t;
 
@@ -38,3 +53,4 @@ uint32_t midi_can_send_messages();
 void midi_send_messages(midi_message_t * messages, const uint32_t messages_size);
 void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const uint8_t out_note);
 void midi_clear_mapped_note(const uint8_t note);
+void midi_send_bank_change(const uint8_t channel, const uint8_t bank);
