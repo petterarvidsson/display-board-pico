@@ -227,3 +227,15 @@ void midi_send_bank_change(const uint8_t channel, const uint8_t bank) {
   };
   midi_send_messages(messages, sizeof(messages) / sizeof(midi_message_t));
 }
+
+void midi_send_volume(const uint8_t channel, const uint8_t volume) {
+  midi_message_t message = {
+    .type = MIDI_CONTROLLER_MESSAGE,
+    .value.controller = {
+      .channel = channel & 0x0F,
+      .number = 7,
+      .value = volume & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}

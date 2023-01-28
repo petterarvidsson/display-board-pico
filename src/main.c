@@ -97,6 +97,16 @@ static const sdhi_control_t const controls[] = {
       .values = sound_values,
       .size = sizeof(sound_values) / sizeof(shdi_control_type_enumeration_value_t)
     }
+  },
+  {
+    .id = VOLUME,
+    .title = "Volume",
+    .group = 1,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
   }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
@@ -105,7 +115,7 @@ static const sdhi_panel_t const panels[] = {
   {
     "Sound",
     {
-      DRUM_TYPE, DRUM_SOUND, NONE,
+      DRUM_TYPE, DRUM_SOUND, VOLUME,
       NONE,  NONE,  NONE,
       NONE,  NONE
     }
@@ -140,7 +150,7 @@ static void real_time() {
 
 static uint8_t bd_drum_type = 36;
 static uint8_t bd_drum_sound = 0;
-
+static uint8_t bd_volume = 0;
 int main() {
   stdio_init_all();
   pio_display_init();
@@ -180,6 +190,10 @@ int main() {
       if(bd_drum_sound != sdhi_enumeration(DRUM_SOUND, values, sdhi)) {
         bd_drum_sound = sdhi_enumeration(DRUM_SOUND, values, sdhi);
         midi_send_bank_change(1, bd_drum_sound);
+      }
+      if(bd_volume != sdhi_integer(VOLUME, values, sdhi)) {
+        bd_volume = sdhi_integer(VOLUME, values, sdhi);
+        midi_send_volume(1, bd_volume);
       }
     }
   }
