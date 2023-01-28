@@ -122,6 +122,23 @@ bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi) {
   return updated;
 }
 
+void sdhi_init_values(int32_t * const values, const sdhi_t sdhi) {
+  for(uint16_t i = 0; i < sdhi.controls_size; i++) {
+    const sdhi_control_t control = sdhi.controls[i];
+    switch(control.type) {
+    case SDHI_CONTROL_TYPE_INTEGER:
+      values[control.id] = control.configuration.integer.initial;
+      break;
+    case SDHI_CONTROL_TYPE_REAL:
+      values[control.id] = 0;
+      break;
+    case SDHI_CONTROL_TYPE_ENUMERATION:
+      values[control.id] = control.configuration.enumeration.initial;
+      break;
+    }
+  }
+}
+
 int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
   return values[id];
 }
@@ -150,7 +167,7 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     switch(control->type) {
     case SDHI_CONTROL_TYPE_INTEGER: {
       char value[16];
-      snprintf(value, 16, "%d", values[control->id] + control->configuration.integer.offset);
+      snprintf(value, 16, "%d", values[control->id]);
       pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
       int32_t min = control->configuration.integer.min;
       int32_t max = control->configuration.integer.max;

@@ -84,7 +84,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = kick_values,
-      .size = sizeof(kick_values) / sizeof(shdi_control_type_enumeration_value_t)
+      .size = sizeof(kick_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 1
     }
   },
   {
@@ -94,7 +95,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = sound_values,
-      .size = sizeof(sound_values) / sizeof(shdi_control_type_enumeration_value_t)
+      .size = sizeof(sound_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 10
     }
   },
   {
@@ -105,7 +107,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = 0,
       .max = 127,
-      .offset = 0
+      .initial = 100
     }
   },
   {
@@ -114,9 +116,9 @@ static const sdhi_control_t const controls[] = {
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   },
   {
@@ -125,9 +127,9 @@ static const sdhi_control_t const controls[] = {
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   },
   {
@@ -136,9 +138,9 @@ static const sdhi_control_t const controls[] = {
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   },
   {
@@ -147,9 +149,9 @@ static const sdhi_control_t const controls[] = {
     .group = 3,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   },
   {
@@ -158,9 +160,9 @@ static const sdhi_control_t const controls[] = {
     .group = 3,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   },
   {
@@ -169,12 +171,11 @@ static const sdhi_control_t const controls[] = {
     .group = 4,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .offset = -64
+      .min = -64,
+      .max = 63,
+      .initial = 0
     }
   }
-
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const sdhi_group_t * const groups = NULL;
@@ -230,6 +231,7 @@ int main() {
   pio_display_init();
   i2c_controller_init();
   sdhi_init(sdhi);
+  sdhi_init_values(values, sdhi);
   midi_init();
   multicore_launch_core1(real_time);
 
@@ -239,8 +241,34 @@ int main() {
   start = get_absolute_time();
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
-  printf("Start MIDI\n");
-  midi_set_mapped_note(36, 0, 36);
+
+  bd_drum_type = sdhi_enumeration(DRUM_TYPE, values, sdhi);
+  midi_set_mapped_note(36, 0, bd_drum_type);
+  sleep_ms(10);
+  bd_drum_sound = sdhi_enumeration(DRUM_SOUND, values, sdhi);
+  midi_send_bank_change(0, bd_drum_sound);
+  sleep_ms(10);
+  bd_volume = sdhi_integer(VOLUME, values, sdhi);
+  midi_send_volume(0, bd_volume);
+  sleep_ms(10);
+  bd_attack = sdhi_integer(ATTACK, values, sdhi);
+  midi_send_attack(0, bd_attack + 64);
+  sleep_ms(10);
+  bd_decay = sdhi_integer(DECAY, values, sdhi);
+  midi_send_decay(0, bd_decay + 64);
+  sleep_ms(10);
+  bd_release = sdhi_integer(RELEASE, values, sdhi);
+  midi_send_release(0, bd_release + 64);
+  sleep_ms(10);
+  bd_hpf_cutoff = sdhi_integer(HPF_CUTOFF, values, sdhi);
+  midi_send_hpf_cutoff(0, bd_hpf_cutoff + 64);
+  sleep_ms(10);
+  bd_lpf_cutoff = sdhi_integer(LPF_CUTOFF, values, sdhi);
+  midi_send_lpf_cutoff(0, bd_lpf_cutoff + 64);
+
+  bd_lpf_resonance = sdhi_integer(LPF_RESONANCE, values, sdhi);
+  midi_send_lpf_resonance(0, bd_lpf_resonance + 64);
+
   midi_message_t messages[8];
   for(uint32_t i = 0;;) {
     if(pio_display_can_wait_without_blocking()) {
@@ -267,27 +295,27 @@ int main() {
       }
       if(bd_attack != sdhi_integer(ATTACK, values, sdhi)) {
         bd_attack = sdhi_integer(ATTACK, values, sdhi);
-        midi_send_attack(0, bd_attack);
+        midi_send_attack(0, bd_attack + 64);
       }
       if(bd_decay != sdhi_integer(DECAY, values, sdhi)) {
         bd_decay = sdhi_integer(DECAY, values, sdhi);
-        midi_send_decay(0, bd_decay);
+        midi_send_decay(0, bd_decay + 64);
       }
       if(bd_release != sdhi_integer(RELEASE, values, sdhi)) {
         bd_release = sdhi_integer(RELEASE, values, sdhi);
-        midi_send_release(0, bd_release);
+        midi_send_release(0, bd_release + 64);
       }
       if(bd_hpf_cutoff != sdhi_integer(HPF_CUTOFF, values, sdhi)) {
         bd_hpf_cutoff = sdhi_integer(HPF_CUTOFF, values, sdhi);
-        midi_send_hpf_cutoff(0, bd_hpf_cutoff);
+        midi_send_hpf_cutoff(0, bd_hpf_cutoff + 64);
       }
       if(bd_lpf_cutoff != sdhi_integer(LPF_CUTOFF, values, sdhi)) {
         bd_lpf_cutoff = sdhi_integer(LPF_CUTOFF, values, sdhi);
-        midi_send_lpf_cutoff(0, bd_lpf_cutoff);
+        midi_send_lpf_cutoff(0, bd_lpf_cutoff + 64);
       }
       if(bd_lpf_resonance != sdhi_integer(LPF_RESONANCE, values, sdhi)) {
         bd_lpf_resonance = sdhi_integer(LPF_RESONANCE, values, sdhi);
-        midi_send_lpf_resonance(0, bd_lpf_resonance);
+        midi_send_lpf_resonance(0, bd_lpf_resonance + 64);
       }
     }
   }

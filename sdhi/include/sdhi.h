@@ -10,7 +10,7 @@ typedef enum {
 typedef struct {
   const int32_t min;
   const int32_t max;
-  const int32_t offset;
+  const int32_t initial;
 } sdhi_control_type_integer_t;
 
 typedef struct {
@@ -27,6 +27,7 @@ typedef struct {
 typedef struct {
   const shdi_control_type_enumeration_value_t *values;
   const uint16_t size;
+  const uint32_t initial;
 } sdhi_control_type_enumeration_t;
 
 typedef union {
@@ -64,6 +65,7 @@ typedef struct {
 } sdhi_t;
 
 void sdhi_init(const sdhi_t sdhi);
+void sdhi_init_values(int32_t * const values, const sdhi_t sdhi);
 bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi);
 void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi);
 int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi);
