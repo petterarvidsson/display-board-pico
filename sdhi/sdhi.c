@@ -171,7 +171,19 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
       pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
       int32_t min = control->configuration.integer.min;
       int32_t max = control->configuration.integer.max;
-      pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[control->id] - min) / (float)(max - min) * 96), 63);
+
+      uint32_t total = (uint8_t)((float)(values[control->id] - min) / (float)(max - min) * 96);
+      uint32_t middle = (uint8_t)((float)(control->configuration.integer.middle - min) / (float)(max - min) * 96);
+      uint32_t start;
+      uint32_t end;
+      if(values[control->id] <= control->configuration.integer.middle) {
+        start = 17 + total;
+        end = 17 + middle;
+      } else {
+        start = 17 + middle;
+        end = 17 + total;
+      }
+      pio_display_fill_rectangle(pio_display_get(bottom), start, 63 - 4, end, 63);
       break;
     }
     case SDHI_CONTROL_TYPE_REAL: {

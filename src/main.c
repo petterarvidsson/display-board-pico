@@ -107,6 +107,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = 0,
       .max = 127,
+      .middle = 0,
       .initial = 100
     }
   },
@@ -118,6 +119,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   },
@@ -129,6 +131,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   },
@@ -140,6 +143,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   },
@@ -151,6 +155,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   },
@@ -162,6 +167,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   },
@@ -173,6 +179,7 @@ static const sdhi_control_t const controls[] = {
     .configuration.integer = {
       .min = -64,
       .max = 63,
+      .middle = 0,
       .initial = 0
     }
   }
