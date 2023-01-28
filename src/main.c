@@ -198,7 +198,7 @@ int main() {
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
   printf("Start MIDI\n");
-  midi_set_mapped_note(36, 1, 36);
+  midi_set_mapped_note(36, 0, 36);
   midi_message_t messages[8];
   for(uint32_t i = 0;;) {
     uint32_t received = midi_get_available_messages(messages, 8);
@@ -217,27 +217,27 @@ int main() {
     if(sdhi_update_values(values, sdhi)) {
       if(bd_drum_type != sdhi_enumeration(DRUM_TYPE, values, sdhi)) {
         bd_drum_type = sdhi_enumeration(DRUM_TYPE, values, sdhi);
-        midi_set_mapped_note(36, 1, bd_drum_type);
+        midi_set_mapped_note(36, 0, bd_drum_type);
       }
       if(bd_drum_sound != sdhi_enumeration(DRUM_SOUND, values, sdhi)) {
         bd_drum_sound = sdhi_enumeration(DRUM_SOUND, values, sdhi);
-        midi_send_bank_change(1, bd_drum_sound);
+        midi_send_bank_change(0, bd_drum_sound);
       }
       if(bd_volume != sdhi_integer(VOLUME, values, sdhi)) {
         bd_volume = sdhi_integer(VOLUME, values, sdhi);
-        midi_send_volume(1, bd_volume);
+        midi_send_volume(0, bd_volume);
       }
       if(bd_attack != sdhi_integer(ATTACK, values, sdhi)) {
         bd_attack = sdhi_integer(ATTACK, values, sdhi);
-        midi_send_attack(1, bd_attack);
+        midi_send_attack(0, bd_attack);
       }
       if(bd_decay != sdhi_integer(DECAY, values, sdhi)) {
         bd_decay = sdhi_integer(DECAY, values, sdhi);
-        midi_send_decay(1, bd_decay);
+        midi_send_decay(0, bd_decay);
       }
       if(bd_release != sdhi_integer(RELEASE, values, sdhi)) {
         bd_release = sdhi_integer(RELEASE, values, sdhi);
-        midi_send_release(1, bd_release);
+        midi_send_release(0, bd_release);
       }
     }
   }
