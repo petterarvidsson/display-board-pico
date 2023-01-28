@@ -139,6 +139,11 @@ void sdhi_init_values(int32_t * const values, const sdhi_t sdhi) {
   }
 }
 
+
+sdhi_control_type_t sdhi_type(const uint16_t id, const sdhi_t sdhi) {
+  return find_control(id, sdhi)->type;
+}
+
 int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
   return values[id];
 }
