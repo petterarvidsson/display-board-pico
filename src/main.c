@@ -104,7 +104,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = 0
     }
   },
   {
@@ -114,7 +115,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   },
   {
@@ -124,7 +126,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   },
   {
@@ -134,7 +137,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   },
   {
@@ -144,7 +148,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   },
   {
@@ -154,7 +159,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   },
   {
@@ -164,7 +170,8 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 127
+      .max = 127,
+      .offset = -64
     }
   }
 
@@ -183,9 +190,9 @@ static const sdhi_panel_t const panels[] = {
   {
     "Filter",
     {
-      LPF_CUTOFF,  LPF_RESONANCE,  HPF_CUTOFF,
-      NONE,  NONE,  NONE,
-      NONE,  NONE
+      LPF_CUTOFF, LPF_RESONANCE, HPF_CUTOFF,
+      NONE,       NONE,          NONE,
+      NONE,       NONE
     }
   }
 };

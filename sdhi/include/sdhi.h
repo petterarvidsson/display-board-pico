@@ -10,6 +10,7 @@ typedef enum {
 typedef struct {
   const int32_t min;
   const int32_t max;
+  const int32_t offset;
 } sdhi_control_type_integer_t;
 
 typedef struct {

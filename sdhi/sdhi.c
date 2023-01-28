@@ -150,7 +150,7 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     switch(control->type) {
     case SDHI_CONTROL_TYPE_INTEGER: {
       char value[16];
-      snprintf(value, 16, "%d", values[control->id]);
+      snprintf(value, 16, "%d", values[control->id] + control->configuration.integer.offset);
       pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
       int32_t min = control->configuration.integer.min;
       int32_t max = control->configuration.integer.max;
