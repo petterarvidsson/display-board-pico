@@ -35,9 +35,6 @@ static void draw_column(uint8_t * const fd) {
 }
 
 static uint32_t current_panel;
-static int32_t panel_values[9];
-static int32_t panel_max[9];
-static int32_t panel_min[9];
 
 void sdhi_init(const sdhi_t sdhi) {
   current_panel = 0;
@@ -52,46 +49,59 @@ static const sdhi_control_t * const find_control(const int16_t id, const sdhi_t 
   return NULL;
 }
 
-static void set_panel_values(const int32_t * const values, const sdhi_t sdhi) {
-  for(uint8_t i = 0; i < 8; i++) {
-    const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
-    if(control != NULL) {
-      switch(control->type) {
-      case SDHI_CONTROL_TYPE_INTEGER:
-        panel_min[i] = control->configuration.integer.min;
-        panel_max[i] = control->configuration.integer.max;
-        break;
-      case SDHI_CONTROL_TYPE_REAL:
-        panel_min[i] = (int32_t)(control->configuration.real.min / control->configuration.real.step);
-        panel_max[i] = (int32_t)(control->configuration.real.max / control->configuration.real.step);
-        break;
-      case SDHI_CONTROL_TYPE_ENUMERATION:
-        panel_min[i] = 0;
-        panel_max[i] = (int32_t)control->configuration.enumeration.size - 1;
-        break;
-      }
-      panel_values[i] = values[control->id];
-    }
+static int32_t update(const int32_t value, const int32_t change, const int32_t min, const int32_t max) {
+  int32_t update = value + change;
+  if(update < min) {
+    update = min;
   }
-  panel_min[8] = 0;
-  panel_max[8] = sdhi.panels_size - 1;
-  panel_values[8] = current_panel;
+  if(update > max) {
+    update = max;
+  }
+  return update;
 }
 
-static void set_values(int32_t * const values, const sdhi_t sdhi) {
+static int32_t update_integer(const sdhi_control_type_integer_t integer, const int32_t value, const int32_t change) {
+  return update(value, change, integer.min, integer.max);
+}
+
+static int32_t update_real(const sdhi_control_type_real_t real, const int32_t value, const int32_t change) {
+  return update(value, change, (int32_t)(real.min / real.step), (int32_t)(real.max / real.step));
+}
+
+static int32_t update_enumeration(const sdhi_control_type_enumeration_t enumeration, const int32_t value, const int32_t change) {
+  return update(value, change, 0, (int32_t)enumeration.size - 1);
+}
+
+static void update_values(int32_t * const values, const int32_t * const change, const sdhi_t sdhi) {
   for(uint8_t i = 0; i < 8; i++) {
     const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
     if(control != NULL) {
-      values[control->id] = panel_values[i];
+      if(change[i] != 0) {
+        switch(control->type) {
+        case SDHI_CONTROL_TYPE_INTEGER:
+          values[control->id] = update_integer(control->configuration.integer, values[control->id], change[i]);
+          break;
+        case SDHI_CONTROL_TYPE_REAL:
+          values[control->id] = update_real(control->configuration.real, values[control->id], change[i]);
+        break;
+        case SDHI_CONTROL_TYPE_ENUMERATION:
+          values[control->id] = update_enumeration(control->configuration.enumeration, values[control->id], change[i]);
+          break;
+        }
+      }
     }
+  }
+  if(change[8] != 0) {
+    current_panel = update(current_panel, change[8], 0, sdhi.panels_size - 1);
   }
 }
 
 bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi) {
-  set_panel_values(values, sdhi);
-  bool updated = i2c_controller_update(panel_values, panel_max, panel_min);
-  set_values(values, sdhi);
-  current_panel = panel_values[8];
+  int32_t change[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0
+  };
+  bool updated = i2c_controller_update(change);
+  update_values(values, change, sdhi);
   return updated;
 }
 

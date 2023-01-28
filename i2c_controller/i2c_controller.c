@@ -72,20 +72,13 @@ void i2c_controller_run() {
   mutex_exit(&mutex);
 }
 
-bool i2c_controller_update(int32_t * const values, const int32_t * const max, const int32_t * const min) {
+bool i2c_controller_update(int32_t * const change_update) {
   bool changed = false;
 
   mutex_enter_blocking(&mutex);
   for(uint8_t i = 0; i < CONTROLLERS; i++) {
     if(change[i] != 0) {
-      values[i] += change[i];
-
-      if(values[i] < min[i]) {
-        values[i] = min[i];
-      }
-      if(values[i] > max[i]) {
-        values[i] = max[i];
-      }
+      change_update[i] = change[i];
       change[i] = 0;
       changed = true;
     }
