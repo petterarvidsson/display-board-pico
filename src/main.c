@@ -25,7 +25,6 @@
 // Volume
 // Attack
 // Decay
-// Sustain
 // Release
 
 // Panel 2 Filter & Effects
@@ -41,7 +40,6 @@ enum controls {
   VOLUME,
   ATTACK,
   DECAY,
-  SUSTAIN,
   RELEASE,
   CUTOFF,
   RESONANCE,
@@ -107,6 +105,36 @@ static const sdhi_control_t const controls[] = {
       .min = 0,
       .max = 127
     }
+  },
+  {
+    .id = ATTACK,
+    .title = "Attack",
+    .group = 2,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
+  },
+  {
+    .id = DECAY,
+    .title = "Decay",
+    .group = 2,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
+  },
+  {
+    .id = RELEASE,
+    .title = "Release",
+    .group = 2,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
   }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
@@ -116,8 +144,8 @@ static const sdhi_panel_t const panels[] = {
     "Sound",
     {
       DRUM_TYPE, DRUM_SOUND, VOLUME,
-      NONE,  NONE,  NONE,
-      NONE,  NONE
+      ATTACK,    DECAY,      RELEASE,
+      NONE,      NONE
     }
   },
   {
@@ -151,6 +179,10 @@ static void real_time() {
 static uint8_t bd_drum_type = 36;
 static uint8_t bd_drum_sound = 0;
 static uint8_t bd_volume = 0;
+static uint8_t bd_attack = 0;
+static uint8_t bd_decay = 0;
+static uint8_t bd_release = 0;
+
 int main() {
   stdio_init_all();
   pio_display_init();
@@ -194,6 +226,18 @@ int main() {
       if(bd_volume != sdhi_integer(VOLUME, values, sdhi)) {
         bd_volume = sdhi_integer(VOLUME, values, sdhi);
         midi_send_volume(1, bd_volume);
+      }
+      if(bd_attack != sdhi_integer(ATTACK, values, sdhi)) {
+        bd_attack = sdhi_integer(ATTACK, values, sdhi);
+        midi_send_attack(1, bd_attack);
+      }
+      if(bd_decay != sdhi_integer(DECAY, values, sdhi)) {
+        bd_decay = sdhi_integer(DECAY, values, sdhi);
+        midi_send_decay(1, bd_decay);
+      }
+      if(bd_release != sdhi_integer(RELEASE, values, sdhi)) {
+        bd_release = sdhi_integer(RELEASE, values, sdhi);
+        midi_send_release(1, bd_release);
       }
     }
   }

@@ -239,3 +239,31 @@ void midi_send_volume(const uint8_t channel, const uint8_t volume) {
   };
   queue_add_blocking(&out, &message);
 }
+
+void midi_send_attack(const uint8_t channel, const uint8_t attack) {
+  midi_message_t message = {
+    .type = MIDI_CONTROLLER_MESSAGE,
+    .value.controller = {
+      .channel = channel & 0x0F,
+      .number = 73,
+      .value = attack & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}
+
+void midi_send_decay(const uint8_t channel, const uint8_t decay) {
+}
+
+
+void midi_send_release(const uint8_t channel, const uint8_t release) {
+  midi_message_t message = {
+    .type = MIDI_CONTROLLER_MESSAGE,
+    .value.controller = {
+      .channel = channel & 0x0F,
+      .number = 72,
+      .value = release & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}

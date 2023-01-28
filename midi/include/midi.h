@@ -55,3 +55,6 @@ void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const u
 void midi_clear_mapped_note(const uint8_t note);
 void midi_send_bank_change(const uint8_t channel, const uint8_t bank);
 void midi_send_volume(const uint8_t channel, const uint8_t volume);
+void midi_send_attack(const uint8_t channel, const uint8_t attack);
+void midi_send_decay(const uint8_t channel, const uint8_t decay);
+void midi_send_release(const uint8_t channel, const uint8_t release);
