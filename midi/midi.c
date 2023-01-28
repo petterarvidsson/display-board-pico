@@ -164,7 +164,6 @@ void midi_run() {
       case MIDI_NOTE_ON: {
         read_note(MIDI_NOTE_ON_MESSAGE, &message);
         midi_mapped_note_t map = mapping[message.value.note.note];
-        printf("%d %d\n", message.value.note.note, map.note);
         if(map.note != 0x80) {
           send_mapped(map, MIDI_NOTE_ON_MESSAGE, message.value.note.velocity);
         }
