@@ -41,8 +41,9 @@ enum controls {
   ATTACK,
   DECAY,
   RELEASE,
-  CUTOFF,
-  RESONANCE,
+  LPF_CUTOFF,
+  LPF_RESONANCE,
+  HPF_CUTOFF,
   REVERB,
   CHORUS,
   CONTROLS
@@ -135,7 +136,38 @@ static const sdhi_control_t const controls[] = {
       .min = 0,
       .max = 127
     }
+  },
+  {
+    .id = LPF_CUTOFF,
+    .title = "LPF Cutoff",
+    .group = 3,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
+  },
+  {
+    .id = LPF_RESONANCE,
+    .title = "LPF Resonance",
+    .group = 3,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
+  },
+  {
+    .id = HPF_CUTOFF,
+    .title = "HPF Cutoff",
+    .group = 4,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127
+    }
   }
+
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const sdhi_group_t * const groups = NULL;
@@ -151,7 +183,7 @@ static const sdhi_panel_t const panels[] = {
   {
     "Filter",
     {
-      NONE,  NONE,  NONE,
+      LPF_CUTOFF,  LPF_RESONANCE,  HPF_CUTOFF,
       NONE,  NONE,  NONE,
       NONE,  NONE
     }
@@ -182,6 +214,9 @@ static uint8_t bd_volume = 0;
 static uint8_t bd_attack = 0;
 static uint8_t bd_decay = 0;
 static uint8_t bd_release = 0;
+static uint8_t bd_hpf_cutoff = 0;
+static uint8_t bd_lpf_cutoff = 0;
+static uint8_t bd_lpf_resonance = 0;
 
 int main() {
   stdio_init_all();
@@ -201,10 +236,6 @@ int main() {
   midi_set_mapped_note(36, 0, 36);
   midi_message_t messages[8];
   for(uint32_t i = 0;;) {
-    uint32_t received = midi_get_available_messages(messages, 8);
-    if(received > 0) {
-      printf("Got %d messages\n", received);
-    }
     if(pio_display_can_wait_without_blocking()) {
       pio_display_wait_for_finish_blocking();
       end = get_absolute_time();
@@ -238,6 +269,18 @@ int main() {
       if(bd_release != sdhi_integer(RELEASE, values, sdhi)) {
         bd_release = sdhi_integer(RELEASE, values, sdhi);
         midi_send_release(0, bd_release);
+      }
+      if(bd_hpf_cutoff != sdhi_integer(HPF_CUTOFF, values, sdhi)) {
+        bd_hpf_cutoff = sdhi_integer(HPF_CUTOFF, values, sdhi);
+        midi_send_hpf_cutoff(0, bd_hpf_cutoff);
+      }
+      if(bd_lpf_cutoff != sdhi_integer(LPF_CUTOFF, values, sdhi)) {
+        bd_lpf_cutoff = sdhi_integer(LPF_CUTOFF, values, sdhi);
+        midi_send_lpf_cutoff(0, bd_lpf_cutoff);
+      }
+      if(bd_lpf_resonance != sdhi_integer(LPF_RESONANCE, values, sdhi)) {
+        bd_lpf_resonance = sdhi_integer(LPF_RESONANCE, values, sdhi);
+        midi_send_lpf_resonance(0, bd_lpf_resonance);
       }
     }
   }

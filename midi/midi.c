@@ -298,3 +298,42 @@ void midi_send_release(const uint8_t channel, const uint8_t release) {
   };
   queue_add_blocking(&out, &message);
 }
+
+void midi_send_hpf_cutoff(const uint8_t channel, const uint8_t cutoff) {
+  midi_message_t message = {
+    .type = MIDI_NRPN_MESSAGE,
+    .value.rpn = {
+      .channel = channel & 0x0F,
+      .msb = 0x01,
+      .lsb = 0x24,
+      .value = cutoff & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}
+
+void midi_send_lpf_cutoff(const uint8_t channel, const uint8_t cutoff) {
+  midi_message_t message = {
+    .type = MIDI_NRPN_MESSAGE,
+    .value.rpn = {
+      .channel = channel & 0x0F,
+      .msb = 0x01,
+      .lsb = 0x20,
+      .value = cutoff & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}
+
+void midi_send_lpf_resonance(const uint8_t channel, const uint8_t resonance) {
+  midi_message_t message = {
+    .type = MIDI_NRPN_MESSAGE,
+    .value.rpn = {
+      .channel = channel & 0x0F,
+      .msb = 0x01,
+      .lsb = 0x21,
+      .value = resonance & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
+}

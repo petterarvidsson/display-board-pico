@@ -68,3 +68,6 @@ void midi_send_volume(const uint8_t channel, const uint8_t volume);
 void midi_send_attack(const uint8_t channel, const uint8_t attack);
 void midi_send_decay(const uint8_t channel, const uint8_t decay);
 void midi_send_release(const uint8_t channel, const uint8_t release);
+void midi_send_hpf_cutoff(const uint8_t channel, const uint8_t cutoff);
+void midi_send_lpf_cutoff(const uint8_t channel, const uint8_t cutoff);
+void midi_send_lpf_resonance(const uint8_t channel, const uint8_t resonance);
