@@ -69,7 +69,24 @@ static int32_t update_real(const sdhi_control_type_real_t real, const int32_t va
 }
 
 static int32_t update_enumeration(const sdhi_control_type_enumeration_t enumeration, const int32_t value, const int32_t change) {
-  return update(value, change, 0, (int32_t)enumeration.size - 1);
+  const int32_t max = (int32_t)enumeration.size - 1;
+  int8_t acc = (value >> 24) & 0xFF;
+  acc += change;
+  int32_t i = value & 0xFFFFFF;
+  if(i == 0 && acc < 0) {
+    acc = 0;
+  } else if(i == max && acc > 0) {
+    acc = 0;
+  }
+
+  if(acc >= 3) {
+    i = update(i, 1, 0, max);
+    acc = 0;
+  } else if(acc <= -3){
+    i = update(i, -1, 0, max);
+    acc = 0;
+  }
+  return (acc << 24) + i;
 }
 
 static void update_values(int32_t * const values, const int32_t * const change, const sdhi_t sdhi) {
@@ -113,7 +130,7 @@ float sdhi_real(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
 }
 
 int32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
-  return find_control(id, sdhi)->configuration.enumeration.values[(uint32_t)values[id]].value;
+  return find_control(id, sdhi)->configuration.enumeration.values[(uint32_t)(values[id] & 0xFFFFFF)].value;
 }
 
 static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
@@ -150,7 +167,7 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
       break;
     }
     case SDHI_CONTROL_TYPE_ENUMERATION:
-      pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, control->configuration.enumeration.values[values[control->id]].name);
+      pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, control->configuration.enumeration.values[(uint32_t)(values[control->id] & 0xFFFFFF)].name);
       break;
     }
   }
