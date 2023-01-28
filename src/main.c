@@ -143,9 +143,9 @@ static const sdhi_panel_t const panels[] = {
   {
     "Sound",
     {
-      DRUM_TYPE, DRUM_SOUND, VOLUME,
-      ATTACK,    DECAY,      RELEASE,
-      NONE,      NONE
+      NONE,    NONE,  DRUM_SOUND,
+      ATTACK,  DECAY, DRUM_TYPE,
+      RELEASE, VOLUME
     }
   },
   {
