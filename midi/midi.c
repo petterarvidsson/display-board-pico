@@ -18,7 +18,7 @@ static uint8_t in_buffer[3];
 static uint8_t in_position;
 static queue_t in;
 
-static uint8_t out_buffer[3];
+static uint8_t out_buffer[11];
 static uint8_t out_position;
 static uint8_t out_size;
 static queue_t out;
@@ -38,49 +38,70 @@ static void write_size(uint8_t size) {
   out_position = 0;
 }
 
-static void midi_write_note(const note_message_t note_on, uint8_t status_prefix) {
+static void write_note(const note_message_t note_on, uint8_t status_prefix) {
   out_buffer[0] = status_prefix + (note_on.channel & 0x0F);
   out_buffer[1] = note_on.note & 0x7F;
   out_buffer[2] = note_on.velocity &0x7F;
   write_size(3);
 }
 
-static void midi_write_controller(const controller_message_t controller) {
+static void write_controller(const controller_message_t controller) {
   out_buffer[0] = 0xB0 + (controller.channel & 0x0F);
   out_buffer[1] = controller.number & 0x7F;
   out_buffer[2] = controller.value & 0x7F;
   write_size(3);
 }
 
-static void midi_write_program_change(const program_message_t program) {
+static void write_program_change(const program_message_t program) {
   out_buffer[0] = 0xC0 + (program.channel & 0x0F);
   out_buffer[1] = program.number & 0x7F;
   write_size(2);
 }
 
-static void midi_write_raw(const raw_message_t raw) {
+static void write_rpn(const rpn_message_t rpn, uint8_t msb_cc, uint8_t lsb_cc) {
+    out_buffer[0] = 0xB0 + (rpn.channel & 0x0F);
+    out_buffer[1] = msb_cc;
+    out_buffer[2] = rpn.msb & 0x7F;
+    out_buffer[3] = lsb_cc;
+    out_buffer[4] = rpn.lsb & 0x7F;
+    out_buffer[5] = 6;
+    out_buffer[6] = rpn.value & 0x7F;
+    out_buffer[7] = msb_cc;
+    out_buffer[8] = 127;
+    out_buffer[9] = lsb_cc;
+    out_buffer[10] = 127;
+    return write_size(11);
+}
+
+static void write_raw(const raw_message_t raw) {
   out_buffer[0] = raw.x;
   out_buffer[1] = raw.y;
   out_buffer[2] = raw.z;
   write_size(3);
 }
 
-void midi_write_message(const midi_message_t message) {
+static void write_message(const midi_message_t message) {
   switch(message.type) {
   case MIDI_CONTROLLER_MESSAGE:
-    midi_write_controller(message.value.controller);
+    write_controller(message.value.controller);
     return;
   case MIDI_NOTE_ON_MESSAGE:
-    midi_write_note(message.value.note, MIDI_NOTE_ON);
+    write_note(message.value.note, MIDI_NOTE_ON);
     return;
   case MIDI_NOTE_OFF_MESSAGE:
-    midi_write_note(message.value.note, MIDI_NOTE_OFF);
+    write_note(message.value.note, MIDI_NOTE_OFF);
     return;
   case MIDI_PROGRAM_CHANGE_MESSAGE:
-    midi_write_program_change(message.value.program);
+    write_program_change(message.value.program);
+    return;
+  case MIDI_RPN_MESSAGE:
+    write_rpn(message.value.rpn, 101, 100);
+    return;
+  case MIDI_NRPN_MESSAGE:
+    write_rpn(message.value.rpn, 99, 98);
     return;
   case MIDI_RAW_MESSAGE:
-    midi_write_raw(message.value.raw);
+    write_raw(message.value.raw);
     return;
   default:
     return;
@@ -165,7 +186,7 @@ void midi_run() {
   } else if(out_position == out_size && queue_get_level(&out) != 0) {
     midi_message_t message;
     queue_remove_blocking(&out, &message);
-    midi_write_message(message);
+    write_message(message);
   }
 }
 
@@ -253,6 +274,16 @@ void midi_send_attack(const uint8_t channel, const uint8_t attack) {
 }
 
 void midi_send_decay(const uint8_t channel, const uint8_t decay) {
+  midi_message_t message = {
+    .type = MIDI_NRPN_MESSAGE,
+    .value.rpn = {
+      .channel = channel & 0x0F,
+      .msb = 0x01,
+      .lsb = 0x64,
+      .value = decay & 0x7F
+    }
+  };
+  queue_add_blocking(&out, &message);
 }
 
 

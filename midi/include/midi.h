@@ -8,6 +8,8 @@ typedef enum {
   MIDI_NOTE_ON_MESSAGE,
   MIDI_NOTE_OFF_MESSAGE,
   MIDI_PROGRAM_CHANGE_MESSAGE,
+  MIDI_RPN_MESSAGE,
+  MIDI_NRPN_MESSAGE,
   MIDI_RAW_MESSAGE
 } midi_message_type_t;
 
@@ -29,6 +31,13 @@ typedef struct {
 } program_message_t;
 
 typedef struct {
+  uint8_t channel;
+  uint8_t msb;
+  uint8_t lsb;
+  uint8_t value;
+} rpn_message_t;
+
+typedef struct {
   uint8_t x;
   uint8_t y;
   uint8_t z;
@@ -39,6 +48,7 @@ typedef union {
   raw_message_t raw;
   program_message_t program;
   note_message_t note;
+  rpn_message_t rpn;
 } midi_message_value_t;
 
 typedef struct {
