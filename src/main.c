@@ -19,20 +19,6 @@
 // OH OpenHihat
 // CH ClosedHihat
 
-// Panel 1 Sound
-// Drum type
-// Drum sound
-// Volume
-// Attack
-// Decay
-// Release
-
-// Panel 2 Filter & Effects
-// Cutoff
-// Resonance
-// Reverb
-// Chorus
-
 enum controls {
   NONE = -1,
   DRUM_TYPE = 0,
@@ -216,7 +202,6 @@ static sdhi_t sdhi = {
 };
 
 static int32_t values[CONTROLS];
-static int32_t sent_values[CONTROLS];
 
 static void real_time() {
   for(uint32_t i = 0;;i++) {
@@ -225,21 +210,164 @@ static void real_time() {
   }
 }
 
+typedef enum {
+  ACTION_CONTROLLER,
+  ACTION_BANK_CHANGE,
+  ACTION_NRPN,
+  ACTION_MAPPING
+} action_type_t;
+
+typedef struct {
+  const uint8_t number;
+} action_controller_configuration_t;
+
+typedef struct {
+  const uint8_t msb;
+  const uint8_t lsb;
+} action_rpn_configuration_t;
+
+typedef struct {
+  const uint8_t note;
+} action_mapping_configuration_t;
+
+typedef union {
+  const action_controller_configuration_t controller;
+  const action_rpn_configuration_t rpn;
+  const action_mapping_configuration_t mapping;
+} action_configuration_t;
+
 typedef struct {
   const uint16_t controller_id;
-  const uint8_t (*changed)(midi_message_t * const);
+  const int32_t offset;
+  const uint8_t channel;
+  const midi_message_type_t type;
+  const action_configuration_t configuration;
 } action_t;
 
-static uint8_t bd_drum_type(midi_message_t * const to_send) {
-  midi_set_mapped_note(36, 0, sdhi_enumeration(DRUM_TYPE, values, sdhi));
-  return 0;
+static action_t actions[] = {
+  {
+    .controller_id = DRUM_TYPE,
+    .offset = 0,
+    .channel = 0,
+    .type = ACTION_MAPPING,
+    .configuration.mapping = {
+      .note = 36
+    }
+  },
+  {
+    .controller_id = DRUM_SOUND,
+    .offset = 0,
+    .channel = 0,
+    .type = ACTION_BANK_CHANGE
+  },
+  {
+    .controller_id = VOLUME,
+    .offset = 0,
+    .channel = 0,
+    .type = ACTION_CONTROLLER,
+    .configuration.controller = {
+      .number = 7
+    }
+  },
+  {
+    .controller_id = ATTACK,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_CONTROLLER,
+    .configuration.controller = {
+      .number = 73
+    }
+  },
+  {
+    .controller_id = DECAY,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_NRPN,
+    .configuration.rpn = {
+      .msb = 0x01,
+      .lsb = 0x64
+    }
+  },
+  {
+    .controller_id = RELEASE,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_CONTROLLER,
+    .configuration.controller = {
+      .number = 72
+    }
+  },
+  {
+    .controller_id = LPF_CUTOFF,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_NRPN,
+    .configuration.rpn = {
+      .msb = 0x01,
+      .lsb = 0x20
+    }
+  },
+  {
+    .controller_id = LPF_RESONANCE,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_NRPN,
+    .configuration.rpn = {
+      .msb = 0x01,
+      .lsb = 0x21
+    }
+  },
+  {
+    .controller_id = HPF_CUTOFF,
+    .offset = 64,
+    .channel = 0,
+    .type = ACTION_NRPN,
+    .configuration.rpn = {
+      .msb = 0x01,
+      .lsb = 0x24
+    }
+  }
+};
+static uint8_t actions_size = sizeof(actions) / sizeof(action_t);
+static int32_t computed_values[sizeof(actions) / sizeof(action_t)];
+static int32_t sent_values[sizeof(actions) / sizeof(action_t)];
+static uint8_t current_action = 0;
+
+static midi_message_t action_messages[8];
+
+uint8_t execute_action_controller(const action_controller_configuration_t configuration, const uint8_t channel, const int32_t value, midi_message_t * const to_send) {
+  midi_message_t message = {
+    .type = MIDI_CONTROLLER_MESSAGE,
+    .value.controller = {
+      .channel = channel & 0x7F,
+      .number = configuration.number & 0x7F,
+      .value = value & 0x7F
+    }
+  };
+  to_send[0] = message;
+  return 1;
 }
 
-static uint8_t bd_drum_sound(midi_message_t * const to_send) {
+
+uint8_t execute_action_rpn(const action_rpn_configuration_t configuration, const uint8_t channel, const int32_t value, midi_message_t * const to_send) {
+  midi_message_t message = {
+    .type = MIDI_NRPN_MESSAGE,
+    .value.rpn = {
+      .channel = 0,
+      .msb = configuration.msb & 0x7F,
+      .lsb = configuration.lsb & 0x7F,
+      .value = value & 0x7F
+    }
+  };
+  to_send[0] = message;
+  return 1;
+}
+
+uint8_t execute_action_bank_change(const uint8_t channel, const int32_t value, midi_message_t * const to_send) {
   const midi_message_t c1 = {
     .type = MIDI_CONTROLLER_MESSAGE,
     .value.controller = {
-      .channel = 0,
+      .channel = channel & 0x7F,
       .number = 0,
       .value = 127
     }
@@ -247,7 +375,7 @@ static uint8_t bd_drum_sound(midi_message_t * const to_send) {
   const midi_message_t c2 = {
       .type = MIDI_CONTROLLER_MESSAGE,
       .value.controller = {
-        .channel = 0,
+        .channel = channel & 0x7F,
         .number = 32,
         .value = 0
       }
@@ -255,8 +383,8 @@ static uint8_t bd_drum_sound(midi_message_t * const to_send) {
   const midi_message_t p = {
     .type = MIDI_PROGRAM_CHANGE_MESSAGE,
     .value.controller = {
-      .channel = 0,
-      .number = sdhi_enumeration(DRUM_SOUND, values, sdhi)
+      .channel = channel & 0x7F,
+      .number = value & 0x7F
     }
   };
   to_send[0] = c1;
@@ -265,153 +393,64 @@ static uint8_t bd_drum_sound(midi_message_t * const to_send) {
   return 3;
 }
 
-static uint8_t bd_volume(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_CONTROLLER_MESSAGE,
-    .value.controller = {
-      .channel = 0,
-      .number = 7,
-      .value = sdhi_integer(VOLUME, values, sdhi) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
+void execute_action_mapping(const action_mapping_configuration_t configuration, const uint8_t channel, const int32_t value) {
+  midi_set_mapped_note(configuration.note, channel & 0x7F, value & 0x7F);
 }
 
-static uint8_t bd_attack(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_CONTROLLER_MESSAGE,
-    .value.controller = {
-      .channel = 0,
-      .number = 73,
-      .value = (sdhi_integer(ATTACK, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-static uint8_t bd_decay(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_NRPN_MESSAGE,
-    .value.rpn = {
-      .channel = 0,
-      .msb = 0x01,
-      .lsb = 0x64,
-      .value = (sdhi_integer(DECAY, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-
-static uint8_t bd_release(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_CONTROLLER_MESSAGE,
-    .value.controller = {
-      .channel = 0,
-      .number = 72,
-      .value = (sdhi_integer(RELEASE, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-static uint8_t bd_hpf_cutoff(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_NRPN_MESSAGE,
-    .value.rpn = {
-      .channel = 0,
-      .msb = 0x01,
-      .lsb = 0x24,
-      .value = (sdhi_integer(HPF_CUTOFF, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-static uint8_t bd_lpf_cutoff(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_NRPN_MESSAGE,
-    .value.rpn = {
-      .channel = 0,
-      .msb = 0x01,
-      .lsb = 0x20,
-      .value = (sdhi_integer(LPF_CUTOFF, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-static uint8_t bd_lpf_resonance(midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_NRPN_MESSAGE,
-    .value.rpn = {
-      .channel = 0,
-      .msb = 0x01,
-      .lsb = 0x21,
-      .value = (sdhi_integer(LPF_RESONANCE, values, sdhi) + 64) & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-
-static action_t actions[] = {
-  {
-    .controller_id = DRUM_SOUND,
-    .changed = &bd_drum_sound
-  },
-  {
-    .controller_id = DRUM_TYPE,
-    .changed = &bd_drum_type
-  },
-  {
-    .controller_id = VOLUME,
-    .changed = &bd_volume
-  },
-  {
-    .controller_id = ATTACK,
-    .changed = &bd_attack
-  },
-  {
-    .controller_id = DECAY,
-    .changed = &bd_decay
-  },
-  {
-    .controller_id = RELEASE,
-    .changed = &bd_release
-  },
-  {
-    .controller_id = LPF_CUTOFF,
-    .changed = &bd_lpf_cutoff
-  },
-  {
-    .controller_id = LPF_RESONANCE,
-    .changed = &bd_lpf_resonance
-  },
-  {
-    .controller_id = HPF_CUTOFF,
-    .changed = &bd_hpf_cutoff
-  },
-};
-static uint8_t actions_size = sizeof(actions) / sizeof(action_t);
-static uint8_t current_action = 0;
-
-static midi_message_t action_messages[8];
-
-bool execute_action(const action_t action) {
-  uint8_t messages = action.changed(action_messages);
+bool execute_action(const action_t action, int32_t value) {
+  uint8_t messages = 0;
+  switch(action.type) {
+  case ACTION_CONTROLLER:
+    messages = execute_action_controller(action.configuration.controller, action.channel, value, action_messages);
+    break;
+  case ACTION_NRPN:
+    messages = execute_action_rpn(action.configuration.rpn, action.channel, value, action_messages);
+    break;
+  case ACTION_BANK_CHANGE:
+    messages = execute_action_bank_change(action.channel, value, action_messages);
+    break;
+  case ACTION_MAPPING:
+    execute_action_mapping(action.configuration.mapping, action.channel, value);
+    messages = 0;
+    break;
+  }
   if(messages < midi_can_send_messages()) {
     midi_send_messages(action_messages, messages);
     return true;
   } else {
     return false;
+  }
+}
+
+static void execute_actions() {
+  uint8_t last_action;
+  if(current_action == 0) {
+    last_action = actions_size - 1;
+  } else {
+    last_action = current_action - 1;
+  }
+
+  for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
+    if(sent_values[current_action] != computed_values[current_action] && !execute_action(actions[current_action], computed_values[current_action])) {
+      break;
+    } else {
+      sent_values[current_action] = computed_values[current_action];
+    }
+  }
+}
+
+static void update_computed_values() {
+  for(uint8_t i = 0; i < actions_size; i++) {
+    switch(sdhi_type(actions[i].controller_id, sdhi)) {
+    case SDHI_CONTROL_TYPE_INTEGER:
+      computed_values[i] = sdhi_integer(actions[i].controller_id, values, sdhi) + actions[i].offset;
+      break;
+    case SDHI_CONTROL_TYPE_REAL:
+      break;
+    case SDHI_CONTROL_TYPE_ENUMERATION:
+      computed_values[i] = sdhi_enumeration(actions[i].controller_id, values, sdhi)  + actions[i].offset;
+      break;
+    }
   }
 }
 
@@ -430,11 +469,13 @@ int main() {
   start = get_absolute_time();
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
+  update_computed_values();
 
   for(uint8_t i; i < actions_size; i++) {
-    while(!execute_action(actions[i])) {
+    while(!execute_action(actions[i], computed_values[i])) {
       sleep_ms(10);
     }
+    sent_values[i] = computed_values[i];
   }
 
   for(uint32_t i = 0;;) {
@@ -448,43 +489,8 @@ int main() {
       sdhi_update_displays(values, sdhi);
     }
     if(sdhi_update_values(values, sdhi)) {
-      uint8_t last_action;
-      if(current_action == 0) {
-        last_action = actions_size - 1;
-      } else {
-        last_action = current_action - 1;
-      }
-      for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-        bool changed = false;
-        switch(sdhi_type(actions[current_action].controller_id, sdhi)) {
-        case SDHI_CONTROL_TYPE_INTEGER:
-          {
-            const int32_t value = sdhi_integer(actions[current_action].controller_id, values, sdhi);
-            const int32_t sent_value = sdhi_integer(actions[current_action].controller_id, sent_values, sdhi);
-            changed = value != sent_value;
-            break;
-          }
-        case SDHI_CONTROL_TYPE_REAL:
-          {
-            const float value = sdhi_real(actions[current_action].controller_id, values, sdhi);
-            const float sent_value = sdhi_real(actions[current_action].controller_id, sent_values, sdhi);
-            changed = value != sent_value;
-            break;
-          }
-        case SDHI_CONTROL_TYPE_ENUMERATION:
-          {
-            const int32_t value = sdhi_enumeration(actions[current_action].controller_id, values, sdhi);
-            const int32_t sent_value = sdhi_enumeration(actions[current_action].controller_id, sent_values, sdhi);
-            changed = value != sent_value;
-            break;
-          }
-        }
-        if(changed && !execute_action(actions[current_action])) {
-          break;
-        } else {
-          sent_values[actions[current_action].controller_id] = values[actions[current_action].controller_id];
-        }
-      }
+      update_computed_values();
+      execute_actions();
     }
   }
 }
