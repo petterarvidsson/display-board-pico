@@ -1,6 +1,7 @@
+#include <stdio.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
-#include "stdio.h"
 #include "pio_display.h"
 #include "i2c_controller.h"
 #include "sdhi.h"
@@ -19,6 +20,22 @@
 // OH OpenHihat
 // CH ClosedHihat
 
+#define NUMBER_OF_DRUMS 11
+
+const char *drum_names[NUMBER_OF_DRUMS] = {
+  "Bass",
+  "Snare",
+  "Low tom",
+  "Mid tom",
+  "High tom",
+  "Snare rim",
+  "Clap",
+  "Cowbell",
+  "Cymbal",
+  "Open Hihat",
+  "Closed Hihat",
+};
+
 enum controls {
   NONE = -1,
   DRUM_TYPE = 0,
@@ -30,8 +47,6 @@ enum controls {
   LPF_CUTOFF,
   LPF_RESONANCE,
   HPF_CUTOFF,
-  REVERB,
-  CHORUS,
   CONTROLS
 };
 
@@ -71,7 +86,8 @@ static char release_title[] = "Release";
 static char lpf_cutoff_title[] = "LPF Cutoff";
 static char lpf_resonance_title[] = "LPF Resonance";
 static char hpf_cutoff_title[] = "HPF Cutoff";
-static const sdhi_control_t const controls[] = {
+
+static const sdhi_control_t const controls_template[] = {
   {
     .id = DRUM_TYPE,
     .title = type_title,
@@ -179,11 +195,19 @@ static const sdhi_control_t const controls[] = {
     }
   }
 };
+static const uint32_t controls_template_size = sizeof(controls_template) / sizeof(sdhi_control_t);
+
+static sdhi_control_t controls[(sizeof(controls_template) / sizeof(sdhi_control_t)) * NUMBER_OF_DRUMS];
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
+
 static const sdhi_group_t * const groups = NULL;
-static const sdhi_panel_t const panels[] = {
+static const char panel_sound[] = "Sound";
+static const char panel_filter[] = "Filter";
+
+static const sdhi_panel_t const panels_template[] = {
   {
-    "Sound",
+    panel_sound,
+    NULL,
     {
       NONE,    NONE,  DRUM_SOUND,
       ATTACK,  DECAY, DRUM_TYPE,
@@ -191,7 +215,8 @@ static const sdhi_panel_t const panels[] = {
     }
   },
   {
-    "Filter",
+    panel_filter,
+    NULL,
     {
       LPF_CUTOFF, LPF_RESONANCE, HPF_CUTOFF,
       NONE,       NONE,          NONE,
@@ -199,7 +224,30 @@ static const sdhi_panel_t const panels[] = {
     }
   }
 };
+static const uint32_t panels_template_size = sizeof(panels_template) / sizeof(sdhi_panel_t);
+static sdhi_panel_t panels[(sizeof(panels_template) / sizeof(sdhi_panel_t)) * NUMBER_OF_DRUMS];
 static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);
+
+static void copy() {
+  for(uint8_t i = 0; i < NUMBER_OF_DRUMS; i++) {
+    sdhi_control_t *current_controls = controls + controls_template_size * i;
+    sdhi_panel_t *current_panels = panels + panels_template_size * i;
+    memcpy(current_controls, controls_template, sizeof(controls_template));
+    for(uint8_t j = 0; j < controls_template_size; j++) {
+      current_controls[j].id = controls_template_size * i + current_controls[j].id;
+    }
+    memcpy(current_panels, panels_template, sizeof(panels_template));
+    for(uint8_t j = 0; j < panels_template_size; j++) {
+      current_panels[j].subtitle = drum_names[i];
+      for(uint8_t k = 0; k < 8; k++) {
+        if(current_panels[j].controls[k] != NONE) {
+          current_panels[j].controls[k] = controls_template_size * i + current_panels[j].controls[k];
+        }
+      }
+    }
+  }
+}
+
 static sdhi_t sdhi = {
   controls,
   controls_size,
@@ -210,7 +258,7 @@ static sdhi_t sdhi = {
   panels_size
 };
 
-static int32_t values[CONTROLS];
+static int32_t values[CONTROLS * NUMBER_OF_DRUMS];
 
 static void real_time() {
   for(uint32_t i = 0;;i++) {
@@ -506,6 +554,7 @@ int main() {
   stdio_init_all();
   pio_display_init();
   i2c_controller_init();
+  copy();
   sdhi_init(sdhi);
   sdhi_init_values(values, sdhi);
   midi_init();

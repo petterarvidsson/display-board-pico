@@ -38,7 +38,7 @@ typedef union {
 } sdhi_control_type_configuration_t;
 
 typedef struct {
-  const uint16_t id;
+  uint16_t id;
   const char * const title;
   const uint16_t group;
   const sdhi_control_type_t type;
@@ -51,8 +51,9 @@ typedef struct {
 } sdhi_group_t;
 
 typedef struct {
-  const char * const title;
-  const int32_t const controls[8];
+  const char * title;
+  const char * subtitle;
+  int32_t controls[8];
 } sdhi_panel_t;
 
 typedef struct {
