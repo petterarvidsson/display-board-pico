@@ -7,34 +7,7 @@
 #include "sdhi.h"
 #include "midi.h"
 
-// Drums
-// BD BassDrum
-// SD SnareDrum
-// LT LowTom
-// MT MidTom
-// HT HighTom
-// RS RimShot
-// CP ClaP
-// CB CowBell
-// CY CYmbal
-// OH OpenHihat
-// CH ClosedHihat
-
 #define NUMBER_OF_DRUMS 11
-
-const char *drum_names[NUMBER_OF_DRUMS] = {
-  "Bass",
-  "Snare",
-  "Low tom",
-  "Mid tom",
-  "High tom",
-  "Snare rim",
-  "Clap",
-  "Cowbell",
-  "Cymbal",
-  "Open Hihat",
-  "Closed Hihat",
-};
 
 enum controls {
   NONE = -1,
@@ -56,7 +29,149 @@ static const shdi_control_type_enumeration_value_t kick_values[] = {
   { .name = "Kick soft",  .value = 33 }
 };
 
-static const shdi_control_type_enumeration_value_t sound_values[] = {
+static const shdi_control_type_enumeration_value_t snare_values[] = {
+  { .name = "Snare", .value = 38 },
+  { .name = "Snare tight", .value = 40 },
+  { .name = "Snare soft", .value = 31 },
+  { .name = "Open rim shot", .value = 34 },
+  { .name = "Brush tap", .value = 25 },
+  { .name = "Brush swirl", .value = 26 },
+  { .name = "Brush slap", .value = 27 },
+  { .name = "Brush tap swirl", .value = 28 }
+};
+
+static const shdi_control_type_enumeration_value_t cowbell_values[] = {
+  { .name = "Metronome bell", .value = 21 },
+  { .name = "Cowbell",        .value = 56 },
+  { .name = "Tambourine",     .value = 54 },
+  { .name = "Jingle bells",   .value = 83 },
+  { .name = "Bell tree",      .value = 84 }
+};
+
+static const shdi_control_type_enumeration_value_t tom_values[] = {
+  { .name = "Floor tom L", .value = 41 },
+  { .name = "Floor tom H", .value = 43 },
+  { .name = "Low tom",     .value = 45 },
+  { .name = "Mid tom L",   .value = 47 },
+  { .name = "Mid tom H",   .value = 48 },
+  { .name = "High tom",    .value = 50 }
+};
+
+static const shdi_control_type_enumeration_value_t cymbal_values[] = {
+  { .name = "Crash 1",  .value = 49 },
+  { .name = "Crash 2",  .value = 57 },
+  { .name = "Splash",   .value = 55 },
+  { .name = "Ride 1",   .value = 51 },
+  { .name = "Ride 2",   .value = 59 },
+  { .name = "Ride cup", .value = 53 },
+  { .name = "Chinese",  .value = 52 }
+};
+
+static const shdi_control_type_enumeration_value_t open_hihat_values[] = {
+  { .name = "Open hi-hat",  .value = 46 }
+};
+
+static const shdi_control_type_enumeration_value_t closed_hihat_values[] = {
+  { .name = "Closed hi-hat",  .value = 42 }
+};
+
+static const shdi_control_type_enumeration_value_t clap_values[] = {
+  { .name = "Hand clap", .value = 39 },
+  { .name = "Whip slap", .value = 16 },
+  { .name = "Finger snap", .value = 19 },
+  { .name = "Castanet", .value = 30 },
+  { .name = "Sticks", .value = 32 }
+};
+
+typedef struct {
+  const char * name;
+  const uint8_t note;
+  const shdi_control_type_enumeration_value_t * values;
+  const uint8_t values_size;
+  const uint8_t initial;
+} drum_t;
+
+drum_t drums[NUMBER_OF_DRUMS] = {
+  {
+    .name = "Bass drum",
+    .note = 36,
+    .values = kick_values,
+    .values_size = sizeof(kick_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Snare drum",
+    .note = 38,
+    .values = snare_values,
+    .values_size = sizeof(snare_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Low tom",
+    .note = 41,
+    .values = tom_values,
+    .values_size = sizeof(tom_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Mid tom",
+    .note = 43,
+    .values = tom_values,
+    .values_size = sizeof(tom_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 3
+  },
+  {
+    .name = "High tom",
+    .note = 45,
+    .values = tom_values,
+    .values_size = sizeof(tom_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 5
+  },
+  {
+    .name = "Snare rim",
+    .note = 40,
+    .values = snare_values,
+    .values_size = sizeof(snare_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 3
+  },
+  {
+    .name = "Clap",
+    .note = 39,
+    .values = clap_values,
+    .values_size = sizeof(clap_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Cowbell",
+    .note = 56,
+    .values = cowbell_values,
+    .values_size = sizeof(cowbell_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Cymbal",
+    .note = 49,
+    .values = cymbal_values,
+    .values_size = sizeof(cymbal_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Open Hihat",
+    .note = 46,
+    .values = open_hihat_values,
+    .values_size = sizeof(open_hihat_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+  {
+    .name = "Closed Hihat",
+    .note = 42,
+    .values = closed_hihat_values,
+    .values_size = sizeof(closed_hihat_values) / sizeof(shdi_control_type_enumeration_value_t),
+    .initial = 0
+  },
+};
+
+static shdi_control_type_enumeration_value_t sound_values[] = {
   { .name = "Standard",   .value = 0 },
   { .name = "Standard 2", .value = 1 },
   { .name = "Dry",        .value = 2 },
@@ -93,11 +208,6 @@ static const sdhi_control_t const controls_template[] = {
     .title = type_title,
     .group = 0,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = kick_values,
-      .size = sizeof(kick_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 1
-    }
   },
   {
     .id = DRUM_SOUND,
@@ -233,12 +343,17 @@ static void copy() {
     sdhi_control_t *current_controls = controls + controls_template_size * i;
     sdhi_panel_t *current_panels = panels + panels_template_size * i;
     memcpy(current_controls, controls_template, sizeof(controls_template));
+
+    current_controls[0].configuration.enumeration.values = drums[i].values;
+    current_controls[0].configuration.enumeration.size = drums[i].values_size;
+    current_controls[0].configuration.enumeration.initial = drums[i].initial;
+
     for(uint8_t j = 0; j < controls_template_size; j++) {
       current_controls[j].id = controls_template_size * i + current_controls[j].id;
     }
     memcpy(current_panels, panels_template, sizeof(panels_template));
     for(uint8_t j = 0; j < panels_template_size; j++) {
-      current_panels[j].subtitle = drum_names[i];
+      current_panels[j].subtitle = drums[i].name;
       for(uint8_t k = 0; k < 8; k++) {
         if(current_panels[j].controls[k] != NONE) {
           current_panels[j].controls[k] = controls_template_size * i + current_panels[j].controls[k];
@@ -285,7 +400,7 @@ typedef struct {
 } action_rpn_configuration_t;
 
 typedef struct {
-  const uint8_t note;
+  uint8_t note;
 } action_mapping_configuration_t;
 
 typedef struct {
@@ -295,19 +410,19 @@ typedef struct {
 typedef union {
   const action_controller_configuration_t controller;
   const action_rpn_configuration_t rpn;
-  const action_mapping_configuration_t mapping;
+  action_mapping_configuration_t mapping;
   const action_xg_parameter_change_1_configuration_t xg_parameter_change;
 } action_configuration_t;
 
 typedef struct {
-  const int16_t controller_id;
+  int16_t controller_id;
   const int32_t offset;
-  const uint8_t channel;
+  uint8_t channel;
   const midi_message_type_t type;
-  const action_configuration_t configuration;
+  action_configuration_t configuration;
 } action_t;
 
-static action_t actions[] = {
+static action_t actions_template[] = {
   {
     .controller_id = NONE,
     .offset = 0,
@@ -321,10 +436,7 @@ static action_t actions[] = {
     .controller_id = DRUM_TYPE,
     .offset = 0,
     .channel = 0,
-    .type = ACTION_MAPPING,
-    .configuration.mapping = {
-      .note = 36
-    }
+    .type = ACTION_MAPPING
   },
   {
     .controller_id = DRUM_SOUND,
@@ -400,7 +512,23 @@ static action_t actions[] = {
     }
   }
 };
+static uint8_t actions_template_size = sizeof(actions_template) / sizeof(action_t);
+static action_t actions[(sizeof(actions_template) / sizeof(action_t)) * NUMBER_OF_DRUMS];
 static uint8_t actions_size = sizeof(actions) / sizeof(action_t);
+
+void copy_actions() {
+  for(uint8_t i = 0; i < NUMBER_OF_DRUMS; i++) {
+    action_t * current_actions = actions + actions_template_size * i;
+
+    memcpy(current_actions, actions_template, sizeof(actions_template));
+    current_actions[1].configuration.mapping.note = drums[i].note;
+    for(uint8_t j = 0; j < actions_template_size; j++) {
+      current_actions[j].controller_id = controls_template_size * i + current_actions[j].controller_id;
+      current_actions[j].channel = i;
+    }
+  }
+}
+
 static int32_t computed_values[sizeof(actions) / sizeof(action_t)];
 static int32_t sent_values[sizeof(actions) / sizeof(action_t)];
 static uint8_t current_action = 0;
@@ -425,7 +553,7 @@ uint8_t execute_action_rpn(const action_rpn_configuration_t configuration, const
   midi_message_t message = {
     .type = MIDI_NRPN_MESSAGE,
     .value.rpn = {
-      .channel = 0,
+      .channel = channel & 0x7F,
       .msb = configuration.msb & 0x7F,
       .lsb = configuration.lsb & 0x7F,
       .value = value & 0x7F
@@ -446,7 +574,7 @@ uint8_t execute_action_xg_parameter_change_1(const action_xg_parameter_change_1_
   midi_message_t message = {
     .type = MIDI_EXCLUSIVE_MESSAGE,
     .value.exclusive = {
-      .channel = 0,
+      .channel = channel & 0x7F,
       .manufacturer_id = 0x43,
       .data_size = 3
     }
@@ -555,6 +683,7 @@ int main() {
   pio_display_init();
   i2c_controller_init();
   copy();
+  copy_actions();
   sdhi_init(sdhi);
   sdhi_init_values(values, sdhi);
   midi_init();
@@ -567,7 +696,9 @@ int main() {
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
   update_computed_values();
-  computed_values[0] = 0x01;
+  for(uint8_t i = 0; i < NUMBER_OF_DRUMS; i++) {
+    computed_values[actions_template_size * i] = 0x01;
+  }
   for(uint8_t i; i < actions_size; i++) {
     while(!execute_action(actions[i], computed_values[i])) {
       sleep_ms(10);

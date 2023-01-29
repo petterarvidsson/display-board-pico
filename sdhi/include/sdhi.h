@@ -27,14 +27,14 @@ typedef struct {
 
 typedef struct {
   const shdi_control_type_enumeration_value_t *values;
-  const uint16_t size;
-  const uint32_t initial;
+  uint16_t size;
+  uint32_t initial;
 } sdhi_control_type_enumeration_t;
 
 typedef union {
   const sdhi_control_type_integer_t integer;
   const sdhi_control_type_real_t real;
-  const sdhi_control_type_enumeration_t enumeration;
+  sdhi_control_type_enumeration_t enumeration;
 } sdhi_control_type_configuration_t;
 
 typedef struct {
@@ -42,7 +42,7 @@ typedef struct {
   const char * const title;
   const uint16_t group;
   const sdhi_control_type_t type;
-  const sdhi_control_type_configuration_t configuration;
+  sdhi_control_type_configuration_t configuration;
 } sdhi_control_t;
 
 typedef struct {
