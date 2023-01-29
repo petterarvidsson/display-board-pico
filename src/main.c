@@ -62,10 +62,19 @@ static const shdi_control_type_enumeration_value_t sound_values[] = {
   { .name = "Symphony",   .value = 48 }
 };
 
+static char type_title[] = "Type";
+static char sound_title[] = "Variation";
+static char volume_title[] = "Volume";
+static char attack_title[] = "Attack";
+static char decay_title[] = "Decay";
+static char release_title[] = "Release";
+static char lpf_cutoff_title[] = "LPF Cutoff";
+static char lpf_resonance_title[] = "LPF Resonance";
+static char hpf_cutoff_title[] = "HPF Cutoff";
 static const sdhi_control_t const controls[] = {
   {
     .id = DRUM_TYPE,
-    .title = "Type",
+    .title = type_title,
     .group = 0,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
@@ -76,7 +85,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = DRUM_SOUND,
-    .title = "Variation",
+    .title = sound_title,
     .group = 0,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
@@ -87,7 +96,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = VOLUME,
-    .title = "Volume",
+    .title = volume_title,
     .group = 1,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -99,7 +108,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = ATTACK,
-    .title = "Attack",
+    .title = attack_title,
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -111,7 +120,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = DECAY,
-    .title = "Decay",
+    .title = decay_title,
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -123,7 +132,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = RELEASE,
-    .title = "Release",
+    .title = release_title,
     .group = 2,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -135,7 +144,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = LPF_CUTOFF,
-    .title = "LPF Cutoff",
+    .title = lpf_cutoff_title,
     .group = 3,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -147,7 +156,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = LPF_RESONANCE,
-    .title = "LPF Resonance",
+    .title = lpf_resonance_title,
     .group = 3,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -159,7 +168,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = HPF_CUTOFF,
-    .title = "HPF Cutoff",
+    .title = hpf_cutoff_title,
     .group = 4,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -196,7 +205,7 @@ static sdhi_t sdhi = {
   controls_size,
   groups,
   0,
-  "Change panel",
+  "Panel",
   panels,
   panels_size
 };
