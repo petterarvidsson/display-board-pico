@@ -214,7 +214,8 @@ typedef enum {
   ACTION_CONTROLLER,
   ACTION_BANK_CHANGE,
   ACTION_NRPN,
-  ACTION_MAPPING
+  ACTION_MAPPING,
+  ACTION_XG_PARAMETER_CHANGE_1
 } action_type_t;
 
 typedef struct {
@@ -230,14 +231,19 @@ typedef struct {
   const uint8_t note;
 } action_mapping_configuration_t;
 
+typedef struct {
+  const uint8_t parameter;
+} action_xg_parameter_change_1_configuration_t;
+
 typedef union {
   const action_controller_configuration_t controller;
   const action_rpn_configuration_t rpn;
   const action_mapping_configuration_t mapping;
+  const action_xg_parameter_change_1_configuration_t xg_parameter_change;
 } action_configuration_t;
 
 typedef struct {
-  const uint16_t controller_id;
+  const int16_t controller_id;
   const int32_t offset;
   const uint8_t channel;
   const midi_message_type_t type;
@@ -245,6 +251,15 @@ typedef struct {
 } action_t;
 
 static action_t actions[] = {
+  {
+    .controller_id = NONE,
+    .offset = 0,
+    .channel = 0,
+    .type = ACTION_XG_PARAMETER_CHANGE_1,
+    .configuration.xg_parameter_change = {
+      .parameter = 0x07
+    }
+  },
   {
     .controller_id = DRUM_TYPE,
     .offset = 0,
@@ -363,6 +378,28 @@ uint8_t execute_action_rpn(const action_rpn_configuration_t configuration, const
   return 1;
 }
 
+uint8_t execute_action_xg_parameter_change_1(const action_xg_parameter_change_1_configuration_t configuration, const uint8_t channel, const int32_t value, midi_message_t * const to_send) {
+  uint8_t data[MIDI_EXCLUSIVE_MAX_LENGTH];
+
+  data[0] = 0x08;
+  data[1] = channel & 0x7F;
+  data[2] = configuration.parameter & 0x7F;
+  data[3] = value & 0x7F;
+
+  midi_message_t message = {
+    .type = MIDI_EXCLUSIVE_MESSAGE,
+    .value.exclusive = {
+      .channel = 0,
+      .manufacturer_id = 0x43,
+      .data_size = 3
+    }
+  };
+  memcpy(message.value.exclusive.data, data, message.value.exclusive.data_size);
+
+  to_send[0] = message;
+  return 1;
+}
+
 uint8_t execute_action_bank_change(const uint8_t channel, const int32_t value, midi_message_t * const to_send) {
   const midi_message_t c1 = {
     .type = MIDI_CONTROLLER_MESSAGE,
@@ -441,15 +478,17 @@ static void execute_actions() {
 
 static void update_computed_values() {
   for(uint8_t i = 0; i < actions_size; i++) {
-    switch(sdhi_type(actions[i].controller_id, sdhi)) {
-    case SDHI_CONTROL_TYPE_INTEGER:
-      computed_values[i] = sdhi_integer(actions[i].controller_id, values, sdhi) + actions[i].offset;
-      break;
-    case SDHI_CONTROL_TYPE_REAL:
-      break;
-    case SDHI_CONTROL_TYPE_ENUMERATION:
-      computed_values[i] = sdhi_enumeration(actions[i].controller_id, values, sdhi)  + actions[i].offset;
-      break;
+    if(actions[i].controller_id != NONE) {
+      switch(sdhi_type(actions[i].controller_id, sdhi)) {
+      case SDHI_CONTROL_TYPE_INTEGER:
+        computed_values[i] = sdhi_integer(actions[i].controller_id, values, sdhi) + actions[i].offset;
+        break;
+      case SDHI_CONTROL_TYPE_ENUMERATION:
+        computed_values[i] = sdhi_enumeration(actions[i].controller_id, values, sdhi)  + actions[i].offset;
+        break;
+      case SDHI_CONTROL_TYPE_REAL:
+        break;
+      }
     }
   }
 }
@@ -470,7 +509,7 @@ int main() {
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
   update_computed_values();
-
+  computed_values[0] = 0x01;
   for(uint8_t i; i < actions_size; i++) {
     while(!execute_action(actions[i], computed_values[i])) {
       sleep_ms(10);

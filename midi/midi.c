@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hardware/uart.h"
 #include "hardware/gpio.h"
 #include "pico/platform.h"
@@ -18,8 +19,9 @@ static uint8_t in_buffer[3];
 static uint8_t in_position;
 static queue_t in;
 
-static uint8_t out_buffer[11];
-static uint8_t out_position;
+// Exclusive start + manufacturer id + max sysex data + exclusive end
+static uint8_t out_buffer[1 + 3 + MIDI_EXCLUSIVE_MAX_LENGTH + 1];
+static uint16_t out_position;
 static uint8_t out_size;
 static queue_t out;
 
@@ -73,6 +75,23 @@ static void write_rpn(const rpn_message_t rpn, uint8_t msb_cc, uint8_t lsb_cc) {
     return write_size(11);
 }
 
+static void write_exclusive(const exclusive_message_t exclusive) {
+  out_buffer[0] = 0xF0;
+  uint8_t i;
+  if(exclusive.manufacturer_id & 0xFF00 != 0) {
+    out_buffer[1] = 0;
+    out_buffer[2] = (exclusive.manufacturer_id >> 8) & 0xFF;
+    out_buffer[3] = exclusive.manufacturer_id & 0xFF;
+    i = 4;
+  } else {
+    out_buffer[1] = exclusive.manufacturer_id & 0xFF;
+    i = 2;
+  }
+  memcpy(out_buffer + i, exclusive.data, exclusive.data_size);
+  out_buffer[i + exclusive.data_size] = 0xF7;
+  write_size(i + exclusive.data_size + 1);
+}
+
 static void write_raw(const raw_message_t raw) {
   out_buffer[0] = raw.x;
   out_buffer[1] = raw.y;
@@ -99,6 +118,9 @@ static void write_message(const midi_message_t message) {
     return;
   case MIDI_NRPN_MESSAGE:
     write_rpn(message.value.rpn, 99, 98);
+    return;
+  case MIDI_EXCLUSIVE_MESSAGE:
+    write_exclusive(message.value.exclusive);
     return;
   case MIDI_RAW_MESSAGE:
     write_raw(message.value.raw);
