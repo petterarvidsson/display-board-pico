@@ -217,7 +217,7 @@ static const sdhi_control_t const controls_template[] = {
     .configuration.enumeration = {
       .values = sound_values,
       .size = sizeof(sound_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 10
+      .initial = 0
     }
   },
   {
