@@ -680,6 +680,7 @@ static void update_computed_values() {
 
 int main() {
   stdio_init_all();
+  printf("SDHI\n");
   pio_display_init();
   i2c_controller_init();
   copy();
@@ -717,6 +718,7 @@ int main() {
       sdhi_update_displays(values, sdhi);
     }
     if(sdhi_update_values(values, sdhi)) {
+      printf("SDHI update\n");
       update_computed_values();
       execute_actions();
     }

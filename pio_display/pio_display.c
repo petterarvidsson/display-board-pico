@@ -203,7 +203,7 @@ void pio_display_update_and_flip() {
   dma_channel_wait_for_finish_blocking(channel);
 
   // We need to wait for PIO to send the clock pulse to shift in the first bit
-  busy_wait_us_32(10);
+  busy_wait_us_32(50);
   gpio_put(CS, 1);
 
   // Push data to all displays and flip buffer
