@@ -9,6 +9,7 @@ target_link_libraries(display_board PRIVATE
         i2c_controller
         sdhi
         midi
+        action
         pico_time
         )
 

@@ -6,6 +6,7 @@
 #include "i2c_controller.h"
 #include "sdhi.h"
 #include "midi.h"
+#include "action.h"
 
 #define NUMBER_OF_DRUMS 11
 
@@ -382,71 +383,6 @@ static void real_time() {
   }
 }
 
-typedef enum {
-  PARAMETER_CONTROL,
-  PARAMETER_VALUE
-} parameter_type_t;
-
-typedef struct {
-  int16_t id;
-  int32_t offset;
-} parameter_control_t;
-
-typedef struct {
-  union {
-    parameter_control_t control;
-    int32_t value;
-  } parameter;
-  parameter_type_t type;
-} parameter_t;
-
-typedef enum {
-  ACTION_CONTROLLER,
-  ACTION_BANK_CHANGE,
-  ACTION_NRPN,
-  ACTION_MAPPING,
-  ACTION_XG_PARAMETER_CHANGE_1
-} action_type_t;
-
-typedef struct {
-  parameter_t number;
-  parameter_t value;
-} action_controller_configuration_t;
-
-typedef struct {
-  parameter_t value;
-} action_bank_change_configuration_t;
-
-typedef struct {
-  parameter_t msb;
-  parameter_t lsb;
-  parameter_t value;
-} action_rpn_configuration_t;
-
-typedef struct {
-  parameter_t note;
-  parameter_t value;
-} action_mapping_configuration_t;
-
-typedef struct {
-  parameter_t parameter;
-  parameter_t value;
-} action_xg_parameter_change_1_configuration_t;
-
-typedef union {
-  action_controller_configuration_t controller;
-  action_bank_change_configuration_t bank_change;
-  action_rpn_configuration_t rpn;
-  action_mapping_configuration_t mapping;
-  action_xg_parameter_change_1_configuration_t xg_parameter_change;
-} action_configuration_t;
-
-typedef struct {
-  uint8_t channel;
-  const action_type_t type;
-  action_configuration_t configuration;
-} action_t;
-
 static action_t actions_template[] = {
   {
     .channel = 0,
@@ -674,205 +610,8 @@ void copy_actions() {
   }
 }
 
-typedef struct {
-  int32_t v1;
-  int32_t v2;
-  int32_t v3;
-} value_t;
-
 static value_t computed_values[sizeof(actions) / sizeof(action_t)];
 static value_t sent_values[sizeof(actions) / sizeof(action_t)];
-static uint8_t current_action = 0;
-
-static midi_message_t action_messages[8];
-
-uint8_t execute_action_controller(const action_controller_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_CONTROLLER_MESSAGE,
-    .value.controller = {
-      .channel = channel & 0x7F,
-      .number = value.v1 & 0x7F,
-      .value = value.v2 & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-
-uint8_t execute_action_rpn(const action_rpn_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
-  midi_message_t message = {
-    .type = MIDI_NRPN_MESSAGE,
-    .value.rpn = {
-      .channel = channel & 0x7F,
-      .msb = value.v1 & 0x7F,
-      .lsb = value.v2 & 0x7F,
-      .value = value.v3 & 0x7F
-    }
-  };
-  to_send[0] = message;
-  return 1;
-}
-
-uint8_t execute_action_xg_parameter_change_1(const action_xg_parameter_change_1_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
-  uint8_t data[MIDI_EXCLUSIVE_MAX_LENGTH];
-
-  data[0] = 0x08;
-  data[1] = channel & 0x7F;
-  data[2] = value.v1 & 0x7F;
-  data[3] = value.v2 & 0x7F;
-
-  midi_message_t message = {
-    .type = MIDI_EXCLUSIVE_MESSAGE,
-    .value.exclusive = {
-      .channel = channel & 0x7F,
-      .manufacturer_id = 0x43,
-      .data_size = 3
-    }
-  };
-  memcpy(message.value.exclusive.data, data, message.value.exclusive.data_size);
-
-  to_send[0] = message;
-  return 1;
-}
-
-uint8_t execute_action_bank_change(const uint8_t channel, const value_t value, midi_message_t * const to_send) {
-  const midi_message_t c1 = {
-    .type = MIDI_CONTROLLER_MESSAGE,
-    .value.controller = {
-      .channel = channel & 0x7F,
-      .number = 0,
-      .value = 127
-    }
-  };
-  const midi_message_t c2 = {
-      .type = MIDI_CONTROLLER_MESSAGE,
-      .value.controller = {
-        .channel = channel & 0x7F,
-        .number = 32,
-        .value = 0
-      }
-  };
-  const midi_message_t p = {
-    .type = MIDI_PROGRAM_CHANGE_MESSAGE,
-    .value.controller = {
-      .channel = channel & 0x7F,
-      .number = value.v1 & 0x7F
-    }
-  };
-  to_send[0] = c1;
-  to_send[1] = c2;
-  to_send[2] = p;
-  return 3;
-}
-
-void execute_action_mapping(const action_mapping_configuration_t configuration, const uint8_t channel, const value_t value) {
-  midi_set_mapped_note(value.v1 & 0x7F, channel & 0x7F, value.v2 & 0x7F);
-}
-
-bool execute_action(const action_t action, value_t value) {
-  uint8_t messages = 0;
-  switch(action.type) {
-  case ACTION_CONTROLLER:
-    messages = execute_action_controller(action.configuration.controller, action.channel, value, action_messages);
-    break;
-  case ACTION_NRPN:
-    messages = execute_action_rpn(action.configuration.rpn, action.channel, value, action_messages);
-    break;
-  case ACTION_BANK_CHANGE:
-    messages = execute_action_bank_change(action.channel, value, action_messages);
-    break;
-  case ACTION_MAPPING:
-    execute_action_mapping(action.configuration.mapping, action.channel, value);
-    messages = 0;
-    break;
-  case ACTION_XG_PARAMETER_CHANGE_1:
-    messages = execute_action_xg_parameter_change_1(action.configuration.xg_parameter_change, action.channel, value, action_messages);
-    break;
-  }
-  if(messages < midi_can_send_messages()) {
-    midi_send_messages(action_messages, messages);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-static bool value_eq(value_t v1, value_t v2) {
-  return v1.v1 == v2.v1 && v1.v2 == v2.v2 && v1.v3 == v2.v3;
-}
-
-static void execute_actions() {
-  uint8_t last_action;
-  if(current_action == 0) {
-    last_action = actions_size - 1;
-  } else {
-    last_action = current_action - 1;
-  }
-
-  for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-    if(!value_eq(sent_values[current_action], computed_values[current_action]) && !execute_action(actions[current_action], computed_values[current_action])) {
-      break;
-    } else {
-      sent_values[current_action] = computed_values[current_action];
-    }
-  }
-}
-
-static int32_t parameter_value(const parameter_t parameter) {
-  int32_t value = -1;
-  switch(parameter.type) {
-  case PARAMETER_CONTROL:
-    switch(sdhi_type(parameter.parameter.control.id, sdhi)) {
-    case SDHI_CONTROL_TYPE_INTEGER:
-      value = sdhi_integer(parameter.parameter.control.id, values, sdhi) + parameter.parameter.control.offset;
-      break;
-    case SDHI_CONTROL_TYPE_ENUMERATION:
-      value = sdhi_enumeration(parameter.parameter.control.id, values, sdhi)  + parameter.parameter.control.offset;
-      break;
-    case SDHI_CONTROL_TYPE_REAL:
-      break;
-    }
-    break;
-  case PARAMETER_VALUE:
-    value = parameter.parameter.value;
-    break;
-  }
-  return value;
-}
-
-static void update_computed_values() {
-  for(uint8_t i = 0; i < actions_size; i++) {
-    const action_t action = actions[i];
-    switch(action.type) {
-    case ACTION_CONTROLLER:
-      computed_values[i].v1 = parameter_value(action.configuration.controller.number);
-      computed_values[i].v2 = parameter_value(action.configuration.controller.value);
-      computed_values[i].v3 = 0;
-      break;
-    case ACTION_NRPN:
-      computed_values[i].v1 = parameter_value(action.configuration.rpn.msb);
-      computed_values[i].v2 = parameter_value(action.configuration.rpn.lsb);
-      computed_values[i].v3 = parameter_value(action.configuration.rpn.value);
-      break;
-    case ACTION_BANK_CHANGE:
-      computed_values[i].v1 = parameter_value(action.configuration.bank_change.value);
-      computed_values[i].v2 = 0;
-      computed_values[i].v3 = 0;
-      break;
-    case ACTION_MAPPING:
-      computed_values[i].v1 = parameter_value(action.configuration.mapping.note);
-      computed_values[i].v2 = parameter_value(action.configuration.mapping.value);
-      computed_values[i].v3 = 0;
-      break;
-    case ACTION_XG_PARAMETER_CHANGE_1:
-      computed_values[i].v1 = parameter_value(action.configuration.xg_parameter_change.parameter);
-      computed_values[i].v2 = parameter_value(action.configuration.xg_parameter_change.value);
-      computed_values[i].v3 = 0;
-      break;
-    }
-  }
-}
 
 int main() {
   stdio_init_all();
@@ -892,13 +631,7 @@ int main() {
   start = get_absolute_time();
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
-  update_computed_values();
-  for(uint8_t i; i < actions_size; i++) {
-    while(!execute_action(actions[i], computed_values[i])) {
-      sleep_ms(10);
-    }
-    sent_values[i] = computed_values[i];
-  }
+  action_init(actions, actions_size, sdhi, values, sent_values, computed_values);
 
   for(uint32_t i = 0;;) {
     if(pio_display_can_wait_without_blocking()) {
@@ -911,8 +644,7 @@ int main() {
       sdhi_update_displays(values, sdhi);
     }
     if(sdhi_update_values(values, sdhi)) {
-      update_computed_values();
-      execute_actions();
+      action_update(actions, actions_size, sdhi, values, sent_values, computed_values);
     }
   }
 }

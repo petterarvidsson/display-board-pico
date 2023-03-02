@@ -144,14 +144,14 @@ sdhi_control_type_t sdhi_type(const uint16_t id, const sdhi_t sdhi) {
   return find_control(id, sdhi)->type;
 }
 
-int32_t sdhi_integer(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+int32_t sdhi_integer(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
   return values[id];
 }
-float sdhi_real(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+float sdhi_real(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
   return values[id] * find_control(id, sdhi)->configuration.real.step;
 }
 
-int32_t sdhi_enumeration(const uint16_t id, int32_t * const values, const sdhi_t sdhi) {
+int32_t sdhi_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
   return find_control(id, sdhi)->configuration.enumeration.values[(uint32_t)(values[id] & 0xFFFFFF)].value;
 }
 
