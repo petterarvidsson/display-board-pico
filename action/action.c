@@ -3,8 +3,12 @@
 #include "midi.h"
 #include "sdhi.h"
 
-static bool value_eq(const value_t v1, const value_t v2) {
+static bool v_eq(const value_t v1, const value_t v2) {
   return v1.v1 == v2.v1 && v1.v2 == v2.v2 && v1.v3 == v2.v3;
+}
+
+static bool value_eq(const action_value_t value) {
+  return v_eq(value.computed, value.sent);
 }
 
 static uint8_t current_action;
@@ -123,7 +127,7 @@ static bool execute_action(const action_t action, const value_t value) {
   }
 }
 
-static void execute_actions(const action_t * const actions, const uint8_t actions_size, const value_t * const computed_values, value_t * sent_values) {
+static void execute_actions(const action_t * const actions, const uint8_t actions_size, action_value_t * action_values) {
   uint8_t last_action;
   if(current_action == 0) {
     last_action = actions_size - 1;
@@ -132,10 +136,10 @@ static void execute_actions(const action_t * const actions, const uint8_t action
   }
 
   for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-    if(!value_eq(sent_values[current_action], computed_values[current_action]) && !execute_action(actions[current_action], computed_values[current_action])) {
+    if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed)) {
       break;
     } else {
-      sent_values[current_action] = computed_values[current_action];
+      action_values[current_action].sent = action_values[current_action].computed;
     }
   }
 }
@@ -162,51 +166,51 @@ static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, c
   return value;
 }
 
-static void update_computed_values(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, value_t * computed_values) {
+static void update_computed_values(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
   for(uint8_t i = 0; i < actions_size; i++) {
     const action_t action = actions[i];
     switch(action.type) {
     case ACTION_CONTROLLER:
-      computed_values[i].v1 = parameter_value(action.configuration.controller.number, sdhi, values);
-      computed_values[i].v2 = parameter_value(action.configuration.controller.value, sdhi, values);
-      computed_values[i].v3 = 0;
+      action_values[i].computed.v1 = parameter_value(action.configuration.controller.number, sdhi, values);
+      action_values[i].computed.v2 = parameter_value(action.configuration.controller.value, sdhi, values);
+      action_values[i].computed.v3 = 0;
       break;
     case ACTION_NRPN:
-      computed_values[i].v1 = parameter_value(action.configuration.rpn.msb, sdhi, values);
-      computed_values[i].v2 = parameter_value(action.configuration.rpn.lsb, sdhi, values);
-      computed_values[i].v3 = parameter_value(action.configuration.rpn.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.rpn.msb, sdhi, values);
+      action_values[i].computed.v2 = parameter_value(action.configuration.rpn.lsb, sdhi, values);
+      action_values[i].computed.v3 = parameter_value(action.configuration.rpn.value, sdhi, values);
       break;
     case ACTION_BANK_CHANGE:
-      computed_values[i].v1 = parameter_value(action.configuration.bank_change.value, sdhi, values);
-      computed_values[i].v2 = 0;
-      computed_values[i].v3 = 0;
+      action_values[i].computed.v1 = parameter_value(action.configuration.bank_change.value, sdhi, values);
+      action_values[i].computed.v2 = 0;
+      action_values[i].computed.v3 = 0;
       break;
     case ACTION_MAPPING:
-      computed_values[i].v1 = parameter_value(action.configuration.mapping.note, sdhi, values);
-      computed_values[i].v2 = parameter_value(action.configuration.mapping.value, sdhi, values);
-      computed_values[i].v3 = 0;
+      action_values[i].computed.v1 = parameter_value(action.configuration.mapping.note, sdhi, values);
+      action_values[i].computed.v2 = parameter_value(action.configuration.mapping.value, sdhi, values);
+      action_values[i].computed.v3 = 0;
       break;
     case ACTION_XG_PARAMETER_CHANGE_1:
-      computed_values[i].v1 = parameter_value(action.configuration.xg_parameter_change.parameter, sdhi, values);
-      computed_values[i].v2 = parameter_value(action.configuration.xg_parameter_change.value, sdhi, values);
-      computed_values[i].v3 = 0;
+      action_values[i].computed.v1 = parameter_value(action.configuration.xg_parameter_change.parameter, sdhi, values);
+      action_values[i].computed.v2 = parameter_value(action.configuration.xg_parameter_change.value, sdhi, values);
+      action_values[i].computed.v3 = 0;
       break;
     }
   }
 }
 
-void action_init(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, value_t * sent_values, value_t * computed_values) {
+void action_init(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
   current_action = 0;
-  update_computed_values(actions, actions_size, sdhi, values, computed_values);
+  update_computed_values(actions, actions_size, sdhi, values, action_values);
   for(uint8_t i; i < actions_size; i++) {
-    while(!execute_action(actions[i], computed_values[i])) {
+    while(!execute_action(actions[i], action_values[i].computed)) {
       sleep_ms(10);
     }
-    sent_values[i] = computed_values[i];
+    action_values[i].sent = action_values[i].computed;
   }
 }
 
-void action_update(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, value_t * sent_values, value_t * computed_values) {
-  update_computed_values(actions, actions_size, sdhi, values, computed_values);
-  execute_actions(actions, actions_size, computed_values, sent_values);
+void action_update(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
+  update_computed_values(actions, actions_size, sdhi, values, action_values);
+  execute_actions(actions, actions_size, action_values);
 }

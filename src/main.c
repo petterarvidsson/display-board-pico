@@ -610,8 +610,7 @@ void copy_actions() {
   }
 }
 
-static value_t computed_values[sizeof(actions) / sizeof(action_t)];
-static value_t sent_values[sizeof(actions) / sizeof(action_t)];
+static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
 
 int main() {
   stdio_init_all();
@@ -631,7 +630,7 @@ int main() {
   start = get_absolute_time();
   pio_display_update_and_flip();
   sdhi_update_displays(values, sdhi);
-  action_init(actions, actions_size, sdhi, values, sent_values, computed_values);
+  action_init(actions, actions_size, sdhi, values, action_values);
 
   for(uint32_t i = 0;;) {
     if(pio_display_can_wait_without_blocking()) {
@@ -644,7 +643,7 @@ int main() {
       sdhi_update_displays(values, sdhi);
     }
     if(sdhi_update_values(values, sdhi)) {
-      action_update(actions, actions_size, sdhi, values, sent_values, computed_values);
+      action_update(actions, actions_size, sdhi, values, action_values);
     }
   }
 }
