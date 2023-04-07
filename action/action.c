@@ -199,18 +199,18 @@ static void update_computed_values(const action_t * const actions, const uint8_t
   }
 }
 
-void action_init(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
+void action_init(const actions_t const actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
   current_action = 0;
-  update_computed_values(actions, actions_size, sdhi, values, action_values);
-  for(uint8_t i; i < actions_size; i++) {
-    while(!execute_action(actions[i], action_values[i].computed)) {
+  update_computed_values(actions.actions, actions.size, sdhi, values, action_values);
+  for(uint8_t i; i < actions.size; i++) {
+    while(!execute_action(actions.actions[i], action_values[i].computed)) {
       sleep_ms(10);
     }
     action_values[i].sent = action_values[i].computed;
   }
 }
 
-void action_update(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
-  update_computed_values(actions, actions_size, sdhi, values, action_values);
-  execute_actions(actions, actions_size, action_values);
+void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
+  update_computed_values(actions.actions, actions.size, sdhi, values, action_values);
+  execute_actions(actions.actions, actions.size, action_values);
 }

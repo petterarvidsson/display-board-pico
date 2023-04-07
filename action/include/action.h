@@ -78,5 +78,10 @@ typedef struct {
   action_configuration_t configuration;
 } action_t;
 
-void action_init(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values);
-void action_update(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values);
+typedef struct {
+  const action_t * const actions;
+  const uint8_t size;
+} actions_t;
+
+void action_init(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values);
+void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values);

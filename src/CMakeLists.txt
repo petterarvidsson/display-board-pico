@@ -10,6 +10,8 @@ target_link_libraries(display_board PRIVATE
         sdhi
         midi
         action
+        setup
+        drum
         pico_time
         )
 
