@@ -8,6 +8,7 @@
 #include "midi.h"
 #include "action.h"
 #include "drum.h"
+#include "ymf262.h"
 
 static void real_time() {
   for(uint32_t i = 0;;i++) {
@@ -19,27 +20,28 @@ static void real_time() {
 int main() {
   stdio_init_all();
   printf("SDHI\n");
-  pio_display_init();
-  i2c_controller_init();
-  setup_t drums = drum_init();
+  ymf262_init();
+  /* pio_display_init(); */
+  /* i2c_controller_init(); */
+  /* setup_t drums = drum_init(); */
 
-  sdhi_init(drums.sdhi);
-  sdhi_init_values(drums.values, drums.sdhi);
-  midi_init();
-  multicore_launch_core1(real_time);
+  /* sdhi_init(drums.sdhi); */
+  /* sdhi_init_values(drums.values, drums.sdhi); */
+  /* midi_init(); */
+  /* multicore_launch_core1(real_time); */
 
-  pio_display_update_and_flip();
-  sdhi_update_displays(drums.values, drums.sdhi);
-  action_init(drums.actions, drums.sdhi, drums.values, drums.action_values);
+  /* pio_display_update_and_flip(); */
+  /* sdhi_update_displays(drums.values, drums.sdhi); */
+  /* action_init(drums.actions, drums.sdhi, drums.values, drums.action_values); */
 
-  for(uint32_t i = 0;;) {
-    if(pio_display_can_wait_without_blocking()) {
-      pio_display_wait_for_finish_blocking();
-      pio_display_update_and_flip();
-      sdhi_update_displays(drums.values, drums.sdhi);
-    }
-    if(sdhi_update_values(drums.values, drums.sdhi)) {
-      action_update(drums.actions, drums.sdhi, drums.values, drums.action_values);
-    }
-  }
+  /* for(uint32_t i = 0;;) { */
+  /*   if(pio_display_can_wait_without_blocking()) { */
+  /*     pio_display_wait_for_finish_blocking(); */
+  /*     pio_display_update_and_flip(); */
+  /*     sdhi_update_displays(drums.values, drums.sdhi); */
+  /*   } */
+  /*   if(sdhi_update_values(drums.values, drums.sdhi)) { */
+  /*     action_update(drums.actions, drums.sdhi, drums.values, drums.action_values); */
+  /*   } */
+  /* } */
 }
