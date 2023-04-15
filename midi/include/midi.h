@@ -3,7 +3,14 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#define MIDI_MAX_SLOTS 6
 #define MIDI_EXCLUSIVE_MAX_LENGTH 16
+
+typedef struct {
+  uint32_t state;
+  uint8_t note;
+  uint8_t velocity;
+} midi_slot_t;
 
 typedef enum {
   MIDI_CONTROLLER_MESSAGE,
@@ -74,3 +81,7 @@ uint32_t midi_can_send_messages();
 void midi_send_messages(midi_message_t * messages, const uint32_t messages_size);
 void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const uint8_t out_note);
 void midi_clear_mapped_note(const uint8_t note);
+void midi_set_slot_for_channel(const uint8_t channel, const uint8_t slot);
+void midi_clear_slot_for_channel(const uint8_t channel, const uint8_t slot);
+void midi_slots_status(midi_slot_t *midi_slots, const uint8_t size);
+float midi_note_to_frequency(const uint8_t note);

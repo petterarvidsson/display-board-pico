@@ -610,7 +610,9 @@ setup_t drum_init() {
       .actions = actions,
       .size = actions_size
     },
-    .action_values = action_values
+    .action_values = action_values,
+    .midi_slots = NULL,
+    .midi_slots_size = 0
   };
   return drum;
 }

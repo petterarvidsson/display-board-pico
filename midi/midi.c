@@ -3,7 +3,9 @@
 #include "hardware/gpio.h"
 #include "pico/platform.h"
 #include "midi.h"
+#include "math.h"
 
+#define MIDI_BASE (440.0f / 32.0f)
 #define MIDI_NOTE_ON 0x90
 #define MIDI_NOTE_OFF 0x80
 
@@ -137,15 +139,35 @@ static midi_mapped_note_t not_mapped = {
 };
 static midi_mapped_note_t mapping[MIDI_NOTES];
 
+
+typedef struct {
+  uint32_t state;
+  uint8_t channel;
+  uint8_t note;
+  uint8_t velocity;
+} slot_t;
+
+static slot_t inactive = {
+  .state = 0,
+  .channel = 0x80
+};
+static slot_t slots[MIDI_MAX_SLOTS];
+
+static uint32_t midi_clock;
+
 void midi_init() {
   in_position = 0;
   out_position = 0;
   out_size = 0;
   queue_init(&in, sizeof(midi_message_t), 32);
   queue_init(&out, sizeof(midi_message_t), OUT_MESSAGES_SIZE);
-
+  midi_clock = 1;
   for(uint8_t i = 0; i < MIDI_NOTES; i++) {
     mapping[i] = not_mapped;
+  }
+
+  for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
+    slots[i] = inactive;
   }
 
   uart_init(uart1, 31250);
@@ -168,6 +190,29 @@ void send_mapped(const midi_mapped_note_t map, const midi_message_type_t type, c
   }
 }
 
+static void slot_on(const note_message_t note) {
+  uint8_t best_slot = 0;
+  for(uint8_t i = 1; i < MIDI_MAX_SLOTS; i++) {
+    if(slots[i].channel == note.channel && slots[i].state < slots[best_slot].state)
+      best_slot = i;
+  }
+  if(slots[best_slot].channel == note.channel) {
+    slots[best_slot].note = note.note;
+    slots[best_slot].velocity = note.velocity;
+    slots[best_slot].state = ++midi_clock;
+  }
+}
+
+static void slot_off(const note_message_t note) {
+  for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
+    if(slots[i].channel == note.channel && slots[i].note == note.note) {
+      slots[i].note = note.note;
+      slots[i].velocity = note.velocity;
+      slots[i].state = 0;
+    }
+  }
+}
+
 void midi_run() {
   if(uart_is_readable(uart1)) {
     uart_read_blocking(uart1, in_buffer + in_position, 1);
@@ -176,20 +221,24 @@ void midi_run() {
       switch(in_buffer[0]) {
       case MIDI_NOTE_OFF: {
         read_note(MIDI_NOTE_OFF_MESSAGE, &message);
-        midi_mapped_note_t map = mapping[message.value.note.note];
+        note_message_t note = message.value.note;
+        midi_mapped_note_t map = mapping[note.note];
         if(map.note != 0x80) {
-          send_mapped(map, MIDI_NOTE_OFF_MESSAGE, message.value.note.velocity);
+          send_mapped(map, MIDI_NOTE_OFF_MESSAGE, note.velocity);
         }
         in_position = 0;
+        slot_off(note);
         break;
       }
       case MIDI_NOTE_ON: {
         read_note(MIDI_NOTE_ON_MESSAGE, &message);
-        midi_mapped_note_t map = mapping[message.value.note.note];
+        note_message_t note = message.value.note;
+        midi_mapped_note_t map = mapping[note.note];
         if(map.note != 0x80) {
-          send_mapped(map, MIDI_NOTE_ON_MESSAGE, message.value.note.velocity);
+          send_mapped(map, MIDI_NOTE_ON_MESSAGE, note.velocity);
         }
         in_position = 0;
+        slot_on(note);
         break;
       }
       default:
@@ -239,4 +288,29 @@ void midi_set_mapped_note(const uint8_t note, const uint8_t out_channel, const u
 
 void midi_clear_mapped_note(const uint8_t note) {
   mapping[note & 0x7F] = not_mapped;
+}
+
+void midi_set_slot_for_channel(const uint8_t channel, const uint8_t slot) {
+  if(slot < MIDI_MAX_SLOTS) {
+    slots[slot].channel = channel;
+    slots[slot].state = 0;
+  }
+}
+
+void midi_clear_slot_for_channel(const uint8_t channel, const uint8_t slot) {
+  if(slot < MIDI_MAX_SLOTS) {
+    slots[slot] = inactive;
+  }
+}
+
+void midi_slots_status(midi_slot_t *midi_slots, const uint8_t size) {
+  for(uint8_t i = 0; i < MIN(size, MIDI_MAX_SLOTS); i++) {
+    midi_slots[i].state = slots[i].state;
+    midi_slots[i].note = slots[i].note;
+    midi_slots[i].velocity = slots[i].velocity;
+  }
+}
+
+float midi_note_to_frequency(const uint8_t note) {
+  return MIDI_BASE * pow(2, ((note - 9) / 12.0f));
 }

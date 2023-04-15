@@ -2,6 +2,12 @@
 #include "action.h"
 #include "midi.h"
 #include "sdhi.h"
+#include "ymf262.h"
+
+typedef struct {
+  const midi_slot_t * const slots;
+  const uint8_t size;
+} slots_t;
 
 static bool v_eq(const value_t v1, const value_t v2) {
   return v1.v1 == v2.v1 && v1.v2 == v2.v2 && v1.v3 == v2.v3;
@@ -15,7 +21,7 @@ static uint8_t current_action;
 
 static midi_message_t action_messages[8];
 
-static uint8_t execute_action_controller(const action_controller_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
+static uint8_t execute_action_controller(const uint8_t channel, const value_t value, midi_message_t * const to_send) {
   midi_message_t message = {
     .type = MIDI_CONTROLLER_MESSAGE,
     .value.controller = {
@@ -29,7 +35,7 @@ static uint8_t execute_action_controller(const action_controller_configuration_t
 }
 
 
-static uint8_t execute_action_rpn(const action_rpn_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
+static uint8_t execute_action_rpn(const uint8_t channel, const value_t value, midi_message_t * const to_send) {
   midi_message_t message = {
     .type = MIDI_NRPN_MESSAGE,
     .value.rpn = {
@@ -43,7 +49,7 @@ static uint8_t execute_action_rpn(const action_rpn_configuration_t configuration
   return 1;
 }
 
-static uint8_t execute_action_xg_parameter_change_1(const action_xg_parameter_change_1_configuration_t configuration, const uint8_t channel, const value_t value, midi_message_t * const to_send) {
+static uint8_t execute_action_xg_parameter_change_1(const uint8_t channel, const value_t value, midi_message_t * const to_send) {
   uint8_t data[MIDI_EXCLUSIVE_MAX_LENGTH];
 
   data[0] = 0x08;
@@ -95,28 +101,60 @@ static uint8_t execute_action_bank_change(const uint8_t channel, const value_t v
   return 3;
 }
 
-static void execute_action_mapping(const action_mapping_configuration_t configuration, const uint8_t channel, const value_t value) {
+static void execute_action_mapping(const uint8_t channel, const value_t value) {
   midi_set_mapped_note(value.v1 & 0x7F, channel & 0x7F, value.v2 & 0x7F);
 }
 
-static bool execute_action(const action_t action, const value_t value) {
+static void execute_action_slot(const uint8_t channel, const value_t value) {
+  midi_set_slot_for_channel(channel & 0x7F, value.v1 & 0x7F);
+}
+
+static void execute_action_ymf262_slot_state(const value_t value, uint8_t * trigger_ymf262_channel) {
+  const uint8_t slot = value.v1 & 0x07;
+  const uint8_t note = value.v3 & 0x7F;
+  ymf262_stop(slot);
+  ymf262_frequency(slot, midi_note_to_frequency(note));
+  if(value.v2 != 0) {
+    *trigger_ymf262_channel |= 1 << slot;
+  }
+}
+
+static void execute_action_ymf262_parameter(const value_t value) {
+  const ymf262_parameter_t parameter = value.v1 & 0x7FFFFFF;
+  const uint8_t parameter_value = value.v2 & 0xFF;
+  ymf262_all_channels_parameter(parameter, parameter_value);
+}
+
+static bool execute_action(const action_t action, const value_t value, uint8_t * trigger_ymf262_channel) {
   uint8_t messages = 0;
   switch(action.type) {
   case ACTION_CONTROLLER:
-    messages = execute_action_controller(action.configuration.controller, action.channel, value, action_messages);
+    messages = execute_action_controller(action.channel, value, action_messages);
     break;
   case ACTION_NRPN:
-    messages = execute_action_rpn(action.configuration.rpn, action.channel, value, action_messages);
+    messages = execute_action_rpn(action.channel, value, action_messages);
     break;
   case ACTION_BANK_CHANGE:
     messages = execute_action_bank_change(action.channel, value, action_messages);
     break;
   case ACTION_MAPPING:
-    execute_action_mapping(action.configuration.mapping, action.channel, value);
+    execute_action_mapping(action.channel, value);
+    messages = 0;
+    break;
+  case ACTION_SLOT:
+    execute_action_slot(action.channel, value);
     messages = 0;
     break;
   case ACTION_XG_PARAMETER_CHANGE_1:
-    messages = execute_action_xg_parameter_change_1(action.configuration.xg_parameter_change, action.channel, value, action_messages);
+    messages = execute_action_xg_parameter_change_1(action.channel, value, action_messages);
+    break;
+  case ACTION_YMF262_SLOT_STATE:
+    messages = 0;
+    execute_action_ymf262_slot_state(value, trigger_ymf262_channel);
+    break;
+  case ACTION_YMF262_PARAMETER:
+    messages = 0;
+    execute_action_ymf262_parameter(value);
     break;
   }
   if(messages < midi_can_send_messages()) {
@@ -129,6 +167,7 @@ static bool execute_action(const action_t action, const value_t value) {
 
 static void execute_actions(const action_t * const actions, const uint8_t actions_size, action_value_t * action_values) {
   uint8_t last_action;
+  uint8_t trigger_ymf262_channel = 0;
   if(current_action == 0) {
     last_action = actions_size - 1;
   } else {
@@ -136,7 +175,7 @@ static void execute_actions(const action_t * const actions, const uint8_t action
   }
 
   for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-    if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed)) {
+    if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed, &trigger_ymf262_channel)) {
       break;
     } else {
       action_values[current_action].sent = action_values[current_action].computed;
@@ -144,7 +183,7 @@ static void execute_actions(const action_t * const actions, const uint8_t action
   }
 }
 
-static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, const int32_t * const values) {
+static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, const int32_t * const values, const slots_t slots) {
   int32_t value = -1;
   switch(parameter.type) {
   case PARAMETER_CONTROL:
@@ -153,7 +192,7 @@ static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, c
       value = sdhi_integer(parameter.parameter.control.id, values, sdhi) + parameter.parameter.control.offset;
       break;
     case SDHI_CONTROL_TYPE_ENUMERATION:
-      value = sdhi_enumeration(parameter.parameter.control.id, values, sdhi)  + parameter.parameter.control.offset;
+      value = sdhi_enumeration(parameter.parameter.control.id, values, sdhi) + parameter.parameter.control.offset;
       break;
     case SDHI_CONTROL_TYPE_REAL:
       break;
@@ -162,55 +201,96 @@ static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, c
   case PARAMETER_VALUE:
     value = parameter.parameter.value;
     break;
+  case PARAMETER_MIDI_NOTE:
+    if(parameter.parameter.note.slot < slots.size) {
+      switch(parameter.parameter.note.parameter) {
+      case PARAMETER_MIDI_NOTE_VALUE:
+        value = slots.slots[parameter.parameter.note.slot].note;
+        break;
+      case PARAMETER_MIDI_NOTE_VELOCITY:
+        value = slots.slots[parameter.parameter.note.slot].velocity;
+        break;
+      case PARAMETER_MIDI_NOTE_STATE:
+        value = slots.slots[parameter.parameter.note.slot].state;
+        break;
+      }
+    }
+    break;
   }
   return value;
 }
 
-static void update_computed_values(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
+static void update_computed_values(const action_t * const actions, const uint8_t actions_size, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values, const slots_t slots) {
   for(uint8_t i = 0; i < actions_size; i++) {
     const action_t action = actions[i];
     switch(action.type) {
     case ACTION_CONTROLLER:
-      action_values[i].computed.v1 = parameter_value(action.configuration.controller.number, sdhi, values);
-      action_values[i].computed.v2 = parameter_value(action.configuration.controller.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.controller.number, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.controller.value, sdhi, values, slots);
       action_values[i].computed.v3 = 0;
       break;
     case ACTION_NRPN:
-      action_values[i].computed.v1 = parameter_value(action.configuration.rpn.msb, sdhi, values);
-      action_values[i].computed.v2 = parameter_value(action.configuration.rpn.lsb, sdhi, values);
-      action_values[i].computed.v3 = parameter_value(action.configuration.rpn.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.rpn.msb, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.rpn.lsb, sdhi, values, slots);
+      action_values[i].computed.v3 = parameter_value(action.configuration.rpn.value, sdhi, values, slots);
       break;
     case ACTION_BANK_CHANGE:
-      action_values[i].computed.v1 = parameter_value(action.configuration.bank_change.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.bank_change.value, sdhi, values, slots);
       action_values[i].computed.v2 = 0;
       action_values[i].computed.v3 = 0;
       break;
     case ACTION_MAPPING:
-      action_values[i].computed.v1 = parameter_value(action.configuration.mapping.note, sdhi, values);
-      action_values[i].computed.v2 = parameter_value(action.configuration.mapping.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.mapping.note, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.mapping.value, sdhi, values, slots);
+      action_values[i].computed.v3 = 0;
+      break;
+    case ACTION_SLOT:
+      action_values[i].computed.v1 = parameter_value(action.configuration.slot.slot, sdhi, values, slots);
+      action_values[i].computed.v2 = 0;
       action_values[i].computed.v3 = 0;
       break;
     case ACTION_XG_PARAMETER_CHANGE_1:
-      action_values[i].computed.v1 = parameter_value(action.configuration.xg_parameter_change.parameter, sdhi, values);
-      action_values[i].computed.v2 = parameter_value(action.configuration.xg_parameter_change.value, sdhi, values);
+      action_values[i].computed.v1 = parameter_value(action.configuration.xg_parameter_change.parameter, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.xg_parameter_change.value, sdhi, values, slots);
+      action_values[i].computed.v3 = 0;
+      break;
+    case ACTION_YMF262_SLOT_STATE:
+      action_values[i].computed.v1 = parameter_value(action.configuration. ymf262_slot_state.slot, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration. ymf262_slot_state.state, sdhi, values, slots);
+      action_values[i].computed.v3 = parameter_value(action.configuration. ymf262_slot_state.note, sdhi, values, slots);
+      break;
+    case ACTION_YMF262_PARAMETER:
+      action_values[i].computed.v1 = parameter_value(action.configuration. ymf262_parameter.parameter, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration. ymf262_parameter.value, sdhi, values, slots);
       action_values[i].computed.v3 = 0;
       break;
     }
   }
 }
 
-void action_init(const actions_t const actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
+void action_init(const actions_t const actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
   current_action = 0;
-  update_computed_values(actions.actions, actions.size, sdhi, values, action_values);
+  slots_t internal = {
+    .slots = slots,
+    .size = slots_size
+  };
+  update_computed_values(actions.actions, actions.size, sdhi, values, action_values, internal);
+
+  // Not used for init, we will not trigger any notes on
+  uint8_t trigger_ymf262_channel = 0;
   for(uint8_t i; i < actions.size; i++) {
-    while(!execute_action(actions.actions[i], action_values[i].computed)) {
+    while(!execute_action(actions.actions[i], action_values[i].computed, &trigger_ymf262_channel)) {
       sleep_ms(10);
     }
     action_values[i].sent = action_values[i].computed;
   }
 }
 
-void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values) {
-  update_computed_values(actions.actions, actions.size, sdhi, values, action_values);
+void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+  slots_t internal = {
+    .slots = slots,
+    .size = slots_size
+  };
+  update_computed_values(actions.actions, actions.size, sdhi, values, action_values, internal);
   execute_actions(actions.actions, actions.size, action_values);
 }
