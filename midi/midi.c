@@ -292,6 +292,7 @@ void midi_clear_mapped_note(const uint8_t note) {
 
 void midi_set_slot_for_channel(const uint8_t channel, const uint8_t slot) {
   if(slot < MIDI_MAX_SLOTS) {
+    printf("SET SLOT %d for CHANNEL %d\n", slot, channel);
     slots[slot].channel = channel;
     slots[slot].state = 0;
   }

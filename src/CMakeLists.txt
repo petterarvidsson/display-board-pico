@@ -13,6 +13,7 @@ target_link_libraries(display_board PRIVATE
         setup
         drum
         ymf262
+        ymf262_synth
         pico_time
         )
 

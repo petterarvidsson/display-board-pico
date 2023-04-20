@@ -112,8 +112,10 @@ static void execute_action_slot(const uint8_t channel, const value_t value) {
 static void execute_action_ymf262_slot_state(const value_t value, uint8_t * trigger_ymf262_channel) {
   const uint8_t slot = value.v1 & 0x07;
   const uint8_t note = value.v3 & 0x7F;
+  const float frequency = midi_note_to_frequency(note);
+  printf("%d %d %f\n", slot, note, frequency);
   ymf262_stop(slot);
-  ymf262_frequency(slot, midi_note_to_frequency(note));
+  ymf262_frequency(slot, frequency);
   if(value.v2 != 0) {
     *trigger_ymf262_channel |= 1 << slot;
   }
@@ -166,19 +168,29 @@ static bool execute_action(const action_t action, const value_t value, uint8_t *
 }
 
 static void execute_actions(const action_t * const actions, const uint8_t actions_size, action_value_t * action_values) {
-  uint8_t last_action;
-  uint8_t trigger_ymf262_channel = 0;
-  if(current_action == 0) {
-    last_action = actions_size - 1;
-  } else {
-    last_action = current_action - 1;
-  }
+  if(actions_size > 0) {
+    uint8_t last_action;
+    uint8_t trigger_ymf262_channel = 0;
 
-  for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-    if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed, &trigger_ymf262_channel)) {
-      break;
+    if(current_action == 0) {
+      last_action = actions_size - 1;
     } else {
-      action_values[current_action].sent = action_values[current_action].computed;
+      last_action = current_action - 1;
+    }
+
+    for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
+      if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed, &trigger_ymf262_channel)) {
+        break;
+      } else {
+        action_values[current_action].sent = action_values[current_action].computed;
+      }
+    }
+
+    for(uint8_t c = 0; c < 6; c++) {
+      if((trigger_ymf262_channel >> c) & 0x1) {
+        printf("Trigger %d\n", c);
+        ymf262_start(c);
+      }
     }
   }
 }

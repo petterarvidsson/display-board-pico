@@ -446,6 +446,7 @@ static void write(uint8_t a1, uint8_t reg, uint8_t mask, uint8_t shift, uint8_t 
   i2c_buffer[10] = new;
   i2c_buffer[11] = INACTIVE;
   i2c_write_blocking(i2c, GPIO_ADDR, i2c_buffer, BUFFER_SIZE, false);
+  a[a1 & 0x1][reg] = new;
 }
 
 static f_number_t f_number(const float freq) {
@@ -637,7 +638,7 @@ void ymf262_frequency(uint8_t c, uint8_t frequency) {
     {FNUM_H, f.f_num_h},
     {BLOCK, f.block}
   };
-  ymf262_parameters(c, parameter_values, 4);
+  ymf262_parameters(c, parameter_values, sizeof(parameter_values) / sizeof(ymf262_parameter_value_t));
 }
 
 void ymf262_stop(uint8_t c) {
@@ -664,6 +665,10 @@ static void i2c_controller_init() {
   i2c_write_blocking(i2c, GPIO_ADDR, activate_out, sizeof(activate_out) / sizeof(uint8_t), false);
 
 }
+
+#define YM3812_NUM_CHANNELS  9
+#define YM3812_NUM_OPERATORS 18
+
 
 void ymf262_init() {
   i2c_controller_init();
@@ -692,5 +697,66 @@ void ymf262_init() {
   write(0, 0xBD, 0xFF, 0, 0x00);
   write(1, 0x04, 0xFF, 0, 0x00);
   // OPL3 mode enabled
-  write(1, 0x05, 0xFF, 0, 0x01);
+  //write(1, 0x05, 0xFF, 0, 0x01);
+
+  uint8_t channel_map[YM3812_NUM_CHANNELS] = { 0,1,2,6,7,8,12,13,14 };
+  uint8_t op_map[YM3812_NUM_OPERATORS]     = { 0,1,2,3,4,5,8,9,10,11,12,13,16,17,18,19,20,21 };
+  for( uint8_t ch=0; ch<YM3812_NUM_CHANNELS; ch++){   // Use the same patch for all channels
+    uint8_t op1_index = channel_map[ch];
+    uint8_t op2_index = op1_index + 3;                        // Always 3 higher
+    uint8_t op1 = op_map[op1_index];
+    uint8_t op2 = op_map[op2_index];
+    //Channel settings
+    write(0, 0xC0 + ch, 0xFF, 0, 1); // Algorithm (Addative synthesis) + Feedbacl 0
+
+    //Operator 1's settings
+    write(0, 0x60 + op1, 0xFF, 0, 0xB6); // Attack + decay
+    write(0, 0x80 + op1, 0xFF, 0, 0xA2); // Sustain + release
+    write(0, 0x40 + op1, 0xFF, 0, 0x00);
+    //write(0, 0xE0 + op1, 0x01);
+
+    //Operator 1's settings
+    write(0, 0x60 + op2, 0xFF, 0, 0xB6); // Attack + decay
+    write(0, 0x80 + op2, 0xFF, 0, 0xA2); // Sustain + release
+    write(0, 0x40 + op2, 0xFF, 0, 0x00);
+    //write(0, 0xE0 + op2, 0x01);
+  }
+
+  write(0, 0xB0 + 0, 0xFF, 0, 0);
+  write(0, 0xB0 + 1, 0xFF, 0, 0);
+  write(0, 0xB0 + 2, 0xFF, 0, 0);
+
+  /*
+  while(true) {
+
+  write(0, 0xB0 + 0, 0xFF, 0, (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H
+  write(0, 0xA0 + 0, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
+
+  write(0, 0xB0 + 1, 0xFF, 0, (4 << 2) | (0x240 >> 8)); // Block 4 + freq H
+  write(0, 0xA0 + 1, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
+
+  write(0, 0xB0 + 2, 0xFF, 0, (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H
+  write(0, 0xA0 + 2, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
+
+  write(0, 0xB0 + 3, 0xFF, 0, (4 << 2) | (0x360 >> 8)); // Block 4 + freq H
+  write(0, 0xA0 + 3, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
+
+  write(0, 0xB0 + 0, 0xFF, 0, (1 << 5) | (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H + key ON
+  busy_wait_ms(200);
+
+  write(0, 0xB0 + 1, 0xFF, 0, (1 << 5) | (4 << 2) | (0x240 >> 8)); // Block 4 + freq H + key ON
+  busy_wait_ms(200);
+
+  write(0, 0xB0 + 2, 0xFF, 0, (1 << 5) | (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H + key ON
+  busy_wait_ms(200);
+
+  write(0, 0xB0 + 3, 0xFF, 0, (1 << 5) | (4 << 2) | (0x360 >> 8)); // Block 4 + freq H + key ON
+  busy_wait_ms(200);
+
+  write(0, 0xB0 + 0, 0xFF, 0, (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H
+  write(0, 0xB0 + 1, 0xFF, 0, (4 << 2) | (0x240 >> 8)); // Block 4 + freq H
+  write(0, 0xB0 + 2, 0xFF, 0, (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H
+  write(0, 0xB0 + 3, 0xFF, 0, (4 << 2) | (0x360 >> 8)); // Block 4 + freq H
+  }
+  */
 }
