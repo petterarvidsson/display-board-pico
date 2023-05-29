@@ -102,6 +102,142 @@ static action_t actions[] = {
         .type = PARAMETER_MIDI_NOTE
       }
     }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_SLOT,
+    .configuration.slot = {
+      .slot = {
+        .parameter.value = 2,
+        .type = PARAMETER_VALUE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_SLOT_STATE,
+    .configuration.ymf262_slot_state = {
+      .slot = {
+        .parameter.value = 2,
+        .type = PARAMETER_VALUE
+      },
+      .state = {
+        .parameter.note = {
+          .slot = 2,
+          .parameter = PARAMETER_MIDI_NOTE_STATE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      },
+      .note = {
+        .parameter.note = {
+          .slot = 2,
+          .parameter = PARAMETER_MIDI_NOTE_VALUE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_SLOT,
+    .configuration.slot = {
+      .slot = {
+        .parameter.value = 3,
+        .type = PARAMETER_VALUE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_SLOT_STATE,
+    .configuration.ymf262_slot_state = {
+      .slot = {
+        .parameter.value = 3,
+        .type = PARAMETER_VALUE
+      },
+      .state = {
+        .parameter.note = {
+          .slot = 3,
+          .parameter = PARAMETER_MIDI_NOTE_STATE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      },
+      .note = {
+        .parameter.note = {
+          .slot = 3,
+          .parameter = PARAMETER_MIDI_NOTE_VALUE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_SLOT,
+    .configuration.slot = {
+      .slot = {
+        .parameter.value = 4,
+        .type = PARAMETER_VALUE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_SLOT_STATE,
+    .configuration.ymf262_slot_state = {
+      .slot = {
+        .parameter.value = 4,
+        .type = PARAMETER_VALUE
+      },
+      .state = {
+        .parameter.note = {
+          .slot = 4,
+          .parameter = PARAMETER_MIDI_NOTE_STATE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      },
+      .note = {
+        .parameter.note = {
+          .slot = 4,
+          .parameter = PARAMETER_MIDI_NOTE_VALUE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_SLOT,
+    .configuration.slot = {
+      .slot = {
+        .parameter.value = 5,
+        .type = PARAMETER_VALUE
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_SLOT_STATE,
+    .configuration.ymf262_slot_state = {
+      .slot = {
+        .parameter.value = 5,
+        .type = PARAMETER_VALUE
+      },
+      .state = {
+        .parameter.note = {
+          .slot = 5,
+          .parameter = PARAMETER_MIDI_NOTE_STATE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      },
+      .note = {
+        .parameter.note = {
+          .slot = 5,
+          .parameter = PARAMETER_MIDI_NOTE_VALUE
+        },
+        .type = PARAMETER_MIDI_NOTE
+      }
+    }
   }
 };
 static const uint32_t actions_size = sizeof(actions) / sizeof(action_t);

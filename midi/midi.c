@@ -141,6 +141,7 @@ static midi_mapped_note_t mapping[MIDI_NOTES];
 
 
 typedef struct {
+  bool on;
   uint32_t state;
   uint8_t channel;
   uint8_t note;
@@ -191,24 +192,41 @@ void send_mapped(const midi_mapped_note_t map, const midi_message_type_t type, c
 }
 
 static void slot_on(const note_message_t note) {
-  uint8_t best_slot = 0;
-  for(uint8_t i = 1; i < MIDI_MAX_SLOTS; i++) {
-    if(slots[i].channel == note.channel && slots[i].state < slots[best_slot].state)
+  int16_t best_slot = -1;
+  for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
+    if(slots[i].channel == note.channel && slots[i].note == note.note)
       best_slot = i;
   }
-  if(slots[best_slot].channel == note.channel) {
+  if(best_slot == -1) {
+    for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
+      if(slots[i].channel == note.channel && !slots[i].on && (best_slot == -1 || slots[i].state < slots[best_slot].state))
+        best_slot = i;
+    }
+  }
+  if(best_slot == -1) {
+    best_slot = 0;
+    for(uint8_t i = 1; i < MIDI_MAX_SLOTS; i++) {
+      if(slots[i].channel == note.channel && slots[i].state < slots[best_slot].state)
+        best_slot = i;
+    }
+  }
+  printf("Best slot %d\n", best_slot);
+  if(best_slot != -1) {
+    printf("Start slot %d\n", best_slot);
     slots[best_slot].note = note.note;
     slots[best_slot].velocity = note.velocity;
     slots[best_slot].state = ++midi_clock;
+    slots[best_slot].on = true;
   }
 }
 
 static void slot_off(const note_message_t note) {
   for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
-    if(slots[i].channel == note.channel && slots[i].note == note.note) {
+    if(slots[i].channel == note.channel && slots[i].note == note.note && slots[i].on) {
+      printf("Stop slot %d\n", i);
       slots[i].note = note.note;
       slots[i].velocity = note.velocity;
-      slots[i].state = 0;
+      slots[i].on = false;
     }
   }
 }
@@ -227,6 +245,7 @@ void midi_run() {
           send_mapped(map, MIDI_NOTE_OFF_MESSAGE, note.velocity);
         }
         in_position = 0;
+        printf("Note %d OFF\n", note.note);
         slot_off(note);
         break;
       }
@@ -238,6 +257,7 @@ void midi_run() {
           send_mapped(map, MIDI_NOTE_ON_MESSAGE, note.velocity);
         }
         in_position = 0;
+        printf("Note %d ON\n", note.note);
         slot_on(note);
         break;
       }
@@ -306,7 +326,7 @@ void midi_clear_slot_for_channel(const uint8_t channel, const uint8_t slot) {
 
 void midi_slots_status(midi_slot_t *midi_slots, const uint8_t size) {
   for(uint8_t i = 0; i < MIN(size, MIDI_MAX_SLOTS); i++) {
-    midi_slots[i].state = slots[i].state;
+    midi_slots[i].on = slots[i].on;
     midi_slots[i].note = slots[i].note;
     midi_slots[i].velocity = slots[i].velocity;
   }

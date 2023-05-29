@@ -7,7 +7,7 @@
 #define MIDI_EXCLUSIVE_MAX_LENGTH 16
 
 typedef struct {
-  uint32_t state;
+  bool on;
   uint8_t note;
   uint8_t velocity;
 } midi_slot_t;

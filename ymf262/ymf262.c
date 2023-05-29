@@ -710,14 +710,14 @@ void ymf262_init() {
     write(0, 0xC0 + ch, 0xFF, 0, 1); // Algorithm (Addative synthesis) + Feedbacl 0
 
     //Operator 1's settings
-    write(0, 0x60 + op1, 0xFF, 0, 0xB6); // Attack + decay
-    write(0, 0x80 + op1, 0xFF, 0, 0xA2); // Sustain + release
+    write(0, 0x60 + op1, 0xFF, 0, 0x86); // Attack + decay
+    write(0, 0x80 + op1, 0xFF, 0, 0xAA); // Sustain + release
     write(0, 0x40 + op1, 0xFF, 0, 0x00);
     //write(0, 0xE0 + op1, 0x01);
 
     //Operator 1's settings
-    write(0, 0x60 + op2, 0xFF, 0, 0xB6); // Attack + decay
-    write(0, 0x80 + op2, 0xFF, 0, 0xA2); // Sustain + release
+    write(0, 0x60 + op2, 0xFF, 0, 0x86); // Attack + decay
+    write(0, 0x80 + op2, 0xFF, 0, 0xAA); // Sustain + release
     write(0, 0x40 + op2, 0xFF, 0, 0x00);
     //write(0, 0xE0 + op2, 0x01);
   }

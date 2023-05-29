@@ -223,7 +223,7 @@ static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, c
         value = slots.slots[parameter.parameter.note.slot].velocity;
         break;
       case PARAMETER_MIDI_NOTE_STATE:
-        value = slots.slots[parameter.parameter.note.slot].state;
+        value = slots.slots[parameter.parameter.note.slot].on;
         break;
       }
     }
