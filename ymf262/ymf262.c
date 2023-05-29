@@ -726,37 +726,4 @@ void ymf262_init() {
   write(0, 0xB0 + 1, 0xFF, 0, 0);
   write(0, 0xB0 + 2, 0xFF, 0, 0);
 
-  /*
-  while(true) {
-
-  write(0, 0xB0 + 0, 0xFF, 0, (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H
-  write(0, 0xA0 + 0, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
-
-  write(0, 0xB0 + 1, 0xFF, 0, (4 << 2) | (0x240 >> 8)); // Block 4 + freq H
-  write(0, 0xA0 + 1, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
-
-  write(0, 0xB0 + 2, 0xFF, 0, (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H
-  write(0, 0xA0 + 2, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
-
-  write(0, 0xB0 + 3, 0xFF, 0, (4 << 2) | (0x360 >> 8)); // Block 4 + freq H
-  write(0, 0xA0 + 3, 0xFF, 0, 0x1C9 & 0xFF); // Freq L
-
-  write(0, 0xB0 + 0, 0xFF, 0, (1 << 5) | (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H + key ON
-  busy_wait_ms(200);
-
-  write(0, 0xB0 + 1, 0xFF, 0, (1 << 5) | (4 << 2) | (0x240 >> 8)); // Block 4 + freq H + key ON
-  busy_wait_ms(200);
-
-  write(0, 0xB0 + 2, 0xFF, 0, (1 << 5) | (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H + key ON
-  busy_wait_ms(200);
-
-  write(0, 0xB0 + 3, 0xFF, 0, (1 << 5) | (4 << 2) | (0x360 >> 8)); // Block 4 + freq H + key ON
-  busy_wait_ms(200);
-
-  write(0, 0xB0 + 0, 0xFF, 0, (4 << 2) | (0x1C9 >> 8)); // Block 4 + freq H
-  write(0, 0xB0 + 1, 0xFF, 0, (4 << 2) | (0x240 >> 8)); // Block 4 + freq H
-  write(0, 0xB0 + 2, 0xFF, 0, (4 << 2) | (0x2AD >> 8)); // Block 4 + freq H
-  write(0, 0xB0 + 3, 0xFF, 0, (4 << 2) | (0x360 >> 8)); // Block 4 + freq H
-  }
-  */
 }
