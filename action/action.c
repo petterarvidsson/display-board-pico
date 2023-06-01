@@ -113,7 +113,6 @@ static void execute_action_ymf262_slot_state(const value_t value, uint8_t * trig
   const uint8_t slot = value.v1 & 0x07;
   const uint8_t note = value.v3 & 0x7F;
   const float frequency = midi_note_to_frequency(note);
-  printf("%d %d %f\n", slot, note, frequency);
   ymf262_stop(slot);
   ymf262_frequency(slot, frequency);
   if(value.v2 != 0) {
@@ -188,7 +187,6 @@ static void execute_actions(const action_t * const actions, const uint8_t action
 
     for(uint8_t c = 0; c < 6; c++) {
       if((trigger_ymf262_channel >> c) & 0x1) {
-        printf("Trigger %d\n", c);
         ymf262_start(c);
       }
     }

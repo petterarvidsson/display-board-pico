@@ -210,9 +210,7 @@ static void slot_on(const note_message_t note) {
         best_slot = i;
     }
   }
-  printf("Best slot %d\n", best_slot);
   if(best_slot != -1) {
-    printf("Start slot %d\n", best_slot);
     slots[best_slot].note = note.note;
     slots[best_slot].velocity = note.velocity;
     slots[best_slot].state = ++midi_clock;
@@ -223,7 +221,6 @@ static void slot_on(const note_message_t note) {
 static void slot_off(const note_message_t note) {
   for(uint8_t i = 0; i < MIDI_MAX_SLOTS; i++) {
     if(slots[i].channel == note.channel && slots[i].note == note.note && slots[i].on) {
-      printf("Stop slot %d\n", i);
       slots[i].note = note.note;
       slots[i].velocity = note.velocity;
       slots[i].on = false;
@@ -245,7 +242,6 @@ void midi_run() {
           send_mapped(map, MIDI_NOTE_OFF_MESSAGE, note.velocity);
         }
         in_position = 0;
-        printf("Note %d OFF\n", note.note);
         slot_off(note);
         break;
       }
@@ -257,7 +253,6 @@ void midi_run() {
           send_mapped(map, MIDI_NOTE_ON_MESSAGE, note.velocity);
         }
         in_position = 0;
-        printf("Note %d ON\n", note.note);
         slot_on(note);
         break;
       }

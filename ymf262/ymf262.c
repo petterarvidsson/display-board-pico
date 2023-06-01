@@ -633,7 +633,6 @@ void ymf262_start(uint8_t c) {
 
 void ymf262_frequency(uint8_t c, float frequency) {
   f_number_t f = f_number(frequency);
-  printf("Freq: %f Block: %d FNUM h: %d FNUM l: %d\n", frequency, f.block, f.f_num_h, f.f_num_l);
   ymf262_parameter_value_t parameter_values[] = {
     {FNUM_L, f.f_num_l},
     {FNUM_H, f.f_num_h},
