@@ -85,6 +85,6 @@ void ymf262_all_channels_parameter(ymf262_parameter_t parameter, uint8_t value);
 void ymf262_parameters(uint8_t c, const ymf262_parameter_value_t * const parameter_values, const uint32_t size);
 void ymf262_channel_connection(uint8_t c, ymf262_channel_connection_t type);
 void ymf262_start(uint8_t c);
-void ymf262_frequency(uint8_t c, uint8_t frequency);
+void ymf262_frequency(uint8_t c, float frequency);
 void ymf262_stop(uint8_t c);
 void ymf262_init(void);
