@@ -17,6 +17,7 @@ static const sdhi_group_t const groups[] = {
 enum controls {
   NONE = -1,
   CONNECTION,
+  FEEDBACK,
   CTRL_TL_1,
   CTRL_TL_2,
   CTRL_TL_3,
@@ -43,6 +44,18 @@ static const sdhi_control_t const controls[] = {
       .values = connection_values,
       .size = sizeof(connection_values) / sizeof(shdi_control_type_enumeration_value_t),
       .initial = AM
+    }
+  },
+  {
+    .id = FEEDBACK,
+    .title = "Feedback",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 7,
+      .middle = 0,
+      .initial = 0
     }
   },
   {
@@ -103,7 +116,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_TL_1, CTRL_TL_2, NONE,
       CTRL_TL_3, CTRL_TL_4, NONE,
-      CONNECTION, NONE
+      CONNECTION, FEEDBACK
     }
   }
 };
@@ -335,6 +348,24 @@ static action_t actions[] = {
       .connection = {
         .parameter.control = {
           .id = CONNECTION,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // FFEDBACK
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = FB,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = FEEDBACK,
           .offset = 0
         },
         .type = PARAMETER_CONTROL
