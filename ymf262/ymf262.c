@@ -61,6 +61,18 @@ parameter_offset_t parameter_offsets[] = {
     .mask = 0x1,
     .shift = 0 // CHANNEL is used
   },
+  { // DAM
+    .type = GLOBAL,
+    .base_reg = 0xBD,
+    .mask = 0x1,
+    .shift = 7
+  },
+  { // DVB
+    .type = GLOBAL,
+    .base_reg = 0xBD,
+    .mask = 0x1,
+    .shift = 6
+  },
   { // AM_1
     .type = SLOT_1,
     .base_reg = 0x20,
@@ -569,6 +581,8 @@ void ymf262_parameter(uint8_t c, ymf262_parameter_t parameter, uint8_t value) {
   case GLOBAL:
     if(parameter == CONN_SEL) {
       write(1, offset.base_reg, offset.mask, c, value);
+    } else {
+      write(0, offset.base_reg, offset.mask, offset.shift, value);
     }
     break;
   }

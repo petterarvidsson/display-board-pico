@@ -18,6 +18,16 @@ enum controls {
   NONE = -1,
   CONNECTION,
   FEEDBACK,
+  TREMOLO_DEPTH,
+  VIBRATO_DEPTH,
+  CTRL_TREM_1,
+  CTRL_TREM_2,
+  CTRL_TREM_3,
+  CTRL_TREM_4,
+  CTRL_VIB_1,
+  CTRL_VIB_2,
+  CTRL_VIB_3,
+  CTRL_VIB_4,
   CTRL_TL_1,
   CTRL_TL_2,
   CTRL_TL_3,
@@ -32,6 +42,21 @@ static const shdi_control_type_enumeration_value_t connection_values[] = {
   { .name = "1>2+3>4", .value = FM_FM },
   { .name = "1+2>3>4", .value = AM_FM },
   { .name = "1+2>3+4", .value = AM_FM_AM }
+};
+
+static const shdi_control_type_enumeration_value_t on_off_values[] = {
+  { .name = "off", .value = 0 },
+  { .name = "on",  .value = 1 }
+};
+
+static const shdi_control_type_enumeration_value_t vibrato_values[] = {
+  { .name = "7%",  .value = 0 },
+  { .name = "14%", .value = 1 }
+};
+
+static const shdi_control_type_enumeration_value_t tremolo_values[] = {
+  { .name = "1dB",   .value = 0 },
+  { .name = "4.8dB", .value = 1 }
 };
 
 static const sdhi_control_t const controls[] = {
@@ -55,6 +80,116 @@ static const sdhi_control_t const controls[] = {
       .min = 0,
       .max = 7,
       .middle = 0,
+      .initial = 0
+    }
+  },
+  {
+    .id = TREMOLO_DEPTH,
+    .title = "TremDepth",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = tremolo_values,
+      .size = sizeof(tremolo_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = VIBRATO_DEPTH,
+    .title = "VibDepth",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = vibrato_values,
+      .size = sizeof(vibrato_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_TREM_1,
+    .title = "Tremolo1",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_TREM_2,
+    .title = "Tremolo2",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_TREM_3,
+    .title = "Tremolo3",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_TREM_4,
+    .title = "Tremolo4",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_VIB_1,
+    .title = "Vibrato1",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_VIB_2,
+    .title = "Vibrato2",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_VIB_3,
+    .title = "Vibrato3",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_VIB_4,
+    .title = "Vibrato4",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = on_off_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
       .initial = 0
     }
   },
@@ -114,9 +249,18 @@ static const sdhi_panel_t const panels[] = {
     "main",
     NULL,
     {
-      CTRL_TL_1, CTRL_TL_2, NONE,
-      CTRL_TL_3, CTRL_TL_4, NONE,
+      CTRL_TL_1, CTRL_TL_2, VIBRATO_DEPTH,
+      CTRL_TL_3, CTRL_TL_4, TREMOLO_DEPTH,
       CONNECTION, FEEDBACK
+    }
+  },
+  {
+    "main2",
+    NULL,
+    {
+      CTRL_VIB_1, CTRL_VIB_2, CTRL_VIB_3,
+      CTRL_VIB_4, CTRL_TREM_1, CTRL_TREM_2,
+      CTRL_TREM_3, CTRL_TREM_4
     }
   }
 };
@@ -354,7 +498,7 @@ static action_t actions[] = {
       }
     }
   },
-  // FFEDBACK
+  // FEEDBACK
   {
     .channel = 0,
     .type = ACTION_YMF262_PARAMETER,
@@ -366,6 +510,180 @@ static action_t actions[] = {
       .value = {
         .parameter.control = {
           .id = FEEDBACK,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // TREMOLO DEPTH
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = DAM,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = TREMOLO_DEPTH,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // VIBRATO DEPTH
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = DVB,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = VIBRATO_DEPTH,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // Tremolo
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = AM_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_TREM_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = AM_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_TREM_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = AM_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_TREM_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = AM_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_TREM_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // Vibrato
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = VIB_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_VIB_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = VIB_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_VIB_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = VIB_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_VIB_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = VIB_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_VIB_4,
           .offset = 0
         },
         .type = PARAMETER_CONTROL

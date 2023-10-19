@@ -13,6 +13,8 @@ typedef enum {
 
 typedef enum {
   CONN_SEL,
+  DAM,
+  DVB,
   AM_1,
   AM_2,
   AM_3,
