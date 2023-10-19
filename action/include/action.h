@@ -53,7 +53,8 @@ typedef enum {
   ACTION_SLOT,
   ACTION_XG_PARAMETER_CHANGE_1,
   ACTION_YMF262_SLOT_STATE,
-  ACTION_YMF262_PARAMETER
+  ACTION_YMF262_PARAMETER,
+  ACTION_YMF262_CONNECTION
 } action_type_t;
 
 typedef struct {
@@ -96,6 +97,10 @@ typedef struct {
   parameter_t value;
 } action_ymf262_parameter_configuration_t;
 
+typedef struct {
+  parameter_t connection;
+} action_ymf262_connection_configuration_t;
+
 typedef union {
   action_controller_configuration_t controller;
   action_bank_change_configuration_t bank_change;
@@ -105,6 +110,7 @@ typedef union {
   action_xg_parameter_change_1_configuration_t xg_parameter_change;
   action_ymf262_slot_state_configuration_t ymf262_slot_state;
   action_ymf262_parameter_configuration_t ymf262_parameter;
+  action_ymf262_connection_configuration_t ymf262_connection;
 } action_configuration_t;
 
 typedef struct {

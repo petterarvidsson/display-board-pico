@@ -623,6 +623,12 @@ ymf262_parameter_value_t connections[CONNECTIONS][CONNECTION_PARAMETERS] = {
   }
 };
 
+void ymf262_all_channels_connection(ymf262_channel_connection_t type) {
+  for(uint32_t c = 0; c < CHANNELS; c++) {
+    ymf262_parameters(c, connections[type], CONNECTION_PARAMETERS);
+  }
+}
+
 void ymf262_channel_connection(uint8_t c, ymf262_channel_connection_t type) {
   ymf262_parameters(c, connections[type], CONNECTION_PARAMETERS);
 }

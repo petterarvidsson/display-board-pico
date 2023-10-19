@@ -126,6 +126,11 @@ static void execute_action_ymf262_parameter(const value_t value) {
   ymf262_all_channels_parameter(parameter, parameter_value);
 }
 
+static void execute_action_ymf262_connection(const value_t value) {
+  const ymf262_channel_connection_t connection = value.v1 & 0xF;
+  ymf262_all_channels_connection(connection);
+}
+
 static bool execute_action(const action_t action, const value_t value, uint8_t * trigger_ymf262_channel) {
   uint8_t messages = 0;
   switch(action.type) {
@@ -156,6 +161,10 @@ static bool execute_action(const action_t action, const value_t value, uint8_t *
   case ACTION_YMF262_PARAMETER:
     messages = 0;
     execute_action_ymf262_parameter(value);
+    break;
+  case ACTION_YMF262_CONNECTION:
+    messages = 0;
+    execute_action_ymf262_connection(value);
     break;
   }
   if(messages < midi_can_send_messages()) {
@@ -265,13 +274,18 @@ static void update_computed_values(const action_t * const actions, const uint8_t
       action_values[i].computed.v3 = 0;
       break;
     case ACTION_YMF262_SLOT_STATE:
-      action_values[i].computed.v1 = parameter_value(action.configuration. ymf262_slot_state.slot, sdhi, values, slots);
-      action_values[i].computed.v2 = parameter_value(action.configuration. ymf262_slot_state.state, sdhi, values, slots);
-      action_values[i].computed.v3 = parameter_value(action.configuration. ymf262_slot_state.note, sdhi, values, slots);
+      action_values[i].computed.v1 = parameter_value(action.configuration.ymf262_slot_state.slot, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.ymf262_slot_state.state, sdhi, values, slots);
+      action_values[i].computed.v3 = parameter_value(action.configuration.ymf262_slot_state.note, sdhi, values, slots);
       break;
     case ACTION_YMF262_PARAMETER:
-      action_values[i].computed.v1 = parameter_value(action.configuration. ymf262_parameter.parameter, sdhi, values, slots);
-      action_values[i].computed.v2 = parameter_value(action.configuration. ymf262_parameter.value, sdhi, values, slots);
+      action_values[i].computed.v1 = parameter_value(action.configuration.ymf262_parameter.parameter, sdhi, values, slots);
+      action_values[i].computed.v2 = parameter_value(action.configuration.ymf262_parameter.value, sdhi, values, slots);
+      action_values[i].computed.v3 = 0;
+      break;
+    case ACTION_YMF262_CONNECTION:
+      action_values[i].computed.v1 = parameter_value(action.configuration. ymf262_connection.connection, sdhi, values, slots);
+      action_values[i].computed.v2 = 0;
       action_values[i].computed.v3 = 0;
       break;
     }
