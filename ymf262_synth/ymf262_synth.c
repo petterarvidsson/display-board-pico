@@ -28,6 +28,14 @@ enum controls {
   CTRL_VIB_2,
   CTRL_VIB_3,
   CTRL_VIB_4,
+  CTRL_EGT_1,
+  CTRL_EGT_2,
+  CTRL_EGT_3,
+  CTRL_EGT_4,
+  CTRL_MULT_1,
+  CTRL_MULT_2,
+  CTRL_MULT_3,
+  CTRL_MULT_4,
   CTRL_TL_1,
   CTRL_TL_2,
   CTRL_TL_3,
@@ -57,6 +65,27 @@ static const shdi_control_type_enumeration_value_t vibrato_values[] = {
 static const shdi_control_type_enumeration_value_t tremolo_values[] = {
   { .name = "1dB",   .value = 0 },
   { .name = "4.8dB", .value = 1 }
+};
+
+static const shdi_control_type_enumeration_value_t multiplier_values[] = {
+  { .name = "0.5", .value = 0 },
+  { .name = "1",  .value = 1 },
+  { .name = "2", .value = 2 },
+  { .name = "3",  .value = 3 },
+  { .name = "4", .value = 4 },
+  { .name = "5",  .value = 5 },
+  { .name = "6", .value = 6 },
+  { .name = "7",  .value = 7 },
+  { .name = "8", .value = 8 },
+  { .name = "9",  .value = 9 },
+  { .name = "10", .value = 10 },
+  { .name = "12",  .value = 12 },
+  { .name = "15",  .value = 15 }
+};
+
+static const shdi_control_type_enumeration_value_t egt_values[] = {
+  { .name = "sustained", .value = 0 },
+  { .name = "decay", .value = 1 }
 };
 
 static const sdhi_control_t const controls[] = {
@@ -194,6 +223,94 @@ static const sdhi_control_t const controls[] = {
     }
   },
   {
+    .id = CTRL_EGT_1,
+    .title = "EG Type1",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = egt_values,
+      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_EGT_2,
+    .title = "EG Type2",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = egt_values,
+      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_EGT_3,
+    .title = "EG Type3",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = egt_values,
+      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_EGT_4,
+    .title = "EG Type4",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = egt_values,
+      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_MULT_1,
+    .title = "Mult1",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = multiplier_values,
+      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_MULT_2,
+    .title = "Mult2",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = multiplier_values,
+      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_MULT_3,
+    .title = "Mult3",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = multiplier_values,
+      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_MULT_4,
+    .title = "Mult4",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = multiplier_values,
+      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
     .id = CTRL_TL_1,
     .title = "Level1",
     .group = SELECTION,
@@ -261,6 +378,15 @@ static const sdhi_panel_t const panels[] = {
       CTRL_VIB_1, CTRL_VIB_2, CTRL_VIB_3,
       CTRL_VIB_4, CTRL_TREM_1, CTRL_TREM_2,
       CTRL_TREM_3, CTRL_TREM_4
+    }
+  },
+  {
+    "main3",
+    NULL,
+    {
+      CTRL_MULT_1, CTRL_MULT_2, CTRL_MULT_3,
+      CTRL_MULT_4, CTRL_EGT_1, CTRL_EGT_2,
+      CTRL_EGT_3, CTRL_EGT_4
     }
   }
 };
@@ -684,6 +810,144 @@ static action_t actions[] = {
       .value = {
         .parameter.control = {
           .id = CTRL_VIB_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // EG Type
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = EGT_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_EGT_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value =EGT_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_EGT_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = EGT_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_EGT_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = EGT_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_EGT_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // Multiplier
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = MULT_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_MULT_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = MULT_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_MULT_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = MULT_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_MULT_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = MULT_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_MULT_4,
           .offset = 0
         },
         .type = PARAMETER_CONTROL
