@@ -5,13 +5,24 @@
 #include "ymf262.h"
 
 enum groups {
-  SELECTION
+  SINGLE = -1,
+  ADSR,
+  EFFECT,
+  KEY_SCALE
 };
 static const sdhi_group_t const groups[] = {
   {
-    .id = SELECTION,
-    .title = "Global"
-  }
+    .id = ADSR,
+    .title = "ADSR"
+  },
+  {
+    .id = EFFECT,
+    .title = "Effect"
+  },
+  {
+    .id = KEY_SCALE,
+    .title = "Key scale"
+  },
 };
 
 enum controls {
@@ -126,7 +137,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CONNECTION,
     .title = "Connection",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = connection_values,
@@ -137,7 +148,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = FEEDBACK,
     .title = "Feedback",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -148,8 +159,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = TREMOLO_DEPTH,
-    .title = "TremDepth",
-    .group = SELECTION,
+    .title = "Tremolo depth",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = tremolo_values,
@@ -159,8 +170,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = VIBRATO_DEPTH,
-    .title = "VibDepth",
-    .group = SELECTION,
+    .title = "Vibrato depth",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = vibrato_values,
@@ -171,7 +182,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = OCTAVE_SPLIT,
     .title = "Octave Split",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = low_high_values,
@@ -181,8 +192,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TREM_1,
-    .title = "Tremolo1",
-    .group = SELECTION,
+    .title = "Tremolo",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -192,8 +203,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TREM_2,
-    .title = "Tremolo2",
-    .group = SELECTION,
+    .title = "Tremolo",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -203,8 +214,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TREM_3,
-    .title = "Tremolo3",
-    .group = SELECTION,
+    .title = "Tremolo",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -214,8 +225,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TREM_4,
-    .title = "Tremolo4",
-    .group = SELECTION,
+    .title = "Tremolo",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -225,8 +236,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_VIB_1,
-    .title = "Vibrato1",
-    .group = SELECTION,
+    .title = "Vibrato",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -236,8 +247,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_VIB_2,
-    .title = "Vibrato2",
-    .group = SELECTION,
+    .title = "Vibrato",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -247,8 +258,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_VIB_3,
-    .title = "Vibrato3",
-    .group = SELECTION,
+    .title = "Vibrato",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -258,8 +269,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_VIB_4,
-    .title = "Vibrato4",
-    .group = SELECTION,
+    .title = "Vibrato",
+    .group = EFFECT,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = on_off_values,
@@ -269,8 +280,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_EGT_1,
-    .title = "EG Type1",
-    .group = SELECTION,
+    .title = "EG Type",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = egt_values,
@@ -280,8 +291,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_EGT_2,
-    .title = "EG Type2",
-    .group = SELECTION,
+    .title = "EG Type",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = egt_values,
@@ -291,8 +302,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_EGT_3,
-    .title = "EG Type3",
-    .group = SELECTION,
+    .title = "EG Type",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = egt_values,
@@ -302,8 +313,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_EGT_4,
-    .title = "EG Type4",
-    .group = SELECTION,
+    .title = "EG Type",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = egt_values,
@@ -314,7 +325,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_KSR_1,
     .title = "Key Scale Rate",
-    .group = SELECTION,
+    .group = KEY_SCALE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = low_high_values,
@@ -325,7 +336,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_KSR_2,
     .title = "Key Scale Rate",
-    .group = SELECTION,
+    .group = KEY_SCALE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = low_high_values,
@@ -336,7 +347,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_KSR_3,
     .title = "Key Scale Rate",
-    .group = SELECTION,
+    .group = KEY_SCALE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = low_high_values,
@@ -347,7 +358,51 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_KSR_4,
     .title = "Key Scale Rate",
-    .group = SELECTION,
+    .group = KEY_SCALE,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSL_1,
+    .title = "Key Scale Level",
+    .group = KEY_SCALE,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSL_2,
+    .title = "Key Scale Level",
+    .group = KEY_SCALE,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSL_3,
+    .title = "Key Scale Level",
+    .group = KEY_SCALE,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSL_4,
+    .title = "Key Scale Level",
+    .group = KEY_SCALE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = low_high_values,
@@ -357,8 +412,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_MULT_1,
-    .title = "Mult1",
-    .group = SELECTION,
+    .title = "Multiplier",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = multiplier_values,
@@ -368,8 +423,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_MULT_2,
-    .title = "Mult2",
-    .group = SELECTION,
+    .title = "Multiplier",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = multiplier_values,
@@ -379,8 +434,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_MULT_3,
-    .title = "Mult3",
-    .group = SELECTION,
+    .title = "Multplier",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = multiplier_values,
@@ -390,8 +445,8 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_MULT_4,
-    .title = "Mult4",
-    .group = SELECTION,
+    .title = "Multplier",
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_ENUMERATION,
     .configuration.enumeration = {
       .values = multiplier_values,
@@ -402,7 +457,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_TL_1,
     .title = "Level",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -414,7 +469,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_TL_2,
     .title = "Level",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -426,7 +481,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_TL_3,
     .title = "Level",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -438,7 +493,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_TL_4,
     .title = "Level",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -450,7 +505,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_AR_1,
     .title = "Attack",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -462,7 +517,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_AR_2,
     .title = "Attack",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -474,7 +529,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_AR_2,
     .title = "Attack",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -486,7 +541,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_AR_3,
     .title = "Attack",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -498,7 +553,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_AR_4,
     .title = "Attack",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -510,7 +565,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_DR_1,
     .title = "Decay",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -522,7 +577,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_DR_2,
     .title = "Decay",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -534,7 +589,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_DR_3,
     .title = "Decay",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -546,7 +601,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_DR_4,
     .title = "Decay",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -558,7 +613,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_SL_1,
     .title = "Sustain",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -570,7 +625,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_SL_2,
     .title = "Sustain",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -582,7 +637,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_SL_3,
     .title = "Sustain",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -594,7 +649,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_SL_4,
     .title = "Sustain",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -606,7 +661,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_RR_1,
     .title = "Release",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -618,7 +673,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_RR_2,
     .title = "Release",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -630,7 +685,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_RR_3,
     .title = "Release",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -642,7 +697,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_RR_4,
     .title = "Release",
-    .group = SELECTION,
+    .group = ADSR,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -654,7 +709,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_WS_1,
     .title = "Waveform",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -666,7 +721,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_WS_2,
     .title = "Waveform",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -678,7 +733,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_WS_3,
     .title = "Waveform",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -690,7 +745,7 @@ static const sdhi_control_t const controls[] = {
   {
     .id = CTRL_WS_4,
     .title = "Waveform",
-    .group = SELECTION,
+    .group = SINGLE,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
@@ -702,99 +757,6 @@ static const sdhi_control_t const controls[] = {
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const uint32_t groups_size = sizeof(groups) / sizeof(sdhi_group_t);
-static const sdhi_panel_t const panels[] = {
-  {
-    "Global",
-    NULL,
-    {
-      CONNECTION, OCTAVE_SPLIT, NONE,
-      TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
-      NONE, NONE
-    }
-  },
-  {
-    "OSC 1 ENV",
-    NULL,
-    {
-      CTRL_AR_1, CTRL_DR_1, CTRL_EGT_1,
-      CTRL_SL_1, CTRL_RR_1, NONE,
-      NONE, NONE
-    }
-  },
-  {
-    "OSC 1 Sound",
-    NULL,
-    {
-      CTRL_MULT_1, CTRL_WS_1, FEEDBACK,
-      CTRL_TL_1, CTRL_VIB_1, CTRL_TREM_1,
-      CTRL_KSR_1, CTRL_KSL_1
-    }
-  },
-  {
-    "OSC 2 ENV",
-    NULL,
-    {
-      CTRL_AR_2, CTRL_DR_2, CTRL_EGT_2,
-      CTRL_SL_2, CTRL_RR_2, NONE,
-      NONE, NONE
-    }
-  },
-  {
-    "OSC 2 Sound",
-    NULL,
-    {
-      CTRL_MULT_2, CTRL_WS_2, FEEDBACK,
-      CTRL_TL_2, CTRL_VIB_2, CTRL_TREM_2,
-      CTRL_KSR_2, CTRL_KSL_2
-    }
-  },
-  {
-    "OSC 3 ENV",
-    NULL,
-    {
-      CTRL_AR_3, CTRL_DR_3, CTRL_EGT_3,
-      CTRL_SL_3, CTRL_RR_3, NONE,
-      NONE, NONE
-    }
-  },
-  {
-    "OSC 3 Sound",
-    NULL,
-    {
-      CTRL_MULT_3, CTRL_WS_3, FEEDBACK,
-      CTRL_TL_3, CTRL_VIB_3, CTRL_TREM_3,
-      CTRL_KSR_3, CTRL_KSL_3
-    }
-  },
-  {
-    "OSC 4 ENV",
-    NULL,
-    {
-      CTRL_AR_4, CTRL_DR_4, CTRL_EGT_4,
-      CTRL_SL_4, CTRL_RR_4, NONE,
-      NONE, NONE
-    }
-  },
-  {
-    "OSC 4 Sound",
-    NULL,
-    {
-      CTRL_MULT_4, CTRL_WS_4, FEEDBACK,
-      CTRL_TL_4, CTRL_VIB_4, CTRL_TREM_4,
-      CTRL_KSR_4, CTRL_KSL_4
-    }
-  }
-};
-static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);
-static sdhi_t sdhi = {
-  .controls = controls,
-  .controls_size = controls_size,
-  .groups = groups,
-  .groups_size = groups_size,
-  .panel_selector_title = "Panel",
-  .panels = panels,
-  .panels_size = panels_size
-};
 
 static int32_t values[CONTROLS];
 
@@ -1919,6 +1881,101 @@ static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
 
 #define MIDI_SLOTS_SIZE 6
 midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
+
+static const sdhi_panel_t const panels[] = {
+  {
+    "Global",
+    NULL,
+    {
+      CONNECTION, OCTAVE_SPLIT, NONE,
+      TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 1 ENV",
+    NULL,
+    {
+      CTRL_AR_1, CTRL_DR_1, CTRL_EGT_1,
+      CTRL_SL_1, CTRL_RR_1, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 1 Sound",
+    NULL,
+    {
+      CTRL_MULT_1, CTRL_WS_1, CTRL_TL_1,
+      FEEDBACK, CTRL_VIB_1, CTRL_TREM_1,
+      CTRL_KSR_1, CTRL_KSL_1
+    }
+  },
+  {
+    "OSC 2 ENV",
+    NULL,
+    {
+      CTRL_AR_2, CTRL_DR_2, CTRL_EGT_2,
+      CTRL_SL_2, CTRL_RR_2, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 2 Sound",
+    NULL,
+    {
+      CTRL_MULT_2, CTRL_WS_2, CTRL_TL_2,
+      FEEDBACK, CTRL_VIB_2, CTRL_TREM_2,
+      CTRL_KSR_2, CTRL_KSL_2
+    }
+  },
+  {
+    "OSC 3 ENV",
+    NULL,
+    {
+      CTRL_AR_3, CTRL_DR_3, CTRL_EGT_3,
+      CTRL_SL_3, CTRL_RR_3, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 3 Sound",
+    NULL,
+    {
+      CTRL_MULT_3, CTRL_WS_3, CTRL_TL_3,
+      FEEDBACK, CTRL_VIB_3, CTRL_TREM_3,
+      CTRL_KSR_3, CTRL_KSL_3
+    }
+  },
+  {
+    "OSC 4 ENV",
+    NULL,
+    {
+      CTRL_AR_4, CTRL_DR_4, CTRL_EGT_4,
+      CTRL_SL_4, CTRL_RR_4, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 4 Sound",
+    NULL,
+    {
+      CTRL_MULT_4, CTRL_WS_4, CTRL_TL_4,
+      FEEDBACK, CTRL_VIB_4, CTRL_TREM_4,
+      CTRL_KSR_4, CTRL_KSL_4
+    }
+  }
+};
+static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);
+static sdhi_t sdhi = {
+  .controls = controls,
+  .controls_size = controls_size,
+  .groups = groups,
+  .groups_size = groups_size,
+  .panel_selector_title = "Panel",
+  .panels = panels,
+  .panels_size = panels_size
+};
+
 
 setup_t ymf262_synth_init() {
   ymf262_init();

@@ -3,6 +3,9 @@
 #include <pio_display.h>
 #include <sdhi.h>
 
+#define EMPTY_GROUP -2
+#define NO_GROUP -1
+
 #define WIDTH 4
 #define HALF_WIDTH (WIDTH / 2)
 #define ROW_TOP (32 - HALF_WIDTH)
@@ -139,7 +142,7 @@ int32_t sdhi_enumeration(const uint16_t id, const int32_t * const values, const 
 }
 
 static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
-  int32_t group = -1;
+  int32_t group = EMPTY_GROUP;
   uint8_t top_start = x * 2 + y * 11;
   uint8_t top = x * 2 + 1 + y * 11;
   uint8_t top_end = x * 2 + 2 + y * 11;
@@ -189,25 +192,27 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     }
   }
 
-  if(group != top_group) {
+  printf("%d %d\n", group, control);
+
+  if(group == NO_GROUP || group != top_group) {
     draw_right_row(pio_display_get(top_start));
     draw_row(pio_display_get(top));
     draw_left_row(pio_display_get(top_end));
   }
 
-  if(group != bottom_group) {
+  if(group == NO_GROUP || group != bottom_group) {
     draw_right_row(pio_display_get(bottom_start));
     draw_row(pio_display_get(bottom));
     draw_left_row(pio_display_get(bottom_end));
   }
 
-  if(group != start_group) {
+  if(group == NO_GROUP || group != start_group) {
     draw_lower_column(pio_display_get(top_start));
     draw_row(pio_display_get(start));
     draw_upper_column(pio_display_get(bottom_start));
   }
 
-  if(group != end_group) {
+  if(group == NO_GROUP || group != end_group) {
     draw_lower_column(pio_display_get(top_end));
     draw_row(pio_display_get(end));
     draw_upper_column(pio_display_get(bottom_end));
@@ -253,11 +258,11 @@ static uint8_t control_index(uint8_t x, uint8_t y) {
 
 static int32_t find_group(int8_t x, int8_t y, const sdhi_t sdhi) {
   if(x < 0 || y < 0 || x > 2 || y > 2 || (x == 2 && y == 2)) {
-    return -1;
+    return EMPTY_GROUP;
   } else {
     int32_t control_id = sdhi.panels[current_panel].controls[control_index(x, y)];
     if(control_id == -1) {
-      return control_id;
+      return EMPTY_GROUP;
     } else {
       return find_control(control_id, sdhi)->group;
     }

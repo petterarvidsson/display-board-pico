@@ -40,13 +40,13 @@ typedef union {
 typedef struct {
   uint16_t id;
   const char * const title;
-  const uint16_t group;
+  const int16_t group;
   const sdhi_control_type_t type;
   sdhi_control_type_configuration_t configuration;
 } sdhi_control_t;
 
 typedef struct {
-  const uint16_t id;
+  const int16_t id;
   const char * const title;
 } sdhi_group_t;
 
