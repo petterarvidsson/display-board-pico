@@ -718,38 +718,25 @@ void ymf262_init() {
   memset(a[0], 0, sizeof(uint8_t) * REGISTERS);
   memset(a[1], 0, sizeof(uint8_t) * REGISTERS);
 
-  write(0, 0x01, 0xFF, 0, 0x00);
-  write(0, 0x08, 0xFF, 0, 0x40);
-  write(0, 0xBD, 0xFF, 0, 0x00);
-  write(1, 0x04, 0xFF, 0, 0x00);
   // OPL3 mode enabled
-  //write(1, 0x05, 0xFF, 0, 0x01);
+  write(1, 0x05, 0xFF, 0, 0x01);
 
-  uint8_t channel_map[YM3812_NUM_CHANNELS] = { 0,1,2,6,7,8,12,13,14 };
-  uint8_t op_map[YM3812_NUM_OPERATORS]     = { 0,1,2,3,4,5,8,9,10,11,12,13,16,17,18,19,20,21 };
-  for( uint8_t ch=0; ch<YM3812_NUM_CHANNELS; ch++){   // Use the same patch for all channels
-    uint8_t op1_index = channel_map[ch];
-    uint8_t op2_index = op1_index + 3;                        // Always 3 higher
-    uint8_t op1 = op_map[op1_index];
-    uint8_t op2 = op_map[op2_index];
-    //Channel settings
-    write(0, 0xC0 + ch, 0xFF, 0, 1); // Algorithm (Addative synthesis) + Feedbacl 0
-
-    //Operator 1's settings
-    write(0, 0x60 + op1, 0xFF, 0, 0x86); // Attack + decay
-    write(0, 0x80 + op1, 0xFF, 0, 0xAA); // Sustain + release
-    write(0, 0x40 + op1, 0xFF, 0, 0x00);
-    //write(0, 0xE0 + op1, 0x01);
-
-    //Operator 1's settings
-    write(0, 0x60 + op2, 0xFF, 0, 0x86); // Attack + decay
-    write(0, 0x80 + op2, 0xFF, 0, 0xAA); // Sustain + release
-    write(0, 0x40 + op2, 0xFF, 0, 0x00);
-    //write(0, 0xE0 + op2, 0x01);
-  }
-
-  write(0, 0xB0 + 0, 0xFF, 0, 0);
-  write(0, 0xB0 + 1, 0xFF, 0, 0);
-  write(0, 0xB0 + 2, 0xFF, 0, 0);
-
+  write(0, 0xC0, 0xF,  3, 0xF);
+  write(0, 0xC1, 0xF,  3, 0xF);
+  write(0, 0xC2, 0xF,  3, 0xF);
+  write(0, 0xC3, 0xF,  3, 0xF);
+  write(0, 0xC4, 0xF,  3, 0xF);
+  write(0, 0xC5, 0xF,  3, 0xF);
+  write(0, 0xC6, 0xF,  3, 0xF);
+  write(0, 0xC7, 0xF,  3, 0xF);
+  write(0, 0xC8, 0xF,  3, 0xF);
+  write(1, 0xC0, 0xF,  3, 0xF);
+  write(1, 0xC1, 0xF,  3, 0xF);
+  write(1, 0xC2, 0xF,  3, 0xF);
+  write(1, 0xC3, 0xF,  3, 0xF);
+  write(1, 0xC4, 0xF,  3, 0xF);
+  write(1, 0xC5, 0xF,  3, 0xF);
+  write(1, 0xC6, 0xF,  3, 0xF);
+  write(1, 0xC7, 0xF,  3, 0xF);
+  write(1, 0xC8, 0xF,  3, 0xF);
 }
