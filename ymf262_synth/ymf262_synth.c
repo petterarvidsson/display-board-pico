@@ -113,8 +113,8 @@ static const shdi_control_type_enumeration_value_t multiplier_values[] = {
 };
 
 static const shdi_control_type_enumeration_value_t egt_values[] = {
-  { .name = "sustained", .value = 0 },
-  { .name = "decay", .value = 1 }
+  { .name = "decay", .value = 0 },
+  { .name = "sustained", .value = 1 }
 };
 
 static const shdi_control_type_enumeration_value_t low_high_values[] = {
