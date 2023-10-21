@@ -20,6 +20,7 @@ enum controls {
   FEEDBACK,
   TREMOLO_DEPTH,
   VIBRATO_DEPTH,
+  OCTAVE_SPLIT,
   CTRL_TREM_1,
   CTRL_TREM_2,
   CTRL_TREM_3,
@@ -32,6 +33,14 @@ enum controls {
   CTRL_EGT_2,
   CTRL_EGT_3,
   CTRL_EGT_4,
+  CTRL_KSR_1,
+  CTRL_KSR_2,
+  CTRL_KSR_3,
+  CTRL_KSR_4,
+  CTRL_KSL_1,
+  CTRL_KSL_2,
+  CTRL_KSL_3,
+  CTRL_KSL_4,
   CTRL_MULT_1,
   CTRL_MULT_2,
   CTRL_MULT_3,
@@ -108,6 +117,11 @@ static const shdi_control_type_enumeration_value_t egt_values[] = {
   { .name = "decay", .value = 1 }
 };
 
+static const shdi_control_type_enumeration_value_t low_high_values[] = {
+  { .name = "low", .value = 0 },
+  { .name = "high", .value = 1 }
+};
+
 static const sdhi_control_t const controls[] = {
   {
     .id = CONNECTION,
@@ -151,6 +165,17 @@ static const sdhi_control_t const controls[] = {
     .configuration.enumeration = {
       .values = vibrato_values,
       .size = sizeof(vibrato_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = OCTAVE_SPLIT,
+    .title = "Octave Split",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
       .initial = 0
     }
   },
@@ -283,6 +308,50 @@ static const sdhi_control_t const controls[] = {
     .configuration.enumeration = {
       .values = egt_values,
       .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSR_1,
+    .title = "Key Scale Rate",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSR_2,
+    .title = "Key Scale Rate",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSR_3,
+    .title = "Key Scale Rate",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_KSR_4,
+    .title = "Key Scale Rate",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_ENUMERATION,
+    .configuration.enumeration = {
+      .values = low_high_values,
+      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
       .initial = 0
     }
   },
@@ -635,66 +704,84 @@ static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const uint32_t groups_size = sizeof(groups) / sizeof(sdhi_group_t);
 static const sdhi_panel_t const panels[] = {
   {
-    "main",
+    "Global",
     NULL,
     {
-      NONE, NONE, VIBRATO_DEPTH,
-      NONE, NONE, TREMOLO_DEPTH,
-      CONNECTION, NONE
+      CONNECTION, OCTAVE_SPLIT, NONE,
+      TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
+      NONE, NONE
     }
   },
   {
-    "main2",
+    "OSC 1 ENV",
     NULL,
     {
-      CTRL_VIB_1, CTRL_VIB_2, CTRL_VIB_3,
-      CTRL_VIB_4, CTRL_TREM_1, CTRL_TREM_2,
-      CTRL_TREM_3, CTRL_TREM_4
+      CTRL_AR_1, CTRL_DR_1, CTRL_EGT_1,
+      CTRL_SL_1, CTRL_RR_1, NONE,
+      NONE, NONE
     }
   },
   {
-    "main3",
+    "OSC 1 Sound",
     NULL,
     {
-      CTRL_MULT_1, CTRL_MULT_2, CTRL_MULT_3,
-      CTRL_MULT_4, CTRL_EGT_1, CTRL_EGT_2,
-      CTRL_EGT_3, CTRL_EGT_4
+      CTRL_MULT_1, CTRL_WS_1, FEEDBACK,
+      CTRL_TL_1, CTRL_VIB_1, CTRL_TREM_1,
+      CTRL_KSR_1, CTRL_KSL_1
     }
   },
   {
-    "OSC 1",
+    "OSC 2 ENV",
     NULL,
     {
-      CTRL_AR_1, CTRL_DR_1, CTRL_TL_1,
-      CTRL_SL_1, CTRL_RR_1, CTRL_WS_1,
-      CTRL_MULT_1, FEEDBACK
+      CTRL_AR_2, CTRL_DR_2, CTRL_EGT_2,
+      CTRL_SL_2, CTRL_RR_2, NONE,
+      NONE, NONE
     }
   },
   {
-    "OSC 2",
+    "OSC 2 Sound",
     NULL,
     {
-      CTRL_AR_2, CTRL_DR_2, CTRL_TL_2,
-      CTRL_SL_2, CTRL_RR_2, CTRL_WS_2,
-      CTRL_MULT_2, NONE
+      CTRL_MULT_2, CTRL_WS_2, FEEDBACK,
+      CTRL_TL_2, CTRL_VIB_2, CTRL_TREM_2,
+      CTRL_KSR_2, CTRL_KSL_2
     }
   },
   {
-    "OSC 3",
+    "OSC 3 ENV",
     NULL,
     {
-      CTRL_AR_3, CTRL_DR_3, CTRL_TL_3,
-      CTRL_SL_3, CTRL_RR_3, CTRL_WS_3,
-      CTRL_MULT_3, NONE
+      CTRL_AR_3, CTRL_DR_3, CTRL_EGT_3,
+      CTRL_SL_3, CTRL_RR_3, NONE,
+      NONE, NONE
     }
   },
   {
-    "OSC 4",
+    "OSC 3 Sound",
     NULL,
     {
-      CTRL_AR_4, CTRL_DR_4, CTRL_TL_4,
-      CTRL_SL_4, CTRL_RR_4, CTRL_WS_4,
-      CTRL_MULT_4, NONE
+      CTRL_MULT_3, CTRL_WS_3, FEEDBACK,
+      CTRL_TL_3, CTRL_VIB_3, CTRL_TREM_3,
+      CTRL_KSR_3, CTRL_KSL_3
+    }
+  },
+  {
+    "OSC 4 ENV",
+    NULL,
+    {
+      CTRL_AR_4, CTRL_DR_4, CTRL_EGT_4,
+      CTRL_SL_4, CTRL_RR_4, NONE,
+      NONE, NONE
+    }
+  },
+  {
+    "OSC 4 Sound",
+    NULL,
+    {
+      CTRL_MULT_4, CTRL_WS_4, FEEDBACK,
+      CTRL_TL_4, CTRL_VIB_4, CTRL_TREM_4,
+      CTRL_KSR_4, CTRL_KSL_4
     }
   }
 };
@@ -986,6 +1073,24 @@ static action_t actions[] = {
       }
     }
   },
+  // OCTAVE SPLIT
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = NTS,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = OCTAVE_SPLIT,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
   // Tremolo
   {
     .channel = 0,
@@ -1187,6 +1292,142 @@ static action_t actions[] = {
       .value = {
         .parameter.control = {
           .id = CTRL_EGT_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSL_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSL_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSL_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSL_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSL_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSL_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSL_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSL_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSR_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSR_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSR_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSR_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSR_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSR_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = KSR_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_KSR_4,
           .offset = 0
         },
         .type = PARAMETER_CONTROL

@@ -73,6 +73,12 @@ parameter_offset_t parameter_offsets[] = {
     .mask = 0x1,
     .shift = 6
   },
+  { // NTS
+    .type = GLOBAL,
+    .base_reg = 0x08,
+    .mask = 0x1,
+    .shift = 6
+  },
   { // AM_1
     .type = SLOT_1,
     .base_reg = 0x20,

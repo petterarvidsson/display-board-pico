@@ -15,6 +15,7 @@ typedef enum {
   CONN_SEL,
   DAM,
   DVB,
+  NTS,
   AM_1,
   AM_2,
   AM_3,
