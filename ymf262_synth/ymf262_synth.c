@@ -56,6 +56,10 @@ enum controls {
   CTRL_RR_2,
   CTRL_RR_3,
   CTRL_RR_4,
+  CTRL_WS_1,
+  CTRL_WS_2,
+  CTRL_WS_3,
+  CTRL_WS_4,
   CONTROLS
 };
 
@@ -328,7 +332,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TL_1,
-    .title = "Level1",
+    .title = "Level",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -340,7 +344,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TL_2,
-    .title = "Level2",
+    .title = "Level",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -352,7 +356,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TL_3,
-    .title = "Level3",
+    .title = "Level",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -364,7 +368,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_TL_4,
-    .title = "Level4",
+    .title = "Level",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -376,7 +380,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_AR_1,
-    .title = "Attack1",
+    .title = "Attack",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -388,7 +392,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_AR_2,
-    .title = "Attack2",
+    .title = "Attack",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -400,7 +404,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_AR_2,
-    .title = "Attack2",
+    .title = "Attack",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -412,7 +416,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_AR_3,
-    .title = "Attack3",
+    .title = "Attack",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -424,7 +428,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_AR_4,
-    .title = "Attack4",
+    .title = "Attack",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -436,7 +440,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_DR_1,
-    .title = "Decay1",
+    .title = "Decay",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -448,7 +452,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_DR_2,
-    .title = "Decay2",
+    .title = "Decay",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -460,7 +464,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_DR_3,
-    .title = "Decay3",
+    .title = "Decay",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -472,7 +476,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_DR_4,
-    .title = "Decay4",
+    .title = "Decay",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -484,7 +488,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_SL_1,
-    .title = "Sustain1",
+    .title = "Sustain",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -496,7 +500,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_SL_2,
-    .title = "Sustain2",
+    .title = "Sustain",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -508,7 +512,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_SL_3,
-    .title = "Sustain3",
+    .title = "Sustain",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -520,7 +524,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_SL_4,
-    .title = "Sustain4",
+    .title = "Sustain",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -532,7 +536,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_RR_1,
-    .title = "Release1",
+    .title = "Release",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -544,7 +548,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_RR_2,
-    .title = "Release2",
+    .title = "Release",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -556,7 +560,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_RR_3,
-    .title = "Release3",
+    .title = "Release",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -568,7 +572,7 @@ static const sdhi_control_t const controls[] = {
   },
   {
     .id = CTRL_RR_4,
-    .title = "Release4",
+    .title = "Release",
     .group = SELECTION,
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
@@ -578,6 +582,54 @@ static const sdhi_control_t const controls[] = {
       .initial = 0
     }
   },
+  {
+    .id = CTRL_WS_1,
+    .title = "Waveform",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 7,
+      .middle = 0,
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_WS_2,
+    .title = "Waveform",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 7,
+      .middle = 0,
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_WS_3,
+    .title = "Waveform",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 7,
+      .middle = 0,
+      .initial = 0
+    }
+  },
+  {
+    .id = CTRL_WS_4,
+    .title = "Waveform",
+    .group = SELECTION,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 7,
+      .middle = 0,
+      .initial = 0
+    }
+  }
 };
 static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const uint32_t groups_size = sizeof(groups) / sizeof(sdhi_group_t);
@@ -586,9 +638,9 @@ static const sdhi_panel_t const panels[] = {
     "main",
     NULL,
     {
-      CTRL_TL_1, CTRL_TL_2, VIBRATO_DEPTH,
-      CTRL_TL_3, CTRL_TL_4, TREMOLO_DEPTH,
-      CONNECTION, FEEDBACK
+      NONE, NONE, VIBRATO_DEPTH,
+      NONE, NONE, TREMOLO_DEPTH,
+      CONNECTION, NONE
     }
   },
   {
@@ -610,39 +662,39 @@ static const sdhi_panel_t const panels[] = {
     }
   },
   {
-    "adsr1",
+    "OSC 1",
     NULL,
     {
-      CTRL_AR_1, CTRL_DR_1, NONE,
-      CTRL_SL_1, CTRL_RR_1, NONE,
-      NONE, NONE
+      CTRL_AR_1, CTRL_DR_1, CTRL_TL_1,
+      CTRL_SL_1, CTRL_RR_1, CTRL_WS_1,
+      CTRL_MULT_1, FEEDBACK
     }
   },
   {
-    "adsr2",
+    "OSC 2",
     NULL,
     {
-      CTRL_AR_2, CTRL_DR_2, NONE,
-      CTRL_SL_2, CTRL_RR_2, NONE,
-      NONE, NONE
+      CTRL_AR_2, CTRL_DR_2, CTRL_TL_2,
+      CTRL_SL_2, CTRL_RR_2, CTRL_WS_2,
+      CTRL_MULT_2, NONE
     }
   },
   {
-    "adsr3",
+    "OSC 3",
     NULL,
     {
-      CTRL_AR_3, CTRL_DR_3, NONE,
-      CTRL_SL_3, CTRL_RR_3, NONE,
-      NONE, NONE
+      CTRL_AR_3, CTRL_DR_3, CTRL_TL_3,
+      CTRL_SL_3, CTRL_RR_3, CTRL_WS_3,
+      CTRL_MULT_3, NONE
     }
   },
   {
-    "adsr4",
+    "OSC 4",
     NULL,
     {
-      CTRL_AR_4, CTRL_DR_4, NONE,
-      CTRL_SL_4, CTRL_RR_4, NONE,
-      NONE, NONE
+      CTRL_AR_4, CTRL_DR_4, CTRL_TL_4,
+      CTRL_SL_4, CTRL_RR_4, CTRL_WS_4,
+      CTRL_MULT_4, NONE
     }
   }
 };
@@ -1546,6 +1598,74 @@ static action_t actions[] = {
       .value = {
         .parameter.control = {
           .id = CTRL_RR_4,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = WS_1,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_WS_1,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = WS_2,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_WS_2,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = WS_3,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_WS_3,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  {
+    .channel = 0,
+    .type = ACTION_YMF262_PARAMETER,
+    .configuration.ymf262_parameter = {
+      .parameter = {
+        .parameter.value = WS_4,
+        .type = PARAMETER_VALUE
+      },
+      .value = {
+        .parameter.control = {
+          .id = CTRL_WS_4,
           .offset = 0
         },
         .type = PARAMETER_CONTROL
