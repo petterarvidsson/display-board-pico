@@ -192,8 +192,6 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     }
   }
 
-  printf("%d %d\n", group, control);
-
   if(group == NO_GROUP || group != top_group) {
     draw_right_row(pio_display_get(top_start));
     draw_row(pio_display_get(top));

@@ -17,8 +17,10 @@ static i2c_inst_t *i2c;
 #define RESET 0xFE
 #define WRITE_ADDRESS_PORT0_PRE 0xF1
 #define WRITE_ADDRESS_PORT0 0xE1
+#define WRITE_ADDRESS_PORT0_POST 0xFB
 #define WRITE_ADDRESS_PORT1_PRE 0xF5
 #define WRITE_ADDRESS_PORT1 0xE5
+#define WRITE_ADDRESS_PORT1_POST 0xFF
 #define WRITE_DATA_PRE 0xF7
 #define WRITE_DATA 0xE7
 #define INACTIVE 0xFF
@@ -456,7 +458,11 @@ static void write(uint8_t a1, uint8_t reg, uint8_t mask, uint8_t shift, uint8_t 
     i2c_buffer[3] = WRITE_ADDRESS_PORT1;
   }
   i2c_buffer[4] = reg;
-  i2c_buffer[5] = INACTIVE;
+  if(a1 == 0) {
+    i2c_buffer[5] = WRITE_ADDRESS_PORT0_POST;
+  } else {
+    i2c_buffer[5] = WRITE_ADDRESS_PORT1_POST;
+  }
   i2c_buffer[6] = new;
   i2c_buffer[7] = WRITE_DATA_PRE;
   i2c_buffer[8] = new;
