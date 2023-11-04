@@ -1898,7 +1898,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_AR_1, CTRL_DR_1, CTRL_EGT_1,
       CTRL_SL_1, CTRL_RR_1, NONE,
-      NONE, NONE
+      CTRL_KSR_1, CTRL_KSL_1
     }
   },
   {
@@ -1907,7 +1907,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_MULT_1, CTRL_WS_1, CTRL_TL_1,
       FEEDBACK, CTRL_VIB_1, CTRL_TREM_1,
-      CTRL_KSR_1, CTRL_KSL_1
+      NONE, NONE
     }
   },
   {
@@ -1916,7 +1916,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_AR_2, CTRL_DR_2, CTRL_EGT_2,
       CTRL_SL_2, CTRL_RR_2, NONE,
-      NONE, NONE
+      CTRL_KSR_2, CTRL_KSL_2
     }
   },
   {
@@ -1924,8 +1924,8 @@ static const sdhi_panel_t const panels[] = {
     NULL,
     {
       CTRL_MULT_2, CTRL_WS_2, CTRL_TL_2,
-      FEEDBACK, CTRL_VIB_2, CTRL_TREM_2,
-      CTRL_KSR_2, CTRL_KSL_2
+      NONE, CTRL_VIB_2, CTRL_TREM_2,
+      NONE, NONE
     }
   },
   {
@@ -1934,7 +1934,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_AR_3, CTRL_DR_3, CTRL_EGT_3,
       CTRL_SL_3, CTRL_RR_3, NONE,
-      NONE, NONE
+      CTRL_KSR_3, CTRL_KSL_3
     }
   },
   {
@@ -1942,8 +1942,8 @@ static const sdhi_panel_t const panels[] = {
     NULL,
     {
       CTRL_MULT_3, CTRL_WS_3, CTRL_TL_3,
-      FEEDBACK, CTRL_VIB_3, CTRL_TREM_3,
-      CTRL_KSR_3, CTRL_KSL_3
+      NONE, CTRL_VIB_3, CTRL_TREM_3,
+      NONE, NONE
     }
   },
   {
@@ -1952,7 +1952,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CTRL_AR_4, CTRL_DR_4, CTRL_EGT_4,
       CTRL_SL_4, CTRL_RR_4, NONE,
-      NONE, NONE
+      CTRL_KSR_4, CTRL_KSL_4
     }
   },
   {
@@ -1960,8 +1960,8 @@ static const sdhi_panel_t const panels[] = {
     NULL,
     {
       CTRL_MULT_4, CTRL_WS_4, CTRL_TL_4,
-      FEEDBACK, CTRL_VIB_4, CTRL_TREM_4,
-      CTRL_KSR_4, CTRL_KSL_4
+      NONE, CTRL_VIB_4, CTRL_TREM_4,
+      NONE, NONE
     }
   }
 };
