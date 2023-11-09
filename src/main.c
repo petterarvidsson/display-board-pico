@@ -26,13 +26,13 @@ int main() {
   i2c_controller_init();
 
   sdhi_init(setup.sdhi);
-  sdhi_init_values(setup.values, setup.sdhi);
+  sdhi_init_values(setup.values, setup.buttons, setup.sdhi);
   midi_init();
   multicore_launch_core1(real_time);
 
   pio_display_update_and_flip();
   sdhi_update_displays(setup.values, setup.sdhi);
-  action_init(setup.actions, setup.sdhi, setup.values, setup.action_values, setup.midi_slots, setup.midi_slots_size);
+  action_init(setup.actions, setup.sdhi, setup.values, setup.buttons, setup.action_values, setup.midi_slots, setup.midi_slots_size);
 
   for(uint32_t i = 0;;) {
     if(pio_display_can_wait_without_blocking()) {
@@ -40,8 +40,8 @@ int main() {
       pio_display_update_and_flip();
       sdhi_update_displays(setup.values, setup.sdhi);
     }
-    sdhi_update_values(setup.values, setup.sdhi);
+    sdhi_update_values(setup.values, setup.buttons, setup.sdhi);
     midi_slots_status(setup.midi_slots, setup.midi_slots_size);
-    action_update(setup.actions, setup.sdhi, setup.values, setup.action_values, setup.midi_slots, setup.midi_slots_size);
+    action_update(setup.actions, setup.sdhi, setup.values, setup.buttons, setup.action_values, setup.midi_slots, setup.midi_slots_size);
   }
 }

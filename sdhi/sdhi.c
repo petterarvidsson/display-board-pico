@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <i2c_controller.h>
 #include <pio_display.h>
 #include <sdhi.h>
 
@@ -75,7 +74,8 @@ static int32_t update_enumeration(const sdhi_control_type_enumeration_t enumerat
   return update(value, change, 0, (int32_t)enumeration.size - 1);
 }
 
-static void update_values(int32_t * const values, const int32_t * const change, const sdhi_t sdhi) {
+static void update_values(int32_t * const values, const int32_t * const change, i2c_controller_button_t * const button, const i2c_controller_button_t * const button_change, const sdhi_t sdhi) {
+
   for(uint8_t i = 0; i < 8; i++) {
     const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
     if(control != NULL) {
@@ -86,11 +86,14 @@ static void update_values(int32_t * const values, const int32_t * const change, 
           break;
         case SDHI_CONTROL_TYPE_REAL:
           values[control->id] = update_real(control->configuration.real, values[control->id], change[i]);
-        break;
+          break;
         case SDHI_CONTROL_TYPE_ENUMERATION:
           values[control->id] = update_enumeration(control->configuration.enumeration, values[control->id], change[i]);
           break;
         }
+      }
+      if(button_change[i] != I2C_CONTROLLER_NO_CHANGE) {
+        button[control->id] = button_change[i];
       }
     }
   }
@@ -99,16 +102,24 @@ static void update_values(int32_t * const values, const int32_t * const change, 
   }
 }
 
-bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi) {
+bool sdhi_update_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi) {
   int32_t change[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0
   };
-  bool updated = i2c_controller_update(change);
-  update_values(values, change, sdhi);
+  i2c_controller_button_t button_change[] = {
+    I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE,
+    I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE,
+    I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE
+  };
+  for(uint8_t i = 0; i < sdhi.controls_size; i++) {
+    button[sdhi.controls[i].id] = I2C_CONTROLLER_NO_CHANGE;
+  }
+  bool updated = i2c_controller_update(change, button_change);
+  update_values(values, change, button, button_change, sdhi);
   return updated;
 }
 
-void sdhi_init_values(int32_t * const values, const sdhi_t sdhi) {
+void sdhi_init_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi) {
   for(uint16_t i = 0; i < sdhi.controls_size; i++) {
     const sdhi_control_t control = sdhi.controls[i];
     switch(control.type) {
@@ -122,6 +133,7 @@ void sdhi_init_values(int32_t * const values, const sdhi_t sdhi) {
       values[control.id] = control.configuration.enumeration.initial;
       break;
     }
+    button[control.id] = I2C_CONTROLLER_NO_CHANGE;
   }
 }
 

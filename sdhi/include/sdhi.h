@@ -1,5 +1,6 @@
 #pragma once
-#include "pico/stdlib.h"
+#include <pico/stdlib.h>
+#include <i2c_controller.h>
 
 typedef enum {
   SDHI_CONTROL_TYPE_INTEGER,
@@ -67,8 +68,8 @@ typedef struct {
 } sdhi_t;
 
 void sdhi_init(const sdhi_t sdhi);
-void sdhi_init_values(int32_t * const values, const sdhi_t sdhi);
-bool sdhi_update_values(int32_t * const values, const sdhi_t sdhi);
+void sdhi_init_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi);
+bool sdhi_update_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi);
 void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi);
 sdhi_control_type_t sdhi_type(const uint16_t id, const sdhi_t sdhi);
 int32_t sdhi_integer(const uint16_t id, const int32_t * const values, const sdhi_t sdhi);

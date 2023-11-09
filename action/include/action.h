@@ -7,6 +7,7 @@ typedef struct {
   int32_t v1;
   int32_t v2;
   int32_t v3;
+  uint8_t trigger;
 } value_t;
 
 typedef struct  {
@@ -45,6 +46,10 @@ typedef struct {
   parameter_type_t type;
 } parameter_t;
 
+typedef struct {
+  int16_t id;
+} trigger_button_t;
+
 typedef enum {
   ACTION_CONTROLLER,
   ACTION_BANK_CHANGE,
@@ -54,7 +59,9 @@ typedef enum {
   ACTION_XG_PARAMETER_CHANGE_1,
   ACTION_YMF262_SLOT_STATE,
   ACTION_YMF262_PARAMETER,
-  ACTION_YMF262_CONNECTION
+  ACTION_YMF262_CONNECTION,
+  ACTION_LOAD_VALUES,
+  ACTION_SAVE_VALUES
 } action_type_t;
 
 typedef struct {
@@ -101,6 +108,16 @@ typedef struct {
   parameter_t connection;
 } action_ymf262_connection_configuration_t;
 
+typedef struct {
+  trigger_button_t trigger;
+  parameter_t patch;
+} action_load_values_t;
+
+typedef struct {
+  trigger_button_t trigger;
+  parameter_t patch;
+} action_save_values_t;
+
 typedef union {
   action_controller_configuration_t controller;
   action_bank_change_configuration_t bank_change;
@@ -111,6 +128,8 @@ typedef union {
   action_ymf262_slot_state_configuration_t ymf262_slot_state;
   action_ymf262_parameter_configuration_t ymf262_parameter;
   action_ymf262_connection_configuration_t ymf262_connection;
+  action_load_values_t load_values;
+  action_save_values_t save_values;
 } action_configuration_t;
 
 typedef struct {
@@ -124,5 +143,5 @@ typedef struct {
   const uint8_t size;
 } actions_t;
 
-void action_init(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
-void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+void action_init(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);

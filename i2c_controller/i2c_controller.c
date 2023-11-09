@@ -34,7 +34,15 @@ static uint32_t rxdata;
 static int32_t change[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0
 };
+static uint8_t old_button[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 
+static i2c_controller_button_t button[] = {
+  I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE,
+  I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE,
+  I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE, I2C_CONTROLLER_NO_CHANGE
+};
 auto_init_mutex(mutex);
 
 void i2c_controller_init() {
@@ -60,6 +68,7 @@ void i2c_controller_run() {
   for(uint8_t i = 0; i < CONTROLLERS; i++) {
     uint8_t a = (rxdata >> controller_connections[i][0]) & 0x1;
     uint8_t b = (rxdata >> controller_connections[i][1]) & 0x1;
+    uint8_t c = (rxdata >> controller_connections[i][2]) & 0x1;
     if(b != old_b[i] && a == 0) {
       if(b) {
         change[i]--;
@@ -68,11 +77,19 @@ void i2c_controller_run() {
       }
     }
     old_b[i] = b;
+    if(old_button[i] != c) {
+      if(!c) {
+        button[i] = I2C_CONTROLLER_PRESSED;
+      } else {
+        button[i] = I2C_CONTROLLER_RELEASED;
+      }
+    }
+    old_button[i] = c;
   }
   mutex_exit(&mutex);
 }
 
-bool i2c_controller_update(int32_t * const change_update) {
+bool i2c_controller_update(int32_t * const change_update,  i2c_controller_button_t * const button_update) {
   bool changed = false;
 
   mutex_enter_blocking(&mutex);
@@ -80,6 +97,11 @@ bool i2c_controller_update(int32_t * const change_update) {
     if(change[i] != 0) {
       change_update[i] = change[i];
       change[i] = 0;
+      changed = true;
+    }
+    if(button[i] != I2C_CONTROLLER_NO_CHANGE) {
+      button_update[i] = button[i];
+      button[i] = I2C_CONTROLLER_NO_CHANGE;
       changed = true;
     }
   }

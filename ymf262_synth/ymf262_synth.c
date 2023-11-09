@@ -6,11 +6,16 @@
 
 enum groups {
   SINGLE = -1,
+  PATCH,
   ADSR,
   EFFECT,
   KEY_SCALE
 };
 static const sdhi_group_t const groups[] = {
+  {
+    .id = PATCH,
+    .title = "Patch"
+  },
   {
     .id = ADSR,
     .title = "ADSR"
@@ -27,6 +32,8 @@ static const sdhi_group_t const groups[] = {
 
 enum controls {
   NONE = -1,
+  LOAD,
+  SAVE,
   CONNECTION,
   FEEDBACK,
   TREMOLO_DEPTH,
@@ -134,6 +141,30 @@ static const shdi_control_type_enumeration_value_t low_high_values[] = {
 };
 
 static const sdhi_control_t const controls[] = {
+  {
+    .id = LOAD,
+    .title = "Load from",
+    .group = PATCH,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127,
+      .middle = 0,
+      .initial = 0
+    }
+  },
+    {
+    .id = SAVE,
+    .title = "Save to",
+    .group = PATCH,
+    .type = SDHI_CONTROL_TYPE_INTEGER,
+    .configuration.integer = {
+      .min = 0,
+      .max = 127,
+      .middle = 0,
+      .initial = 0
+    }
+  },
   {
     .id = CONNECTION,
     .title = "Connection",
@@ -759,6 +790,7 @@ static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
 static const uint32_t groups_size = sizeof(groups) / sizeof(sdhi_group_t);
 
 static int32_t values[CONTROLS];
+static i2c_controller_button_t buttons[CONTROLS];
 
 static action_t actions[] = {
   // Initial actions set up six midi slots (0-5) responding to MIDI on channel 0
@@ -964,6 +996,36 @@ static action_t actions[] = {
           .parameter = PARAMETER_MIDI_NOTE_VALUE
         },
         .type = PARAMETER_MIDI_NOTE
+      }
+    }
+  },
+  // Load
+  {
+    .channel = 0,
+    .type = ACTION_LOAD_VALUES,
+    .configuration.load_values = {
+      .trigger.id = LOAD,
+      .patch = {
+        .parameter.control = {
+          .id = LOAD,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
+      }
+    }
+  },
+  // Save
+  {
+    .channel = 0,
+    .type = ACTION_SAVE_VALUES,
+    .configuration.load_values = {
+      .trigger.id = SAVE,
+      .patch = {
+        .parameter.control = {
+          .id = SAVE,
+          .offset = 0
+        },
+        .type = PARAMETER_CONTROL
       }
     }
   },
@@ -1889,7 +1951,7 @@ static const sdhi_panel_t const panels[] = {
     {
       CONNECTION, OCTAVE_SPLIT, NONE,
       TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
-      NONE, NONE
+      LOAD, SAVE
     }
   },
   {
@@ -1982,6 +2044,7 @@ setup_t ymf262_synth_init() {
   setup_t ymf262_synth = {
     .sdhi = sdhi,
     .values = values,
+    .buttons = buttons,
     .actions = {
       .actions = actions,
       .size = actions_size
