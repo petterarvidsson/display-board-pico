@@ -57,16 +57,16 @@ void load_patch(uint8_t patch, int32_t * const values, uint8_t size) {
 #define GPIO_ADDR 0x20
 
 // NC | NC | NC | CS | WR | A1 | A0 | IC
-#define RESET 0xFE
+#define RESET 0xF6
 #define WRITE_ADDRESS_PORT0_PRE 0xF1
 #define WRITE_ADDRESS_PORT0 0xE1
-#define WRITE_ADDRESS_PORT0_POST 0xFB
+#define WRITE_ADDRESS_PORT0_POST 0xF3
 #define WRITE_ADDRESS_PORT1_PRE 0xF5
 #define WRITE_ADDRESS_PORT1 0xE5
-#define WRITE_ADDRESS_PORT1_POST 0xFF
+#define WRITE_ADDRESS_PORT1_POST 0xF7
 #define WRITE_DATA_PRE 0xF7
 #define WRITE_DATA 0xE7
-#define INACTIVE 0xFF
+#define INACTIVE 0xF7
 
 #define M_FREQ 14318210
 #define S_FREQ ((float)(M_FREQ) / 288.0f)
