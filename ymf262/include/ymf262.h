@@ -83,6 +83,9 @@ typedef struct {
 } ymf262_parameter_value_t;
 
 
+void save_patch(uint8_t patch, const int32_t * const values, uint8_t size);
+void load_patch(uint8_t patch, int32_t * const values, uint8_t size);
+
 void ymf262_parameter(uint8_t c, ymf262_parameter_t parameter, uint8_t value);
 void ymf262_all_channels_parameter(ymf262_parameter_t parameter, uint8_t value);
 void ymf262_parameters(uint8_t c, const ymf262_parameter_value_t * const parameter_values, const uint32_t size);

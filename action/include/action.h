@@ -111,11 +111,15 @@ typedef struct {
 typedef struct {
   trigger_button_t trigger;
   parameter_t patch;
+  uint16_t *ids;
+  uint16_t ids_size;
 } action_load_values_t;
 
 typedef struct {
   trigger_button_t trigger;
   parameter_t patch;
+  uint16_t *ids;
+  uint16_t ids_size;
 } action_save_values_t;
 
 typedef union {
@@ -143,5 +147,5 @@ typedef struct {
   const uint8_t size;
 } actions_t;
 
-void action_init(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
-void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+void action_init(const actions_t actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+void action_update(const actions_t actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);

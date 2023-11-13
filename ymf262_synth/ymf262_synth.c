@@ -89,6 +89,61 @@ enum controls {
   CTRL_WS_4,
   CONTROLS
 };
+uint16_t patch_ids[] = {
+  CONNECTION,
+  FEEDBACK,
+  TREMOLO_DEPTH,
+  VIBRATO_DEPTH,
+  OCTAVE_SPLIT,
+  CTRL_TREM_1,
+  CTRL_TREM_2,
+  CTRL_TREM_3,
+  CTRL_TREM_4,
+  CTRL_VIB_1,
+  CTRL_VIB_2,
+  CTRL_VIB_3,
+  CTRL_VIB_4,
+  CTRL_EGT_1,
+  CTRL_EGT_2,
+  CTRL_EGT_3,
+  CTRL_EGT_4,
+  CTRL_KSR_1,
+  CTRL_KSR_2,
+  CTRL_KSR_3,
+  CTRL_KSR_4,
+  CTRL_KSL_1,
+  CTRL_KSL_2,
+  CTRL_KSL_3,
+  CTRL_KSL_4,
+  CTRL_MULT_1,
+  CTRL_MULT_2,
+  CTRL_MULT_3,
+  CTRL_MULT_4,
+  CTRL_TL_1,
+  CTRL_TL_2,
+  CTRL_TL_3,
+  CTRL_TL_4,
+  CTRL_AR_1,
+  CTRL_AR_2,
+  CTRL_AR_3,
+  CTRL_AR_4,
+  CTRL_DR_1,
+  CTRL_DR_2,
+  CTRL_DR_3,
+  CTRL_DR_4,
+  CTRL_SL_1,
+  CTRL_SL_2,
+  CTRL_SL_3,
+  CTRL_SL_4,
+  CTRL_RR_1,
+  CTRL_RR_2,
+  CTRL_RR_3,
+  CTRL_RR_4,
+  CTRL_WS_1,
+  CTRL_WS_2,
+  CTRL_WS_3,
+  CTRL_WS_4
+};
 
 static const shdi_control_type_enumeration_value_t connection_values[] = {
   { .name = "1>2",     .value = FM },
@@ -540,7 +595,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -552,7 +607,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -564,7 +619,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -576,7 +631,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -588,7 +643,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -600,7 +655,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -612,7 +667,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -624,7 +679,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -636,7 +691,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -648,7 +703,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -660,7 +715,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -672,7 +727,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -684,7 +739,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -696,7 +751,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -708,7 +763,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -720,7 +775,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -732,7 +787,7 @@ static const sdhi_control_t const controls[] = {
     .type = SDHI_CONTROL_TYPE_INTEGER,
     .configuration.integer = {
       .min = 0,
-      .max = 7,
+      .max = 15,
       .middle = 0,
       .initial = 0
     }
@@ -1011,7 +1066,9 @@ static action_t actions[] = {
           .offset = 0
         },
         .type = PARAMETER_CONTROL
-      }
+      },
+      .ids = patch_ids,
+      .ids_size = sizeof(patch_ids) / sizeof(uint16_t)
     }
   },
   // Save
@@ -1026,7 +1083,9 @@ static action_t actions[] = {
           .offset = 0
         },
         .type = PARAMETER_CONTROL
-      }
+      },
+      .ids = patch_ids,
+      .ids_size = sizeof(patch_ids) / sizeof(uint16_t)
     }
   },
   // Connection

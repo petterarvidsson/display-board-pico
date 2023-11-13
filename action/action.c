@@ -131,21 +131,32 @@ static void execute_action_ymf262_connection(const value_t value) {
   ymf262_all_channels_connection(connection);
 }
 
-static void execute_action_load_values(const value_t value) {
+static int32_t buf[64];
+
+static void execute_action_load_values(const action_load_values_t action, const value_t value, int32_t * const values) {
   if (value.trigger) {
     const uint8_t patch = value.v1 & 0x7F;
-    printf("LOAD %d\n", patch);
+    load_patch(patch, buf, action.ids_size);
+
+    for(uint8_t i = 0; i < action.ids_size; i++) {
+      const uint16_t id = action.ids[i];
+      values[id] = buf[i];
+    }
   }
 }
 
-static void execute_action_save_values(const value_t value) {
+static void execute_action_save_values(const action_save_values_t action, const value_t value, int32_t * const values) {
   if (value.trigger) {
     const uint8_t patch = value.v1 & 0x7F;
-    printf("SAVE %d\n", patch);
+    for(uint8_t i = 0; i < action.ids_size; i++) {
+      const uint16_t id = action.ids[i];
+      buf[i] = values[id];
+    }
+    save_patch(patch, buf, action.ids_size);
   }
 }
 
-static bool execute_action(const action_t action, const value_t value, uint8_t * trigger_ymf262_channel) {
+static bool execute_action(const action_t action, const value_t value, uint8_t * trigger_ymf262_channel, int32_t * const values) {
   uint8_t messages = 0;
   switch(action.type) {
   case ACTION_CONTROLLER:
@@ -182,11 +193,11 @@ static bool execute_action(const action_t action, const value_t value, uint8_t *
     break;
   case ACTION_LOAD_VALUES:
     messages = 0;
-    execute_action_load_values(value);
+    execute_action_load_values(action.configuration.load_values, value, values);
     break;
   case ACTION_SAVE_VALUES:
     messages = 0;
-    execute_action_save_values(value);
+    execute_action_save_values(action.configuration.save_values, value, values);
     break;
   }
   if(messages < midi_can_send_messages()) {
@@ -197,7 +208,7 @@ static bool execute_action(const action_t action, const value_t value, uint8_t *
   }
 }
 
-static void execute_actions(const action_t * const actions, const uint8_t actions_size, action_value_t * action_values) {
+static void execute_actions(const action_t * const actions, const uint8_t actions_size, action_value_t * action_values, int32_t * const values) {
   if(actions_size > 0) {
     uint8_t last_action;
     uint8_t trigger_ymf262_channel = 0;
@@ -209,7 +220,7 @@ static void execute_actions(const action_t * const actions, const uint8_t action
     }
 
     for(; current_action != last_action; current_action = (current_action + 1) % actions_size) {
-      if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed, &trigger_ymf262_channel)) {
+      if(!value_eq(action_values[current_action]) && !execute_action(actions[current_action], action_values[current_action].computed, &trigger_ymf262_channel, values)) {
         break;
       } else {
         action_values[current_action].sent = action_values[current_action].computed;
@@ -342,7 +353,7 @@ static void update_computed_values(const action_t * const actions, const uint8_t
   }
 }
 
-void action_init(const actions_t const actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+void action_init(const actions_t const actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
   current_action = 0;
   slots_t internal = {
     .slots = slots,
@@ -353,18 +364,18 @@ void action_init(const actions_t const actions, const sdhi_t sdhi, const int32_t
   // Not used for init, we will not trigger any notes on
   uint8_t trigger_ymf262_channel = 0;
   for(uint8_t i; i < actions.size; i++) {
-    while(!execute_action(actions.actions[i], action_values[i].computed, &trigger_ymf262_channel)) {
+    while(!execute_action(actions.actions[i], action_values[i].computed, &trigger_ymf262_channel, values)) {
       sleep_ms(10);
     }
     action_values[i].sent = action_values[i].computed;
   }
 }
 
-void action_update(const actions_t actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+void action_update(const actions_t actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
   slots_t internal = {
     .slots = slots,
     .size = slots_size
   };
   update_computed_values(actions.actions, actions.size, sdhi, values, button, action_values, internal);
-  execute_actions(actions.actions, actions.size, action_values);
+  execute_actions(actions.actions, actions.size, action_values, values);
 }

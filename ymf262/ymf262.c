@@ -11,6 +11,49 @@ static i2c_inst_t *i2c;
 #define I2C_SCL 3
 #define I2C_SDA 2
 
+#define BUFFER_SIZE 2 + 128
+static uint8_t i2c_buffer[BUFFER_SIZE];
+
+#define EEPROM_ADDR 0x50
+
+void save_patch(uint8_t patch, const int32_t * const values, uint8_t size) {
+  uint8_t page1_size = (size * sizeof(int32_t)) % 128;
+  uint8_t page2_size = (size * sizeof(int32_t)) / 128;
+
+  if((size * sizeof(int32_t)) / 128 > 0) {
+    page1_size = 128;
+    page2_size = (size * sizeof(int32_t)) % 128;
+  } else {
+    page1_size = size * sizeof(int32_t);
+    page2_size = 0;
+  }
+
+  // A patch has 256 byte of space over two 128 byte pages
+  i2c_buffer[0] = patch << 1;
+  i2c_buffer[1] = 0;
+
+  memcpy(&i2c_buffer[2], values, page1_size);
+  i2c_write_blocking(i2c, EEPROM_ADDR, i2c_buffer, page1_size + 2, false);
+
+  if(page2_size > 0) {
+    i2c_buffer[0] = (patch << 1);
+    i2c_buffer[1] = 128;
+    memcpy(&i2c_buffer[2], ((uint8_t*)values) + 128, page2_size);
+    while(i2c_write_blocking(i2c, EEPROM_ADDR, i2c_buffer, page2_size + 2, false) != page2_size + 2) {
+      // Waiting for previous write to finish
+    }
+  }
+}
+
+void load_patch(uint8_t patch, int32_t * const values, uint8_t size) {
+  // A patch has 256 byte of space
+  i2c_buffer[0] = patch << 1;
+  i2c_buffer[1] = 0;
+
+  i2c_write_blocking(i2c, EEPROM_ADDR, i2c_buffer, 2, true);
+  i2c_read_blocking(i2c, EEPROM_ADDR, (uint8_t *)values, sizeof(int32_t) * size, false);
+}
+
 #define GPIO_ADDR 0x20
 
 // NC | NC | NC | CS | WR | A1 | A0 | IC
@@ -437,9 +480,6 @@ parameter_offset_t parameter_offsets[] = {
   }
 };
 
-#define BUFFER_SIZE 12
-static uint8_t i2c_buffer[BUFFER_SIZE];
-
 static void write(uint8_t a1, uint8_t reg, uint8_t mask, uint8_t shift, uint8_t data) {
   uint8_t new = ((data & mask) << shift) | (a[a1 & 0x1][reg] & ~(mask << shift));
   printf("PORT: %d REG %02X: %02X\n", a1, reg, new);
@@ -469,7 +509,7 @@ static void write(uint8_t a1, uint8_t reg, uint8_t mask, uint8_t shift, uint8_t 
   i2c_buffer[9] = WRITE_DATA;
   i2c_buffer[10] = new;
   i2c_buffer[11] = INACTIVE;
-  i2c_write_blocking(i2c, GPIO_ADDR, i2c_buffer, BUFFER_SIZE, false);
+  i2c_write_blocking(i2c, GPIO_ADDR, i2c_buffer, 12, false);
   a[a1 & 0x1][reg] = new;
 }
 
