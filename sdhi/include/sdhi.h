@@ -1,6 +1,7 @@
 #pragma once
 #include <pico/stdlib.h>
 #include <i2c_controller.h>
+#include "display_list.h"
 
 typedef enum {
   SDHI_CONTROL_TYPE_INTEGER,
@@ -46,6 +47,11 @@ typedef struct {
   sdhi_control_type_configuration_t configuration;
 } sdhi_control_t;
 
+
+// First pointer is values array, second pointer is sdhi_t,
+// but can not be passed as such, due to recursiveness of type
+typedef display_list_t (*display_list_generator_t)(const int32_t * const, const void * const);
+
 typedef struct {
   const int16_t id;
   const char * const title;
@@ -55,6 +61,7 @@ typedef struct {
   const char * title;
   const char * subtitle;
   int32_t controls[8];
+  const display_list_generator_t display_list_generator;
 } sdhi_panel_t;
 
 typedef struct {

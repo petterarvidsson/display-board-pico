@@ -128,10 +128,10 @@ void pio_display_clear(uint8_t * const fb) {
 }
 
 void pio_display_pixel(uint8_t * const fb, const uint8_t x, const uint8_t y, const bool on) {
-    uint8_t real_y = y / 8;
-    int pos = real_y * DISPLAY_ROW_SIZE + DISPLAY_ROW_HEADER + x;
-    uint8_t seg = fb[pos];
-    fb[pos] ^= (-on ^ seg) & (1 << (y % 8));
+  uint8_t real_y = y / 8;
+  int pos = real_y * DISPLAY_ROW_SIZE + DISPLAY_ROW_HEADER + x;
+  uint8_t seg = fb[pos];
+  fb[pos] ^= (-on ^ seg) & (1 << (y % 8));
 }
 
 void pio_display_init() {

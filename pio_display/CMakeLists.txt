@@ -9,6 +9,8 @@ target_link_libraries(pio_display PRIVATE
         hardware_pio
         hardware_dma
         pico_time
+        PUBLIC
+        lib
         )
 
 target_include_directories(pio_display PUBLIC include/ PRIVATE ./)

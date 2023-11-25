@@ -2003,6 +2003,181 @@ static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
 #define MIDI_SLOTS_SIZE 6
 midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
+#define RADIUS 4
+
+static display_list_item_t items[] = {
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .radius = RADIUS
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .end = {
+        .x = 0,
+        .y = RADIUS + 45
+      },
+      .size = 1
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 10,
+        .y = RADIUS + 45
+      },
+      .radius = RADIUS
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = RADIUS + 45
+      },
+      .end = {
+        .x = 0,
+        .y = 0
+      },
+      .size = 1
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 0
+      },
+      .radius = RADIUS
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 0
+      },
+      .end = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .size = 1
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .radius = RADIUS
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 31
+      },
+      .end = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .size = 1
+    }
+  },
+  {
+    .display = 13,
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = RADIUS
+      },
+      .radius = RADIUS
+    }
+  }
+};
+static const uint8_t items_size = sizeof(items) / sizeof(display_list_item_t);
+
+static display_list_t list = {
+  .items = items,
+  .size = items_size
+};
+
+static display_list_t generator(const int32_t * const values, const void * const sdhi_ptr,
+                                const uint16_t attack_id, const uint16_t decay_id,
+                                const uint16_t sustain_id, const uint16_t release_id,
+                                const uint16_t type_id) {
+  const sdhi_t sdhi = *((sdhi_t*)sdhi_ptr);
+  const uint8_t attack = 30 - sdhi_integer(attack_id, values, sdhi) * 2;
+  const int8_t decay = 30 - sdhi_integer(decay_id, values, sdhi) * 2;
+  const uint8_t sustain_y = 45 - sdhi_integer(sustain_id, values, sdhi) * 3;
+  const uint8_t sustain = sdhi_integer(type_id, values, sdhi) ? 30 : 0;
+  const uint8_t release = 30 - sdhi_integer(release_id, values, sdhi) * 2;
+  const uint8_t offset = (127 - (attack + decay + sustain + release)) / 2;
+
+  items[0].configuration.circle.center.x = offset;
+  items[1].configuration.line.start.x = offset;
+  items[1].configuration.line.end.x = attack + offset;
+  items[2].configuration.circle.center.x = attack + offset;
+  items[3].configuration.line.start.x = attack + offset;
+  items[3].configuration.line.end.x = attack + decay + offset;
+  items[3].configuration.line.end.y = sustain_y + RADIUS;
+  items[4].configuration.circle.center.x = attack + decay + offset;
+  items[4].configuration.circle.center.y = sustain_y + RADIUS;
+  items[5].configuration.line.start.x = attack + decay + offset;
+  items[5].configuration.line.start.y = sustain_y + RADIUS;
+  items[5].configuration.line.end.x = attack + decay + sustain + offset;
+  items[5].configuration.line.end.y = sustain_y + RADIUS;
+  items[6].configuration.circle.center.x = attack + decay + sustain + offset;
+  items[6].configuration.circle.center.y = sustain_y + RADIUS;
+  items[7].configuration.line.start.x = attack + decay + sustain + offset;
+  items[7].configuration.line.start.y = sustain_y + RADIUS;
+  items[7].configuration.line.end.x = attack + decay + sustain + release + offset;
+  items[8].configuration.circle.center.x = attack + decay + sustain + release + offset;
+  return list;
+}
+
+static display_list_t osc1_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+  return generator(values, sdhi_ptr, CTRL_AR_1, CTRL_DR_1, CTRL_SL_1, CTRL_RR_1, CTRL_EGT_1);
+}
+
+static display_list_t osc2_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+  return generator(values, sdhi_ptr, CTRL_AR_2, CTRL_DR_2, CTRL_SL_2, CTRL_RR_2, CTRL_EGT_2);
+}
+
+static display_list_t osc3_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+  return generator(values, sdhi_ptr, CTRL_AR_3, CTRL_DR_3, CTRL_SL_3, CTRL_RR_3, CTRL_EGT_3);
+}
+
+static display_list_t osc4_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+  return generator(values, sdhi_ptr, CTRL_AR_4, CTRL_DR_4, CTRL_SL_4, CTRL_RR_3, CTRL_EGT_4);
+}
 static const sdhi_panel_t const panels[] = {
   {
     "Global",
@@ -2011,7 +2186,8 @@ static const sdhi_panel_t const panels[] = {
       CONNECTION, OCTAVE_SPLIT, NONE,
       TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
       LOAD, SAVE
-    }
+    },
+    NULL
   },
   {
     "OSC 1 ENV",
@@ -2020,7 +2196,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_AR_1, CTRL_DR_1, CTRL_EGT_1,
       CTRL_SL_1, CTRL_RR_1, NONE,
       CTRL_KSR_1, CTRL_KSL_1
-    }
+    },
+    &osc1_env_generator
   },
   {
     "OSC 1 Sound",
@@ -2029,7 +2206,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_MULT_1, CTRL_WS_1, CTRL_TL_1,
       FEEDBACK, CTRL_VIB_1, CTRL_TREM_1,
       NONE, NONE
-    }
+    },
+    NULL
   },
   {
     "OSC 2 ENV",
@@ -2038,7 +2216,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_AR_2, CTRL_DR_2, CTRL_EGT_2,
       CTRL_SL_2, CTRL_RR_2, NONE,
       CTRL_KSR_2, CTRL_KSL_2
-    }
+    },
+    &osc2_env_generator
   },
   {
     "OSC 2 Sound",
@@ -2047,7 +2226,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_MULT_2, CTRL_WS_2, CTRL_TL_2,
       NONE, CTRL_VIB_2, CTRL_TREM_2,
       NONE, NONE
-    }
+    },
+    NULL
   },
   {
     "OSC 3 ENV",
@@ -2056,7 +2236,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_AR_3, CTRL_DR_3, CTRL_EGT_3,
       CTRL_SL_3, CTRL_RR_3, NONE,
       CTRL_KSR_3, CTRL_KSL_3
-    }
+    },
+    &osc3_env_generator
   },
   {
     "OSC 3 Sound",
@@ -2065,7 +2246,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_MULT_3, CTRL_WS_3, CTRL_TL_3,
       NONE, CTRL_VIB_3, CTRL_TREM_3,
       NONE, NONE
-    }
+    },
+    NULL
   },
   {
     "OSC 4 ENV",
@@ -2074,7 +2256,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_AR_4, CTRL_DR_4, CTRL_EGT_4,
       CTRL_SL_4, CTRL_RR_4, NONE,
       CTRL_KSR_4, CTRL_KSL_4
-    }
+    },
+    &osc4_env_generator
   },
   {
     "OSC 4 Sound",
@@ -2083,7 +2266,8 @@ static const sdhi_panel_t const panels[] = {
       CTRL_MULT_4, CTRL_WS_4, CTRL_TL_4,
       NONE, CTRL_VIB_4, CTRL_TREM_4,
       NONE, NONE
-    }
+    },
+    NULL
   }
 };
 static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);

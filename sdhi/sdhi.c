@@ -259,7 +259,6 @@ static void draw_panel_control(const sdhi_t sdhi) {
   draw_lower_column(pio_display_get(top_end));
   draw_row(pio_display_get(end));
   draw_upper_column(pio_display_get(bottom_end));
-
 }
 
 static uint8_t control_index(uint8_t x, uint8_t y) {
@@ -293,5 +292,10 @@ void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi) {
       draw_control(control, x, y, top_group, bottom_group, start_group, end_group, values);
     }
   }
+  if(panel.display_list_generator != NULL) {
+    const display_list_t list = (*panel.display_list_generator)(values, (void*)&sdhi);
+    pio_display_list(list);
+  }
+
   draw_panel_control(sdhi);
 }
