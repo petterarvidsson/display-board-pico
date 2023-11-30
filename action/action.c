@@ -246,6 +246,9 @@ static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, c
     case SDHI_CONTROL_TYPE_ENUMERATION:
       value = sdhi_enumeration(parameter.parameter.control.id, values, sdhi) + parameter.parameter.control.offset;
       break;
+    case SDHI_CONTROL_TYPE_VISUAL_ENUMERATION:
+      value = sdhi_visual_enumeration(parameter.parameter.control.id, values, sdhi) + parameter.parameter.control.offset;
+      break;
     case SDHI_CONTROL_TYPE_REAL:
       break;
     }

@@ -6,7 +6,8 @@
 typedef enum {
   SDHI_CONTROL_TYPE_INTEGER,
   SDHI_CONTROL_TYPE_REAL,
-  SDHI_CONTROL_TYPE_ENUMERATION
+  SDHI_CONTROL_TYPE_ENUMERATION,
+  SDHI_CONTROL_TYPE_VISUAL_ENUMERATION
 } sdhi_control_type_t;
 
 typedef struct {
@@ -33,10 +34,23 @@ typedef struct {
   uint32_t initial;
 } sdhi_control_type_enumeration_t;
 
+typedef struct {
+  const display_list_t display_list;
+  const int32_t value;
+} shdi_control_type_visual_enumeration_value_t;
+
+typedef struct {
+  const shdi_control_type_visual_enumeration_value_t *values;
+  uint16_t size;
+  uint32_t initial;
+  uint8_t width;
+} sdhi_control_type_visual_enumeration_t;
+
 typedef union {
   const sdhi_control_type_integer_t integer;
   const sdhi_control_type_real_t real;
   sdhi_control_type_enumeration_t enumeration;
+  sdhi_control_type_visual_enumeration_t visual_enumeration;
 } sdhi_control_type_configuration_t;
 
 typedef struct {
@@ -61,6 +75,7 @@ typedef struct {
   const char * title;
   const char * subtitle;
   int32_t controls[8];
+  const uint8_t generated_display;
   const display_list_generator_t display_list_generator;
 } sdhi_panel_t;
 
@@ -82,3 +97,4 @@ sdhi_control_type_t sdhi_type(const uint16_t id, const sdhi_t sdhi);
 int32_t sdhi_integer(const uint16_t id, const int32_t * const values, const sdhi_t sdhi);
 float sdhi_real(const uint16_t id, const int32_t * const values, const sdhi_t sdhi);
 int32_t sdhi_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi);
+int32_t sdhi_visual_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi);

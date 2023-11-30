@@ -70,8 +70,8 @@ static int32_t update_real(const sdhi_control_type_real_t real, const int32_t va
   return update(value, change, (int32_t)(real.min / real.step), (int32_t)(real.max / real.step));
 }
 
-static int32_t update_enumeration(const sdhi_control_type_enumeration_t enumeration, const int32_t value, const int32_t change) {
-  return update(value, change, 0, (int32_t)enumeration.size - 1);
+static int32_t update_enumeration(const int32_t size, const int32_t value, const int32_t change) {
+  return update(value, change, 0, size);
 }
 
 static void update_values(int32_t * const values, const int32_t * const change, i2c_controller_button_t * const button, const i2c_controller_button_t * const button_change, const sdhi_t sdhi) {
@@ -88,7 +88,10 @@ static void update_values(int32_t * const values, const int32_t * const change, 
           values[control->id] = update_real(control->configuration.real, values[control->id], change[i]);
           break;
         case SDHI_CONTROL_TYPE_ENUMERATION:
-          values[control->id] = update_enumeration(control->configuration.enumeration, values[control->id], change[i]);
+          values[control->id] = update_enumeration((int32_t)control->configuration.enumeration.size - 1, values[control->id], change[i]);
+          break;
+        case SDHI_CONTROL_TYPE_VISUAL_ENUMERATION:
+          values[control->id] = update_enumeration((int32_t)control->configuration.visual_enumeration.size - 1, values[control->id], change[i]);
           break;
         }
       }
@@ -132,6 +135,9 @@ void sdhi_init_values(int32_t * const values, i2c_controller_button_t * const bu
     case SDHI_CONTROL_TYPE_ENUMERATION:
       values[control.id] = control.configuration.enumeration.initial;
       break;
+    case SDHI_CONTROL_TYPE_VISUAL_ENUMERATION:
+      values[control.id] = control.configuration.visual_enumeration.initial;
+      break;
     }
     button[control.id] = I2C_CONTROLLER_NO_CHANGE;
   }
@@ -151,6 +157,10 @@ float sdhi_real(const uint16_t id, const int32_t * const values, const sdhi_t sd
 
 int32_t sdhi_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
   return find_control(id, sdhi)->configuration.enumeration.values[(uint32_t)(values[id] & 0xFFFFFF)].value;
+}
+
+int32_t sdhi_visual_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
+  return find_control(id, sdhi)->configuration.visual_enumeration.values[(uint32_t)(values[id] & 0xFFFFFF)].value;
 }
 
 static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
@@ -200,6 +210,13 @@ static void draw_control(const sdhi_control_t * const control, const uint8_t x, 
     }
     case SDHI_CONTROL_TYPE_ENUMERATION:
       pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, control->configuration.enumeration.values[(uint32_t)(values[control->id] & 0xFFFFFF)].name);
+      break;
+    case SDHI_CONTROL_TYPE_VISUAL_ENUMERATION:
+      {
+        const sdhi_control_type_visual_enumeration_t enumeration = control->configuration.visual_enumeration;
+        const shdi_control_type_visual_enumeration_value_t value = enumeration.values[(uint32_t)(values[control->id] & 0xFFFFFF)];
+        pio_display_list((127 - enumeration.width) / 2, 63 - 28, value.display_list, bottom);
+      }
       break;
     }
   }
@@ -294,7 +311,7 @@ void sdhi_update_displays(const int32_t * const values, const sdhi_t sdhi) {
   }
   if(panel.display_list_generator != NULL) {
     const display_list_t list = (*panel.display_list_generator)(values, (void*)&sdhi);
-    pio_display_list(list);
+    pio_display_list(0, 0, list, panel.generated_display);
   }
 
   draw_panel_control(sdhi);

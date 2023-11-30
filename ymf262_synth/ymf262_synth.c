@@ -195,6 +195,757 @@ static const shdi_control_type_enumeration_value_t low_high_values[] = {
   { .name = "high", .value = 1 }
 };
 
+#define NODE_RADIUS 2
+#define FULL_LENGTH 40
+#define HALF_LENGTH 20
+
+static display_list_item_t sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 17,
+      .length = FULL_LENGTH + 1,
+      .amplitude = 12
+    }
+  }
+};
+static display_list_item_t half_sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+   },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 9,
+      .length = HALF_LENGTH + 1,
+      .amplitude = 12
+    }
+  }
+};
+
+static display_list_item_t double_half_sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 9,
+      .length = HALF_LENGTH + 1,
+      .amplitude = 12
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .from = 0,
+      .until = 9,
+      .length = HALF_LENGTH + 1,
+      .amplitude = 12
+    }
+  }
+};
+
+static display_list_item_t double_quarter_sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 5,
+      .length = (HALF_LENGTH / 2) + 1,
+      .amplitude = 12
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH / 2,
+        .y = 24
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = HALF_LENGTH / 2,
+        .y = 24
+      },
+      .end = {
+        .x = HALF_LENGTH / 2,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH / 2,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .from = 0,
+      .until = 5,
+      .length = (HALF_LENGTH / 2) + 1,
+      .amplitude = 12
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH + HALF_LENGTH / 2,
+        .y = 24
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = HALF_LENGTH + HALF_LENGTH / 2,
+        .y = 24
+      },
+      .end = {
+        .x = HALF_LENGTH + HALF_LENGTH / 2,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH + HALF_LENGTH / 2,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  }
+};
+static display_list_item_t double_frequency_sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 17,
+      .length = HALF_LENGTH + 1,
+      .amplitude = 12
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH / 2,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  }
+};
+static display_list_item_t double_frequency_double_half_sine_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .from = 0,
+      .until = 9,
+      .length = (HALF_LENGTH / 2) + 1,
+      .amplitude = 12
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH / 2,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_SINE_INTERVAL,
+    .configuration.sine_interval = {
+      .start = {
+        .x = HALF_LENGTH / 2,
+        .y = 12
+      },
+      .from = 0,
+      .until = 9,
+      .length = (HALF_LENGTH / 2) + 1,
+      .amplitude = 12
+    }
+  }
+};
+static display_list_item_t square_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = 0,
+        .y = 22
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 22
+      },
+      .end = {
+        .x = HALF_LENGTH,
+        .y = 22
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = HALF_LENGTH,
+        .y = 22
+      },
+      .end = {
+        .x = HALF_LENGTH,
+        .y = 2
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = HALF_LENGTH,
+        .y = 2
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 2
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = FULL_LENGTH,
+        .y = 2
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  }
+};
+
+static display_list_item_t derived_square_waveform_items[] = {
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = 0,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = HALF_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_FILLED_CIRCLE,
+    .configuration.circle = {
+      .center = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .radius = NODE_RADIUS
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 12
+      },
+      .end = {
+        .x = 0,
+        .y = 22
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = 0,
+        .y = 22
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 0
+      },
+      .size = 0
+    }
+  },
+  {
+    .type = DISPLAY_LIST_LINE,
+    .configuration.line = {
+      .start = {
+        .x = FULL_LENGTH,
+        .y = 2
+      },
+      .end = {
+        .x = FULL_LENGTH,
+        .y = 12
+      },
+      .size = 0
+    }
+  }
+};
+static const shdi_control_type_visual_enumeration_value_t waveform_values[] = {
+  {
+    .display_list = {
+      .size = sizeof(sine_waveform_items) / sizeof(display_list_item_t),
+      .items = sine_waveform_items
+    },
+    .value = 0
+  },
+  {
+    .display_list = {
+      .size = sizeof(half_sine_waveform_items) / sizeof(display_list_item_t),
+      .items = half_sine_waveform_items
+    },
+    .value = 1
+  },
+  {
+    .display_list = {
+      .size = sizeof(double_half_sine_waveform_items) / sizeof(display_list_item_t),
+      .items = double_half_sine_waveform_items
+    },
+    .value = 2
+  },
+  {
+    .display_list = {
+      .size = sizeof(double_quarter_sine_waveform_items) / sizeof(display_list_item_t),
+      .items = double_quarter_sine_waveform_items
+    },
+    .value = 3
+  },
+  {
+    .display_list = {
+      .size = sizeof(double_frequency_sine_waveform_items) / sizeof(display_list_item_t),
+      .items = double_frequency_sine_waveform_items
+    },
+    .value = 4
+  },
+  {
+    .display_list = {
+      .size = sizeof(double_frequency_double_half_sine_waveform_items) / sizeof(display_list_item_t),
+      .items = double_frequency_double_half_sine_waveform_items
+    },
+    .value = 5
+  },
+  {
+    .display_list = {
+      .size = sizeof(square_waveform_items) / sizeof(display_list_item_t),
+      .items = square_waveform_items
+    },
+    .value = 6
+  },
+  {
+    .display_list = {
+      .size = sizeof(derived_square_waveform_items) / sizeof(display_list_item_t),
+      .items = derived_square_waveform_items
+    },
+    .value = 7
+  }
+};
+
 static const sdhi_control_t const controls[] = {
   {
     .id = LOAD,
@@ -796,48 +1547,48 @@ static const sdhi_control_t const controls[] = {
     .id = CTRL_WS_1,
     .title = "Waveform",
     .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 7,
-      .middle = 0,
-      .initial = 0
+    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
+    .configuration.visual_enumeration = {
+      .values = waveform_values,
+      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
+      .initial = 0,
+      .width = FULL_LENGTH
     }
   },
   {
     .id = CTRL_WS_2,
     .title = "Waveform",
     .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 7,
-      .middle = 0,
-      .initial = 0
+    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
+    .configuration.visual_enumeration = {
+      .values = waveform_values,
+      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
+      .initial = 0,
+      .width = 32
     }
   },
   {
     .id = CTRL_WS_3,
     .title = "Waveform",
     .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 7,
-      .middle = 0,
-      .initial = 0
+    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
+    .configuration.visual_enumeration = {
+      .values = waveform_values,
+      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
+      .initial = 0,
+      .width = 32
     }
   },
   {
     .id = CTRL_WS_4,
     .title = "Waveform",
     .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 7,
-      .middle = 0,
-      .initial = 0
+    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
+    .configuration.visual_enumeration = {
+      .values = waveform_values,
+      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
+      .initial = 0,
+      .width = 32
     }
   }
 };
@@ -2007,7 +2758,6 @@ midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
 static display_list_item_t items[] = {
   {
-    .display = 13,
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
       .center = {
@@ -2018,7 +2768,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_LINE,
     .configuration.line = {
       .start = {
@@ -2033,7 +2782,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
       .center = {
@@ -2044,7 +2792,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_LINE,
     .configuration.line = {
       .start = {
@@ -2059,7 +2806,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
       .center = {
@@ -2070,7 +2816,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_LINE,
     .configuration.line = {
       .start = {
@@ -2085,7 +2830,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
       .center = {
@@ -2096,7 +2840,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_LINE,
     .configuration.line = {
       .start = {
@@ -2111,7 +2854,6 @@ static display_list_item_t items[] = {
     }
   },
   {
-    .display = 13,
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
       .center = {
@@ -2187,6 +2929,7 @@ static const sdhi_panel_t const panels[] = {
       TREMOLO_DEPTH, VIBRATO_DEPTH, NONE,
       LOAD, SAVE
     },
+    0,
     NULL
   },
   {
@@ -2197,6 +2940,7 @@ static const sdhi_panel_t const panels[] = {
       CTRL_SL_1, CTRL_RR_1, NONE,
       CTRL_KSR_1, CTRL_KSL_1
     },
+    13,
     &osc1_env_generator
   },
   {
@@ -2207,6 +2951,7 @@ static const sdhi_panel_t const panels[] = {
       FEEDBACK, CTRL_VIB_1, CTRL_TREM_1,
       NONE, NONE
     },
+    0,
     NULL
   },
   {
@@ -2217,6 +2962,7 @@ static const sdhi_panel_t const panels[] = {
       CTRL_SL_2, CTRL_RR_2, NONE,
       CTRL_KSR_2, CTRL_KSL_2
     },
+    13,
     &osc2_env_generator
   },
   {
@@ -2227,6 +2973,7 @@ static const sdhi_panel_t const panels[] = {
       NONE, CTRL_VIB_2, CTRL_TREM_2,
       NONE, NONE
     },
+    0,
     NULL
   },
   {
@@ -2237,6 +2984,7 @@ static const sdhi_panel_t const panels[] = {
       CTRL_SL_3, CTRL_RR_3, NONE,
       CTRL_KSR_3, CTRL_KSL_3
     },
+    13,
     &osc3_env_generator
   },
   {
@@ -2247,6 +2995,7 @@ static const sdhi_panel_t const panels[] = {
       NONE, CTRL_VIB_3, CTRL_TREM_3,
       NONE, NONE
     },
+    0,
     NULL
   },
   {
@@ -2257,6 +3006,7 @@ static const sdhi_panel_t const panels[] = {
       CTRL_SL_4, CTRL_RR_4, NONE,
       CTRL_KSR_4, CTRL_KSL_4
     },
+    13,
     &osc4_env_generator
   },
   {
@@ -2267,6 +3017,7 @@ static const sdhi_panel_t const panels[] = {
       NONE, CTRL_VIB_4, CTRL_TREM_4,
       NONE, NONE
     },
+    0,
     NULL
   }
 };

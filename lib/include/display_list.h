@@ -5,7 +5,8 @@
 typedef enum {
   DISPLAY_LIST_LINE = 0,
   DISPLAY_LIST_CIRCLE = 1,
-  DISPLAY_LIST_FILLED_CIRCLE = 2
+  DISPLAY_LIST_FILLED_CIRCLE = 2,
+  DISPLAY_LIST_SINE_INTERVAL = 3
 } display_list_item_type_t;
 
 typedef struct {
@@ -19,13 +20,22 @@ typedef struct {
   uint8_t radius;
 } display_list_item_circle_t;
 
+typedef struct {
+  point_t start;
+  uint8_t length;
+  uint8_t amplitude;
+  /* To and from are expressed in PI / 8 */
+  uint8_t from;
+  uint8_t until;
+} display_list_item_sine_interval_t;
+
 typedef union {
   display_list_item_line_t line;
   display_list_item_circle_t circle;
+  display_list_item_sine_interval_t sine_interval;
 } display_list_item_configuration_t;
 
 typedef struct {
-  uint8_t display;
   display_list_item_type_t type;
   display_list_item_configuration_t configuration;
 } display_list_item_t;
