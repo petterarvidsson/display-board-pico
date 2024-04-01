@@ -24,7 +24,7 @@ typedef struct {
 } sdhi_control_type_real_t;
 
 typedef struct {
-  const char const * name;
+  const char * name;
   const int32_t value;
 } shdi_control_type_enumeration_value_t;
 
