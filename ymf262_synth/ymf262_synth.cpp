@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
-#include "ymf262_synth.h"
+#include "ymf262_synth.hpp"
 #include "ymf262.h"
 
 enum groups {
@@ -11,7 +11,7 @@ enum groups {
   EFFECT,
   KEY_SCALE
 };
-static const sdhi_group_t const groups[] = {
+static const sdhi_group_t groups[] = {
   {
     .id = PATCH,
     .title = "Patch"

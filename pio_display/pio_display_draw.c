@@ -30,7 +30,7 @@ static void pixel(uint8_t * const fb, uint8_t x, uint8_t y, uint8_t size) {
   }
 }
 
-static void draw_line(uint8_t * const fb, uint8_t x0, uint8_t y0, const uint8_t x1, const uint8_t y1, const uint8_t size) {
+void pio_display_draw_line(uint8_t * const fb, uint8_t x0, uint8_t y0, const uint8_t x1, const uint8_t y1, const uint8_t size) {
   int16_t sx = x0 < x1 ? 1 : -1;
   int16_t sy = y0 < y1 ? 1 : -1;
   int16_t dx =  abs(x1 - x0);
@@ -53,7 +53,7 @@ static void draw_line(uint8_t * const fb, uint8_t x0, uint8_t y0, const uint8_t 
   pixel(fb, x0, y0, size);
 }
 
-static void draw_circle(uint8_t * const fb, const uint8_t x0, const uint8_t y0, const uint8_t radius) {
+void pio_display_draw_circle(uint8_t * const fb, const uint8_t x0, const uint8_t y0, const uint8_t radius) {
   int f = 1 - radius;
   int ddf_x = 1;
   int ddf_y = -2 * radius;
@@ -84,14 +84,14 @@ static void draw_circle(uint8_t * const fb, const uint8_t x0, const uint8_t y0, 
   }
 }
 
-static void draw_sine(uint8_t * const fb, const uint8_t from, const uint8_t to, const uint8_t x, const uint8_t y, const uint8_t length, const uint8_t amplitude) {
+void pio_display_draw_sine(uint8_t * const fb, const uint8_t from, const uint8_t to, const uint8_t x, const uint8_t y, const uint8_t length, const uint8_t amplitude) {
   const float ffrom = (float)from * (M_PI / 8);
   const float interval = (float)to * (M_PI / 8) - ffrom;
   uint8_t old_yi = y + (int8_t)(sinf(ffrom) * amplitude);
   for(uint8_t i = 1; i < length; i++) {
     uint8_t xi = x + i;
     int16_t yi = y + (int16_t)(sinf(ffrom + interval * ((float)i / (float)length)) * amplitude);
-    draw_line(fb, xi - 1, old_yi, xi, yi, 0);
+    pio_display_draw_line(fb, xi - 1, old_yi, xi, yi, 0);
     old_yi = yi;
   }
 }
@@ -105,7 +105,7 @@ static void fill_x(uint8_t * const fb, const int16_t x, const int16_t y, const u
   }
 }
 
-static void draw_filled_circle(uint8_t * const fb, const uint8_t x0, const uint8_t y0, const uint8_t radius) {
+void pio_display_draw_filled_circle(uint8_t * const fb, const uint8_t x0, const uint8_t y0, const uint8_t radius) {
   int f = 1 - radius;
   int ddf_x = 1;
   int ddf_y = -2 * radius;
@@ -141,42 +141,6 @@ static void draw_filled_circle(uint8_t * const fb, const uint8_t x0, const uint8
     fill_x(fb, x0 - y, y0 - x, y * 2);
   }
 }
-
-static void display_list_item(const uint8_t x_offset, const uint8_t y_offset, const display_list_item_t item, const uint8_t display) {
-  uint8_t * const fb = pio_display_get(display);
-  switch(item.type) {
-  case DISPLAY_LIST_LINE:
-    {
-      const display_list_item_line_t line = item.configuration.line;
-      draw_line(fb, line.start.x + x_offset, line.start.y + y_offset, line.end.x  + x_offset, line.end.y  + y_offset, line.size);
-    }
-    break;
-  case DISPLAY_LIST_CIRCLE:
-    {
-      const display_list_item_circle_t circle = item.configuration.circle;
-      draw_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
-    }
-    break;
-  case DISPLAY_LIST_FILLED_CIRCLE:
-    {
-      const display_list_item_circle_t circle = item.configuration.circle;
-      draw_filled_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
-    }
-    break;
-  case DISPLAY_LIST_SINE_INTERVAL:
-    {
-      const display_list_item_sine_interval_t sine = item.configuration.sine_interval;
-      draw_sine(fb, sine.from, sine.until, sine.start.x + x_offset, sine.start.y + y_offset, sine.length, sine.amplitude);
-    }
-    break;
-  }
-}
-
-void pio_display_list(const uint8_t x_offset, const uint8_t y_offset, const display_list_t list, const uint8_t display) {
-  for(uint8_t i = 0; i < list.size; i++) {
-    display_list_item(x_offset, y_offset, list.items[i], display);
-  }
-};
 
 void pio_display_fill_rectangle(uint8_t * const fb,
                                 const uint8_t startx, const uint8_t starty,

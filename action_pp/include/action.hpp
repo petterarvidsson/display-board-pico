@@ -4,7 +4,7 @@
 #include <mapbox/variant.hpp>
 #include <span.hpp>
 #include <stdint.h>
-#include "sdhi.h"
+#include "sdhi.hpp"
 #include "midi.h"
 
 namespace action {
@@ -118,6 +118,6 @@ namespace action {
 
   typedef mapbox::util::variant<midi_controller_t, midi_bank_change_t, midi_rpn_t, midi_nrpn_t, midi_mapping_t, slot_t, xg_parameter_change_1_t, ymf262_slot_state_t, action_ymf262_parameter_t, ymf262_connection_t, load_values_t, save_values_t> action_t;
 
-  void action_init(const tcb::span<const action_t> actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
-  void action_update(const tcb::span<const action_t> actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+  void action_init(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+  void action_update(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
 };

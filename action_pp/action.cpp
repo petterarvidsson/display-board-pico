@@ -1,7 +1,6 @@
 #include <cstring>
 #include "action.hpp"
 #include "midi.h"
-#include "sdhi.h"
 #include "ymf262.h"
 
 namespace action {
@@ -199,23 +198,23 @@ namespace action {
       }
     }
   }
-  static int32_t parameter_value(const parameter_t parameter, const sdhi_t sdhi, const int32_t * const values, const slots_t slots) {
+  static int32_t parameter_value(const parameter_t parameter, const sdhi::sdhi_t sdhi, const int32_t * const values, const slots_t slots) {
     int32_t value = -1;
     parameter.match(
         [&value, sdhi, values] (parameter_control_t control) {
-          switch(sdhi_type(control.id, sdhi)) {
-          case SDHI_CONTROL_TYPE_INTEGER:
-            value = sdhi_integer(control.id, values, sdhi) + control.offset;
-            break;
-          case SDHI_CONTROL_TYPE_ENUMERATION:
-            value = sdhi_enumeration(control.id, values, sdhi) + control.offset;
-            break;
-          case SDHI_CONTROL_TYPE_VISUAL_ENUMERATION:
-            value = sdhi_visual_enumeration(control.id, values, sdhi) + control.offset;
-            break;
-          case SDHI_CONTROL_TYPE_REAL:
-            break;
-          }
+          const sdhi::sdhi_control_t sdhi_control = *sdhi::find_control(control.id, sdhi);
+          sdhi_control.match(
+                             [&value, sdhi, values, control] (sdhi::sdhi_control_type_integer_t integer_control) {
+                               value = sdhi_integer(control.id, values, sdhi) + control.offset;
+                             },
+                             [&value, sdhi, values, control] (sdhi::sdhi_control_type_real_t real_control) {
+                             },
+                             [&value, sdhi, values, control] (sdhi::sdhi_control_type_enumeration_t enumeration_control) {
+                               value = sdhi_enumeration(control.id, values, sdhi) + control.offset;
+                             },
+                             [&value, sdhi, values, control] (sdhi::sdhi_control_type_visual_enumeration_t visual_enumeration_control) {
+                               value = sdhi_visual_enumeration(control.id, values, sdhi) + control.offset;
+                             });
         },
         [&value] (int32_t parameter) {
           value = parameter;
@@ -248,7 +247,7 @@ namespace action {
     }
   }
 
-  static void update_computed_values(const tcb::span<const action_t> actions, const sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const slots_t slots) {
+  static void update_computed_values(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const slots_t slots) {
     for(uint8_t i = 0; i < actions.size(); i++) {
       actions[i].match(
                    [i, action_values, sdhi, values, slots] (midi_controller_t controller) {
@@ -324,7 +323,7 @@ namespace action {
     }
   }
 
-  void action_init(const tcb::span<const action_t> actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+  void action_init(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
     current_action = 0;
     slots_t internal = {
       .slots = slots,
@@ -342,7 +341,7 @@ namespace action {
     }
   }
 
-  void action_update(const tcb::span<const action_t> actions, const sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+  void action_update(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
     slots_t internal = {
       .slots = slots,
       .size = slots_size
@@ -350,5 +349,17 @@ namespace action {
     update_computed_values(actions, sdhi, values, button, action_values, internal);
     execute_actions(actions, action_values, values);
   }
+
+
+
+  // Span + variant
+  const action_t test = save_values_t();
+
+  const action_t actions_b[] = {
+    save_values_t(),
+    load_values_t()
+  };
+
+  const tcb::span<const action_t> actions = tcb::make_span(actions_b);
 
 };
