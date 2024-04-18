@@ -34,10 +34,11 @@ namespace sdhi {
     uint32_t initial;
   };
 
-  typedef struct {
-    const tcb::span<display_list::item_t> display_list;
+  struct shdi_control_type_visual_enumeration_value_t {
+    const tcb::span<display_list::Item> display_list;
     const int32_t value;
-  } shdi_control_type_visual_enumeration_value_t;
+    shdi_control_type_visual_enumeration_value_t(const tcb::span<display_list::Item> display_list, const int32_t value) : display_list(display_list), value(value) {}
+  };
 
   struct sdhi_control_type_visual_enumeration_t : sdhi_control_description_t {
     const tcb::span<const shdi_control_type_visual_enumeration_value_t> values;
@@ -49,7 +50,7 @@ namespace sdhi {
 
   // First pointer is values array, second pointer is sdhi_t,
   // but can not be passed as such, due to recursiveness of type
-  typedef tcb::span<display_list::item_t> (*display_list_generator_t)(const int32_t * const, const void * const);
+  typedef tcb::span<display_list::Item> (*display_list_generator_t)(const int32_t * const, const void * const);
 
   typedef struct {
     const int16_t id;

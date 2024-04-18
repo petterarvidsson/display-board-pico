@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include "ymf262_synth.hpp"
 #include "ymf262.h"
+using namespace setup;
 
 enum groups {
   SINGLE = -1,
@@ -199,751 +200,93 @@ static const shdi_control_type_enumeration_value_t low_high_values[] = {
 #define FULL_LENGTH 40
 #define HALF_LENGTH 20
 
-static display_list_item_t sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 17,
-      .length = FULL_LENGTH + 1,
-      .amplitude = 12
-    }
-  }
+static dl::Item sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), FULL_LENGTH + 1, 12, 0, 17)
 };
-static display_list_item_t half_sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-   },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 9,
-      .length = HALF_LENGTH + 1,
-      .amplitude = 12
-    }
-  }
+static dl::Item half_sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 9)
 };
 
-static display_list_item_t double_half_sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 9,
-      .length = HALF_LENGTH + 1,
-      .amplitude = 12
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .from = 0,
-      .until = 9,
-      .length = HALF_LENGTH + 1,
-      .amplitude = 12
-    }
-  }
+static dl::Item double_half_sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 9),
+  dl::SineSegment(dl::Point(HALF_LENGTH, 12), HALF_LENGTH + 1, 12, 0, 9)
 };
 
-static display_list_item_t double_quarter_sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 5,
-      .length = (HALF_LENGTH / 2) + 1,
-      .amplitude = 12
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH / 2,
-        .y = 24
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = HALF_LENGTH / 2,
-        .y = 24
-      },
-      .end = {
-        .x = HALF_LENGTH / 2,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH / 2,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .from = 0,
-      .until = 5,
-      .length = (HALF_LENGTH / 2) + 1,
-      .amplitude = 12
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH + HALF_LENGTH / 2,
-        .y = 24
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = HALF_LENGTH + HALF_LENGTH / 2,
-        .y = 24
-      },
-      .end = {
-        .x = HALF_LENGTH + HALF_LENGTH / 2,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH + HALF_LENGTH / 2,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  }
-};
-static display_list_item_t double_frequency_sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 17,
-      .length = HALF_LENGTH + 1,
-      .amplitude = 12
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH / 2,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  }
-};
-static display_list_item_t double_frequency_double_half_sine_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .from = 0,
-      .until = 9,
-      .length = (HALF_LENGTH / 2) + 1,
-      .amplitude = 12
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH / 2,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_SINE_INTERVAL,
-    .configuration.sine_interval = {
-      .start = {
-        .x = HALF_LENGTH / 2,
-        .y = 12
-      },
-      .from = 0,
-      .until = 9,
-      .length = (HALF_LENGTH / 2) + 1,
-      .amplitude = 12
-    }
-  }
-};
-static display_list_item_t square_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = 0,
-        .y = 22
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 22
-      },
-      .end = {
-        .x = HALF_LENGTH,
-        .y = 22
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = HALF_LENGTH,
-        .y = 22
-      },
-      .end = {
-        .x = HALF_LENGTH,
-        .y = 2
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = HALF_LENGTH,
-        .y = 2
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 2
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = FULL_LENGTH,
-        .y = 2
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  }
+static dl::Item double_quarter_sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
+  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 24), NODE_RADIUS),
+  dl::Line(dl::Point(HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH / 2, 12), 0),
+  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
+  dl::SineSegment(dl::Point((HALF_LENGTH / 2), 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
+  dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), NODE_RADIUS),
+  dl::Line(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), 0),
+  dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), NODE_RADIUS)
 };
 
-static display_list_item_t derived_square_waveform_items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = HALF_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .radius = NODE_RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 12
-      },
-      .end = {
-        .x = 0,
-        .y = 22
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 22
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 0
-      },
-      .size = 0
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = FULL_LENGTH,
-        .y = 2
-      },
-      .end = {
-        .x = FULL_LENGTH,
-        .y = 12
-      },
-      .size = 0
-    }
-  }
+static dl::Item double_frequency_sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 17),
+  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS)
 };
+static dl::Item double_frequency_double_half_sine_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::SineSegment(dl::Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 9),
+  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
+  dl::SineSegment(dl::Point((HALF_LENGTH / 2), 12), (HALF_LENGTH / 2) + 1, 12, 0, 9)
+};
+static dl::Item square_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::Line(dl::Point(0, 12), dl::Point(0, 22), 0),
+  dl::Line(dl::Point(0, 22), dl::Point(HALF_LENGTH, 22), 0),
+  dl::Line(dl::Point(HALF_LENGTH, 22), dl::Point(HALF_LENGTH, 2), 0),
+  dl::Line(dl::Point(HALF_LENGTH, 2), dl::Point(FULL_LENGTH, 2), 0),
+  dl::Line(dl::Point(FULL_LENGTH, 2), dl::Point(FULL_LENGTH, 12), 0)
+};
+
+static dl::Item derived_square_waveform_items[] = {
+  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
+  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
+  dl::Line(dl::Point(0, 12), dl::Point(0, 22), 0),
+  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 0), 0),
+  dl::Line(dl::Point(FULL_LENGTH, 2), dl::Point(FULL_LENGTH, 12), 0)
+};
+
 static const shdi_control_type_visual_enumeration_value_t waveform_values[] = {
-  {
-    .display_list = {
-      .size = sizeof(sine_waveform_items) / sizeof(display_list_item_t),
-      .items = sine_waveform_items
-    },
-    .value = 0
-  },
-  {
-    .display_list = {
-      .size = sizeof(half_sine_waveform_items) / sizeof(display_list_item_t),
-      .items = half_sine_waveform_items
-    },
-    .value = 1
-  },
-  {
-    .display_list = {
-      .size = sizeof(double_half_sine_waveform_items) / sizeof(display_list_item_t),
-      .items = double_half_sine_waveform_items
-    },
-    .value = 2
-  },
-  {
-    .display_list = {
-      .size = sizeof(double_quarter_sine_waveform_items) / sizeof(display_list_item_t),
-      .items = double_quarter_sine_waveform_items
-    },
-    .value = 3
-  },
-  {
-    .display_list = {
-      .size = sizeof(double_frequency_sine_waveform_items) / sizeof(display_list_item_t),
-      .items = double_frequency_sine_waveform_items
-    },
-    .value = 4
-  },
-  {
-    .display_list = {
-      .size = sizeof(double_frequency_double_half_sine_waveform_items) / sizeof(display_list_item_t),
-      .items = double_frequency_double_half_sine_waveform_items
-    },
-    .value = 5
-  },
-  {
-    .display_list = {
-      .size = sizeof(square_waveform_items) / sizeof(display_list_item_t),
-      .items = square_waveform_items
-    },
-    .value = 6
-  },
-  {
-    .display_list = {
-      .size = sizeof(derived_square_waveform_items) / sizeof(display_list_item_t),
-      .items = derived_square_waveform_items
-    },
-    .value = 7
-  }
+  shdi_control_type_visual_enumeration_value_t(make_span(sine_waveform_items), 0),
+  shdi_control_type_visual_enumeration_value_t(make_span(half_sine_waveform_items), 1),
+  shdi_control_type_visual_enumeration_value_t(make_span(double_half_sine_waveform_items), 2),
+  shdi_control_type_visual_enumeration_value_t(make_span(double_quarter_sine_waveform_items), 3),
+  shdi_control_type_visual_enumeration_value_t(make_span(double_frequency_sine_waveform_items), 4),
+  shdi_control_type_visual_enumeration_value_t(make_span(double_frequency_double_half_sine_waveform_items), 5),
+  shdi_control_type_visual_enumeration_value_t(make_span(square_waveform_items), 6),
+  shdi_control_type_visual_enumeration_value_t(make_span(derived_square_waveform_items), 7)
 };
 
 static const sdhi_control_t const controls[] = {
@@ -2756,7 +2099,7 @@ midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
 #define RADIUS 4
 
-static display_list_item_t items[] = {
+static dl::item items[] = {
   {
     .type = DISPLAY_LIST_FILLED_CIRCLE,
     .configuration.circle = {
@@ -3033,7 +2376,7 @@ static sdhi_t sdhi = {
 };
 
 
-setup_t ymf262_synth_init() {
+Setup ymf262_synth_init() {
   ymf262_init();
   setup_t ymf262_synth = {
     .sdhi = sdhi,

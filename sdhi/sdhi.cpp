@@ -174,24 +174,24 @@ namespace sdhi {
     return mapbox::util::get_unchecked<sdhi_control_type_visual_enumeration_t>(*find_control(id, sdhi)).values[(uint32_t)(values[id] & 0xFFFFFF)].value;
   }
 
-  static void display_list_item(const uint8_t x_offset, const uint8_t y_offset, const display_list::item_t item, const uint8_t display) {
+  static void display_list_item(const uint8_t x_offset, const uint8_t y_offset, const display_list::Item item, const uint8_t display) {
     uint8_t * const fb = pio_display_get(display);
     item.match(
-               [x_offset, y_offset, fb] (display_list::line_t line) {
+               [x_offset, y_offset, fb] (display_list::Line line) {
                  pio_display_draw_line(fb, line.start.x + x_offset, line.start.y + y_offset, line.end.x  + x_offset, line.end.y  + y_offset, line.size);
                },
-               [x_offset, y_offset, fb] (display_list::circle_t circle) {
+               [x_offset, y_offset, fb] (display_list::Circle circle) {
                  pio_display_draw_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
                },
-               [x_offset, y_offset, fb] (display_list::filled_circle_t circle) {
+               [x_offset, y_offset, fb] (display_list::FilledCircle circle) {
                  pio_display_draw_filled_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
                },
-               [x_offset, y_offset, fb] (display_list::sine_interval_t sine) {
+               [x_offset, y_offset, fb] (display_list::SineSegment sine) {
                  pio_display_draw_sine(fb, sine.from, sine.until, sine.start.x + x_offset, sine.start.y + y_offset, sine.length, sine.amplitude);
                });
   }
 
-  static void pio_display_list(const uint8_t x_offset, const uint8_t y_offset, const tcb::span<display_list::item_t> list, const uint8_t display) {
+  static void pio_display_list(const uint8_t x_offset, const uint8_t y_offset, const tcb::span<display_list::Item> list, const uint8_t display) {
     for(auto item : list) {
       display_list_item(x_offset, y_offset, item, display);
     }
@@ -340,7 +340,7 @@ namespace sdhi {
       }
     }
     if(panel.display_list_generator != NULL) {
-      const tcb::span<display_list::item_t> list = (*panel.display_list_generator)(values, (void*)&sdhi);
+      const tcb::span<display_list::Item> list = (*panel.display_list_generator)(values, (void*)&sdhi);
       pio_display_list(0, 0, list, panel.generated_display);
     }
 
