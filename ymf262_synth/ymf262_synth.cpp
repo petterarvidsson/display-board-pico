@@ -3,8 +3,8 @@
 #include "pico/stdlib.h"
 #include "ymf262_synth.hpp"
 #include "ymf262.h"
-using namespace setup;
 
+using namespace setup;
 enum groups {
   SINGLE = -1,
   PATCH,
@@ -12,7 +12,7 @@ enum groups {
   EFFECT,
   KEY_SCALE
 };
-static const sdhi_group_t groups[] = {
+static sdhi_group_t groups[] = {
   {
     .id = PATCH,
     .title = "Patch"
@@ -289,1807 +289,156 @@ static const shdi_control_type_visual_enumeration_value_t waveform_values[] = {
   shdi_control_type_visual_enumeration_value_t(make_span(derived_square_waveform_items), 7)
 };
 
-static const sdhi_control_t const controls[] = {
-  {
-    .id = LOAD,
-    .title = "Load from",
-    .group = PATCH,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-    {
-    .id = SAVE,
-    .title = "Save to",
-    .group = PATCH,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 127,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CONNECTION,
-    .title = "Connection",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = connection_values,
-      .size = sizeof(connection_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = AM
-    }
-  },
-  {
-    .id = FEEDBACK,
-    .title = "Feedback",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 7,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = TREMOLO_DEPTH,
-    .title = "Tremolo depth",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = tremolo_values,
-      .size = sizeof(tremolo_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = VIBRATO_DEPTH,
-    .title = "Vibrato depth",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = vibrato_values,
-      .size = sizeof(vibrato_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = OCTAVE_SPLIT,
-    .title = "Octave Split",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TREM_1,
-    .title = "Tremolo",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TREM_2,
-    .title = "Tremolo",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TREM_3,
-    .title = "Tremolo",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TREM_4,
-    .title = "Tremolo",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_VIB_1,
-    .title = "Vibrato",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_VIB_2,
-    .title = "Vibrato",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_VIB_3,
-    .title = "Vibrato",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_VIB_4,
-    .title = "Vibrato",
-    .group = EFFECT,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = on_off_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_EGT_1,
-    .title = "EG Type",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = egt_values,
-      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_EGT_2,
-    .title = "EG Type",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = egt_values,
-      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_EGT_3,
-    .title = "EG Type",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = egt_values,
-      .size = sizeof(on_off_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_EGT_4,
-    .title = "EG Type",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = egt_values,
-      .size = sizeof(egt_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSR_1,
-    .title = "Key Scale Rate",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSR_2,
-    .title = "Key Scale Rate",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSR_3,
-    .title = "Key Scale Rate",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSR_4,
-    .title = "Key Scale Rate",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSL_1,
-    .title = "Key Scale Level",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSL_2,
-    .title = "Key Scale Level",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSL_3,
-    .title = "Key Scale Level",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_KSL_4,
-    .title = "Key Scale Level",
-    .group = KEY_SCALE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = low_high_values,
-      .size = sizeof(low_high_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_MULT_1,
-    .title = "Multiplier",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = multiplier_values,
-      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_MULT_2,
-    .title = "Multiplier",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = multiplier_values,
-      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_MULT_3,
-    .title = "Multplier",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = multiplier_values,
-      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_MULT_4,
-    .title = "Multplier",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_ENUMERATION,
-    .configuration.enumeration = {
-      .values = multiplier_values,
-      .size = sizeof(multiplier_values) / sizeof(shdi_control_type_enumeration_value_t),
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TL_1,
-    .title = "Level",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 31,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TL_2,
-    .title = "Level",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 31,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TL_3,
-    .title = "Level",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 31,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_TL_4,
-    .title = "Level",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 31,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_AR_1,
-    .title = "Attack",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_AR_2,
-    .title = "Attack",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_AR_2,
-    .title = "Attack",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_AR_3,
-    .title = "Attack",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_AR_4,
-    .title = "Attack",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_DR_1,
-    .title = "Decay",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_DR_2,
-    .title = "Decay",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_DR_3,
-    .title = "Decay",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_DR_4,
-    .title = "Decay",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_SL_1,
-    .title = "Sustain",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_SL_2,
-    .title = "Sustain",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_SL_3,
-    .title = "Sustain",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_SL_4,
-    .title = "Sustain",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_RR_1,
-    .title = "Release",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_RR_2,
-    .title = "Release",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_RR_3,
-    .title = "Release",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_RR_4,
-    .title = "Release",
-    .group = ADSR,
-    .type = SDHI_CONTROL_TYPE_INTEGER,
-    .configuration.integer = {
-      .min = 0,
-      .max = 15,
-      .middle = 0,
-      .initial = 0
-    }
-  },
-  {
-    .id = CTRL_WS_1,
-    .title = "Waveform",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
-    .configuration.visual_enumeration = {
-      .values = waveform_values,
-      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
-      .initial = 0,
-      .width = FULL_LENGTH
-    }
-  },
-  {
-    .id = CTRL_WS_2,
-    .title = "Waveform",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
-    .configuration.visual_enumeration = {
-      .values = waveform_values,
-      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
-      .initial = 0,
-      .width = 32
-    }
-  },
-  {
-    .id = CTRL_WS_3,
-    .title = "Waveform",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
-    .configuration.visual_enumeration = {
-      .values = waveform_values,
-      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
-      .initial = 0,
-      .width = 32
-    }
-  },
-  {
-    .id = CTRL_WS_4,
-    .title = "Waveform",
-    .group = SINGLE,
-    .type = SDHI_CONTROL_TYPE_VISUAL_ENUMERATION,
-    .configuration.visual_enumeration = {
-      .values = waveform_values,
-      .size = sizeof(waveform_values) / sizeof(shdi_control_type_visual_enumeration_value_t),
-      .initial = 0,
-      .width = 32
-    }
-  }
+static sdhi_control_t controls[] = {
+  sdhi_control_type_integer_t(LOAD, "Load from", PATCH, 0, 127),
+  sdhi_control_type_integer_t(SAVE, "Save to", PATCH, 0, 127),
+  sdhi_control_type_enumeration_t(CONNECTION, "Connection", SINGLE, connection_values, AM),
+  sdhi_control_type_integer_t(FEEDBACK, "Feedback", SINGLE, 0, 7),
+  sdhi_control_type_enumeration_t(TREMOLO_DEPTH, "Tremolo depth", EFFECT, tremolo_values, 0),
+  sdhi_control_type_enumeration_t(VIBRATO_DEPTH, "Vibrato depth", EFFECT, vibrato_values, 0),
+  sdhi_control_type_enumeration_t(OCTAVE_SPLIT, "Octave Split", SINGLE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_TREM_1, "Tremolo", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_TREM_2, "Tremolo", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_TREM_3, "Tremolo", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_TREM_4, "Tremolo", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_VIB_1, "Vibrato", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_VIB_2, "Vibrato", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_VIB_3, "Vibrato", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_VIB_4, "Vibrato", EFFECT, on_off_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_EGT_1, "EG Type", SINGLE, egt_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_EGT_2, "EG Type", SINGLE, egt_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_EGT_3, "EG Type", SINGLE, egt_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_EGT_4, "EG Type", SINGLE, egt_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSR_1, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSR_2, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSR_3, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSR_4, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSL_1, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSL_2, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSL_3, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_KSL_4, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_MULT_1, "Multiplier", SINGLE, multiplier_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_MULT_2, "Multiplier", SINGLE, multiplier_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_MULT_3, "Multiplier", SINGLE, multiplier_values, 0),
+  sdhi_control_type_enumeration_t(CTRL_MULT_4, "Multiplier", SINGLE, multiplier_values, 0),
+  sdhi_control_type_integer_t(CTRL_TL_1, "Level", SINGLE, 0, 31),
+  sdhi_control_type_integer_t(CTRL_TL_2, "Level", SINGLE, 0, 31),
+  sdhi_control_type_integer_t(CTRL_TL_3, "Level", SINGLE, 0, 31),
+  sdhi_control_type_integer_t(CTRL_TL_4, "Level", SINGLE, 0, 31),
+  sdhi_control_type_integer_t(CTRL_AR_1, "Attack", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_AR_2, "Attack", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_AR_3, "Attack", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_AR_4, "Attack", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_DR_1, "Decay", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_DR_2, "Decay", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_DR_3, "Decay", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_DR_4, "Decay", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_SL_1, "Sustain", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_SL_2, "Sustain", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_SL_3, "Sustain", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_SL_4, "Sustain", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_RR_1, "Release", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_RR_2, "Release", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_RR_3, "Release", ADSR, 0, 15),
+  sdhi_control_type_integer_t(CTRL_RR_4, "Release", ADSR, 0, 15),
+  sdhi_control_type_visual_enumeration_t(CTRL_WS_1, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  sdhi_control_type_visual_enumeration_t(CTRL_WS_2, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  sdhi_control_type_visual_enumeration_t(CTRL_WS_3, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  sdhi_control_type_visual_enumeration_t(CTRL_WS_4, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
 };
-static const uint32_t controls_size = sizeof(controls) / sizeof(sdhi_control_t);
-static const uint32_t groups_size = sizeof(groups) / sizeof(sdhi_group_t);
 
 static int32_t values[CONTROLS];
 static i2c_controller_button_t buttons[CONTROLS];
 
 static action_t actions[] = {
   // Initial actions set up six midi slots (0-5) responding to MIDI on channel 0
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 0,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 1,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 2,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 3,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 4,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_SLOT,
-    .configuration.slot = {
-      .slot = {
-        .parameter.value = 5,
-        .type = PARAMETER_VALUE
-      }
-    }
-  },
+  slot_t(0, 0),
+  slot_t(0, 1),
+  slot_t(0, 2),
+  slot_t(0, 3),
+  slot_t(0, 4),
+  slot_t(0, 5),
   // Set up the six 4 OP channels (0 - 5) to accept value changes from slots 0 - 5
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 0,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 0,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 0,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 1,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 1,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 1,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 2,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 2,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 2,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 3,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 3,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 3,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 4,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 4,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 4,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_SLOT_STATE,
-    .configuration.ymf262_slot_state = {
-      .slot = {
-        .parameter.value = 5,
-        .type = PARAMETER_VALUE
-      },
-      .state = {
-        .parameter.note = {
-          .slot = 5,
-          .parameter = PARAMETER_MIDI_NOTE_STATE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      },
-      .note = {
-        .parameter.note = {
-          .slot = 5,
-          .parameter = PARAMETER_MIDI_NOTE_VALUE
-        },
-        .type = PARAMETER_MIDI_NOTE
-      }
-    }
-  },
+  ymf262_slot_state_t(0, parameter_midi_note_t(0, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(0, PARAMETER_MIDI_NOTE_VALUE)),
+  ymf262_slot_state_t(1, parameter_midi_note_t(1, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(1, PARAMETER_MIDI_NOTE_VALUE)),
+  ymf262_slot_state_t(2, parameter_midi_note_t(2, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(2, PARAMETER_MIDI_NOTE_VALUE)),
+  ymf262_slot_state_t(3, parameter_midi_note_t(3, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(3, PARAMETER_MIDI_NOTE_VALUE)),
+  ymf262_slot_state_t(4, parameter_midi_note_t(4, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(4, PARAMETER_MIDI_NOTE_VALUE)),
+  ymf262_slot_state_t(5, parameter_midi_note_t(5, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(5, PARAMETER_MIDI_NOTE_VALUE)),
   // Load
-  {
-    .channel = 0,
-    .type = ACTION_LOAD_VALUES,
-    .configuration.load_values = {
-      .trigger.id = LOAD,
-      .patch = {
-        .parameter.control = {
-          .id = LOAD,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      },
-      .ids = patch_ids,
-      .ids_size = sizeof(patch_ids) / sizeof(uint16_t)
-    }
-  },
+  load_values_t(trigger_button_t(LOAD), parameter_control_t(LOAD), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
   // Save
-  {
-    .channel = 0,
-    .type = ACTION_SAVE_VALUES,
-    .configuration.load_values = {
-      .trigger.id = SAVE,
-      .patch = {
-        .parameter.control = {
-          .id = SAVE,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      },
-      .ids = patch_ids,
-      .ids_size = sizeof(patch_ids) / sizeof(uint16_t)
-    }
-  },
+  save_values_t(trigger_button_t(SAVE), parameter_control_t(SAVE), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
   // Connection
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_CONNECTION,
-    .configuration.ymf262_connection = {
-      .connection = {
-        .parameter.control = {
-          .id = CONNECTION,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  ymf262_connection_t(parameter_control_t(CONNECTION)),
   // FEEDBACK
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = FB,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = FEEDBACK,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(FB, parameter_control_t(FEEDBACK)),
   // TREMOLO DEPTH
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DAM,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = TREMOLO_DEPTH,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(DAM, parameter_control_t(TREMOLO_DEPTH)),
   // VIBRATO DEPTH
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DVB,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = VIBRATO_DEPTH,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(DVB, parameter_control_t(VIBRATO_DEPTH)),
   // OCTAVE SPLIT
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = NTS,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = OCTAVE_SPLIT,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(NTS, parameter_control_t(OCTAVE_SPLIT)),
   // Tremolo
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AM_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TREM_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AM_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TREM_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AM_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TREM_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AM_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TREM_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(AM_1, parameter_control_t(CTRL_TREM_1)),
+  action_ymf262_parameter_t(AM_2, parameter_control_t(CTRL_TREM_2)),
+  action_ymf262_parameter_t(AM_3, parameter_control_t(CTRL_TREM_3)),
+  action_ymf262_parameter_t(AM_4, parameter_control_t(CTRL_TREM_4)),
   // Vibrato
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = VIB_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_VIB_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = VIB_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_VIB_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = VIB_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_VIB_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = VIB_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_VIB_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(VIB_1, parameter_control_t(CTRL_VIB_1)),
+  action_ymf262_parameter_t(VIB_2, parameter_control_t(CTRL_VIB_2)),
+  action_ymf262_parameter_t(VIB_3, parameter_control_t(CTRL_VIB_3)),
+  action_ymf262_parameter_t(VIB_4, parameter_control_t(CTRL_VIB_4)),
   // EG Type
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = EGT_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_EGT_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value =EGT_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_EGT_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = EGT_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_EGT_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = EGT_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_EGT_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSL_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSL_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSL_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSL_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSL_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSL_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSL_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSL_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSR_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSR_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSR_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSR_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSR_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSR_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = KSR_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_KSR_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(EGT_1, parameter_control_t(CTRL_EGT_1)),
+  action_ymf262_parameter_t(EGT_2, parameter_control_t(CTRL_EGT_2)),
+  action_ymf262_parameter_t(EGT_3, parameter_control_t(CTRL_EGT_3)),
+  action_ymf262_parameter_t(EGT_4, parameter_control_t(CTRL_EGT_4)),
+  // KSL
+  action_ymf262_parameter_t(KSL_1, parameter_control_t(CTRL_KSL_1)),
+  action_ymf262_parameter_t(KSL_2, parameter_control_t(CTRL_KSL_2)),
+  action_ymf262_parameter_t(KSL_3, parameter_control_t(CTRL_KSL_3)),
+  action_ymf262_parameter_t(KSL_4, parameter_control_t(CTRL_KSL_4)),
+  // KSR
+  action_ymf262_parameter_t(KSR_1, parameter_control_t(CTRL_KSR_1)),
+  action_ymf262_parameter_t(KSR_2, parameter_control_t(CTRL_KSR_2)),
+  action_ymf262_parameter_t(KSR_3, parameter_control_t(CTRL_KSR_3)),
+  action_ymf262_parameter_t(KSR_4, parameter_control_t(CTRL_KSR_4)),
   // Multiplier
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = MULT_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_MULT_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = MULT_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_MULT_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = MULT_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_MULT_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = MULT_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_MULT_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(MULT_1, parameter_control_t(CTRL_MULT_1)),
+  action_ymf262_parameter_t(MULT_2, parameter_control_t(CTRL_MULT_2)),
+  action_ymf262_parameter_t(MULT_3, parameter_control_t(CTRL_MULT_3)),
+  action_ymf262_parameter_t(MULT_4, parameter_control_t(CTRL_MULT_4)),
   // Total level
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = TL_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TL_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = TL_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TL_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = TL_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TL_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = TL_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_TL_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
+  action_ymf262_parameter_t(TL_1, parameter_control_t(CTRL_TL_1)),
+  action_ymf262_parameter_t(TL_2, parameter_control_t(CTRL_TL_2)),
+  action_ymf262_parameter_t(TL_3, parameter_control_t(CTRL_TL_3)),
+  action_ymf262_parameter_t(TL_4, parameter_control_t(CTRL_TL_4)),
   // Attack Rate
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AR_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_AR_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AR_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_AR_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AR_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_AR_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = AR_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_AR_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DR_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_DR_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DR_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_DR_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DR_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_DR_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = DR_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_DR_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = SL_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_SL_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = SL_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_SL_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = SL_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_SL_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = SL_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_SL_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = RR_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_RR_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = RR_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_RR_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = RR_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_RR_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = RR_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_RR_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = WS_1,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_WS_1,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = WS_2,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_WS_2,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = WS_3,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_WS_3,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  },
-  {
-    .channel = 0,
-    .type = ACTION_YMF262_PARAMETER,
-    .configuration.ymf262_parameter = {
-      .parameter = {
-        .parameter.value = WS_4,
-        .type = PARAMETER_VALUE
-      },
-      .value = {
-        .parameter.control = {
-          .id = CTRL_WS_4,
-          .offset = 0
-        },
-        .type = PARAMETER_CONTROL
-      }
-    }
-  }
+  action_ymf262_parameter_t(AR_1, parameter_control_t(CTRL_AR_1)),
+  action_ymf262_parameter_t(AR_2, parameter_control_t(CTRL_AR_2)),
+  action_ymf262_parameter_t(AR_3, parameter_control_t(CTRL_AR_3)),
+  action_ymf262_parameter_t(AR_4, parameter_control_t(CTRL_AR_4)),
+  // Decay rate
+  action_ymf262_parameter_t(DR_1, parameter_control_t(CTRL_DR_1)),
+  action_ymf262_parameter_t(DR_2, parameter_control_t(CTRL_DR_2)),
+  action_ymf262_parameter_t(DR_3, parameter_control_t(CTRL_DR_3)),
+  action_ymf262_parameter_t(DR_4, parameter_control_t(CTRL_DR_4)),
+  // Sustain level
+  action_ymf262_parameter_t(SL_1, parameter_control_t(CTRL_SL_1)),
+  action_ymf262_parameter_t(SL_2, parameter_control_t(CTRL_SL_2)),
+  action_ymf262_parameter_t(SL_3, parameter_control_t(CTRL_SL_3)),
+  action_ymf262_parameter_t(SL_4, parameter_control_t(CTRL_SL_4)),
+  // Release rate
+  action_ymf262_parameter_t(RR_1, parameter_control_t(CTRL_RR_1)),
+  action_ymf262_parameter_t(RR_2, parameter_control_t(CTRL_RR_2)),
+  action_ymf262_parameter_t(RR_3, parameter_control_t(CTRL_RR_3)),
+  action_ymf262_parameter_t(RR_4, parameter_control_t(CTRL_RR_4)),
+  // Waveform select
+  action_ymf262_parameter_t(WS_1, parameter_control_t(CTRL_WS_1)),
+  action_ymf262_parameter_t(WS_2, parameter_control_t(CTRL_WS_2)),
+  action_ymf262_parameter_t(WS_3, parameter_control_t(CTRL_WS_3)),
+  action_ymf262_parameter_t(WS_4, parameter_control_t(CTRL_WS_4))
 };
 static const uint32_t actions_size = sizeof(actions) / sizeof(action_t);
 static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
@@ -2099,122 +448,21 @@ midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
 #define RADIUS 4
 
-static dl::item items[] = {
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .radius = RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .end = {
-        .x = 0,
-        .y = RADIUS + 45
-      },
-      .size = 1
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 10,
-        .y = RADIUS + 45
-      },
-      .radius = RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = RADIUS + 45
-      },
-      .end = {
-        .x = 0,
-        .y = 0
-      },
-      .size = 1
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = 0
-      },
-      .radius = RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 0
-      },
-      .end = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .size = 1
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .radius = RADIUS
-    }
-  },
-  {
-    .type = DISPLAY_LIST_LINE,
-    .configuration.line = {
-      .start = {
-        .x = 0,
-        .y = 31
-      },
-      .end = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .size = 1
-    }
-  },
-  {
-    .type = DISPLAY_LIST_FILLED_CIRCLE,
-    .configuration.circle = {
-      .center = {
-        .x = 0,
-        .y = RADIUS
-      },
-      .radius = RADIUS
-    }
-  }
-};
-static const uint8_t items_size = sizeof(items) / sizeof(display_list_item_t);
-
-static display_list_t list = {
-  .items = items,
-  .size = items_size
+static dl::Item items[] = {
+  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS),
+  dl::Line(dl::Point(0, RADIUS), dl::Point(0, RADIUS), 1),
+  dl::FilledCircle(dl::Point(10, RADIUS + 45), RADIUS),
+  dl::Line(dl::Point(0, RADIUS + 45), dl::Point(0, 0), 1),
+  dl::FilledCircle(dl::Point(0, 0), RADIUS),
+  dl::Line(dl::Point(0, 0), dl::Point(0, RADIUS), 1),
+  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS),
+  dl::Line(dl::Point(0, 31), dl::Point(0, RADIUS), 1),
+  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS)
 };
 
-static display_list_t generator(const int32_t * const values, const void * const sdhi_ptr,
+auto list = make_span(items);
+
+static span<dl::Item> generator(const int32_t * const values, const void * const sdhi_ptr,
                                 const uint16_t attack_id, const uint16_t decay_id,
                                 const uint16_t sustain_id, const uint16_t release_id,
                                 const uint16_t type_id) {
@@ -2226,44 +474,44 @@ static display_list_t generator(const int32_t * const values, const void * const
   const uint8_t release = 30 - sdhi_integer(release_id, values, sdhi) * 2;
   const uint8_t offset = (127 - (attack + decay + sustain + release)) / 2;
 
-  items[0].configuration.circle.center.x = offset;
-  items[1].configuration.line.start.x = offset;
-  items[1].configuration.line.end.x = attack + offset;
-  items[2].configuration.circle.center.x = attack + offset;
-  items[3].configuration.line.start.x = attack + offset;
-  items[3].configuration.line.end.x = attack + decay + offset;
-  items[3].configuration.line.end.y = sustain_y + RADIUS;
-  items[4].configuration.circle.center.x = attack + decay + offset;
-  items[4].configuration.circle.center.y = sustain_y + RADIUS;
-  items[5].configuration.line.start.x = attack + decay + offset;
-  items[5].configuration.line.start.y = sustain_y + RADIUS;
-  items[5].configuration.line.end.x = attack + decay + sustain + offset;
-  items[5].configuration.line.end.y = sustain_y + RADIUS;
-  items[6].configuration.circle.center.x = attack + decay + sustain + offset;
-  items[6].configuration.circle.center.y = sustain_y + RADIUS;
-  items[7].configuration.line.start.x = attack + decay + sustain + offset;
-  items[7].configuration.line.start.y = sustain_y + RADIUS;
-  items[7].configuration.line.end.x = attack + decay + sustain + release + offset;
-  items[8].configuration.circle.center.x = attack + decay + sustain + release + offset;
+  items[0].get_unchecked<dl::FilledCircle>().center.x = offset;
+  items[1].get_unchecked<dl::Line>().start.x = offset;
+  items[1].get_unchecked<dl::Line>().end.x = attack + offset;
+  items[2].get_unchecked<dl::FilledCircle>().center.x = attack + offset;
+  items[3].get_unchecked<dl::Line>().start.x = attack + offset;
+  items[3].get_unchecked<dl::Line>().end.x = attack + decay + offset;
+  items[3].get_unchecked<dl::Line>().end.y = sustain_y + RADIUS;
+  items[4].get_unchecked<dl::FilledCircle>().center.x = attack + decay + offset;
+  items[4].get_unchecked<dl::FilledCircle>().center.y = sustain_y + RADIUS;
+  items[5].get_unchecked<dl::Line>().start.x = attack + decay + offset;
+  items[5].get_unchecked<dl::Line>().start.y = sustain_y + RADIUS;
+  items[5].get_unchecked<dl::Line>().end.x = attack + decay + sustain + offset;
+  items[5].get_unchecked<dl::Line>().end.y = sustain_y + RADIUS;
+  items[6].get_unchecked<dl::FilledCircle>().center.x = attack + decay + sustain + offset;
+  items[6].get_unchecked<dl::FilledCircle>().center.y = sustain_y + RADIUS;
+  items[7].get_unchecked<dl::Line>().start.x = attack + decay + sustain + offset;
+  items[7].get_unchecked<dl::Line>().start.y = sustain_y + RADIUS;
+  items[7].get_unchecked<dl::Line>().end.x = attack + decay + sustain + release + offset;
+  items[8].get_unchecked<dl::FilledCircle>().center.x = attack + decay + sustain + release + offset;
   return list;
 }
 
-static display_list_t osc1_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<dl::Item> osc1_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_1, CTRL_DR_1, CTRL_SL_1, CTRL_RR_1, CTRL_EGT_1);
 }
 
-static display_list_t osc2_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<dl::Item> osc2_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_2, CTRL_DR_2, CTRL_SL_2, CTRL_RR_2, CTRL_EGT_2);
 }
 
-static display_list_t osc3_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<dl::Item> osc3_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_3, CTRL_DR_3, CTRL_SL_3, CTRL_RR_3, CTRL_EGT_3);
 }
 
-static display_list_t osc4_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<dl::Item> osc4_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_4, CTRL_DR_4, CTRL_SL_4, CTRL_RR_3, CTRL_EGT_4);
 }
-static const sdhi_panel_t const panels[] = {
+static sdhi_panel_t panels[] = {
   {
     "Global",
     NULL,
@@ -2364,22 +612,18 @@ static const sdhi_panel_t const panels[] = {
     NULL
   }
 };
-static const uint32_t panels_size = sizeof(panels) / sizeof(sdhi_panel_t);
-static sdhi_t sdhi = {
+static sdhi_t sdhi_setup = {
   .controls = controls,
-  .controls_size = controls_size,
   .groups = groups,
-  .groups_size = groups_size,
-  .panel_selector_title = "Panel",
   .panels = panels,
-  .panels_size = panels_size
+  .panel_selector_title = "Panel",
 };
 
 
 Setup ymf262_synth_init() {
   ymf262_init();
-  setup_t ymf262_synth = {
-    .sdhi = sdhi,
+  Setup ymf262_synth = {
+    .sdhi = sdhi_setup,
     .values = values,
     .buttons = buttons,
     .actions = {

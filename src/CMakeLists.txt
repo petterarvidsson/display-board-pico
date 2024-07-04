@@ -1,6 +1,6 @@
 add_executable(display_board)
 
-target_sources(display_board PRIVATE main.c)
+target_sources(display_board PRIVATE main.cpp)
 
 target_link_libraries(display_board PRIVATE
         pico_stdlib
@@ -9,9 +9,8 @@ target_link_libraries(display_board PRIVATE
         i2c_controller
         sdhi
         midi
-        action
+        action_pp
         setup
-        drum
         ymf262
         ymf262_synth
         pico_time

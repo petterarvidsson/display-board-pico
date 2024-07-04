@@ -4,11 +4,11 @@
 #include "pico/multicore.h"
 #include "pio_display.h"
 #include "i2c_controller.h"
-#include "sdhi.h"
+#include "sdhi.hpp"
 #include "midi.h"
-#include "action.h"
-#include "drum.h"
-#include "ymf262_synth.h"
+#include "action.hpp"
+//#include "drum.h"
+#include "ymf262_synth.hpp"
 
 static void real_time() {
   for(uint32_t i = 0;;i++) {
@@ -20,8 +20,8 @@ static void real_time() {
 int main() {
   stdio_init_all();
   printf("SDHI\n");
-  setup_t setup = ymf262_synth_init();
-  drum_init();
+  setup::Setup setup = ymf262_synth_init();
+  //drum_init();
   pio_display_init();
   i2c_controller_init();
 

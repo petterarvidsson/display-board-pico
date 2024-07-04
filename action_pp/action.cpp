@@ -349,17 +349,4 @@ namespace action {
     update_computed_values(actions, sdhi, values, button, action_values, internal);
     execute_actions(actions, action_values, values);
   }
-
-
-
-  // Span + variant
-  const action_t test = save_values_t();
-
-  const action_t actions_b[] = {
-    save_values_t(),
-    load_values_t()
-  };
-
-  const tcb::span<const action_t> actions = tcb::make_span(actions_b);
-
 };

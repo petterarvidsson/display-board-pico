@@ -9,6 +9,7 @@ namespace sdhi {
     uint16_t id;
     const char * const title;
     const int16_t group;
+    sdhi_control_description_t(uint16_t id, const char * const title, const int16_t group) : id(id), title(title), group(group) {}
   };
 
   struct sdhi_control_type_integer_t : sdhi_control_description_t {
@@ -16,12 +17,16 @@ namespace sdhi {
     const int32_t max;
     const int32_t initial;
     const int32_t middle;
+    sdhi_control_type_integer_t(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial, const int32_t middle) : sdhi_control_description_t(id, title, group), min(min), max(max), initial(initial), middle(middle) {}
+    sdhi_control_type_integer_t(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial) : sdhi_control_type_integer_t(id, title, group, min, max, initial, 0) {}
+    sdhi_control_type_integer_t(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max) : sdhi_control_type_integer_t(id, title, group, min, max, 0, 0) {}
   };
 
   struct sdhi_control_type_real_t : sdhi_control_description_t {
     const float min;
     const float max;
     const float step;
+    sdhi_control_type_real_t(const uint16_t id, const char * title, const int16_t group, const float min, const float max, const float step) : sdhi_control_description_t(id, title, group), min(min), max(max), step(step) {}
   };
 
   typedef struct {
@@ -32,6 +37,7 @@ namespace sdhi {
   struct sdhi_control_type_enumeration_t : sdhi_control_description_t {
     const tcb::span<const shdi_control_type_enumeration_value_t> values;
     uint32_t initial;
+    sdhi_control_type_enumeration_t(const uint16_t id, const char * title, const int16_t group, const tcb::span<const shdi_control_type_enumeration_value_t> values, const uint32_t initial) : sdhi_control_description_t(id, title, group), values(values), initial(initial) {}
   };
 
   struct shdi_control_type_visual_enumeration_value_t {
@@ -44,6 +50,7 @@ namespace sdhi {
     const tcb::span<const shdi_control_type_visual_enumeration_value_t> values;
     uint32_t initial;
     uint8_t width;
+    sdhi_control_type_visual_enumeration_t(const uint16_t id, const char * title, const int16_t group, const tcb::span<const shdi_control_type_visual_enumeration_value_t> values, const uint32_t initial, const uint8_t width) : sdhi_control_description_t(id, title, group), values(values), initial(initial), width(width) {}
   };
 
   typedef mapbox::util::variant<sdhi_control_type_integer_t, sdhi_control_type_real_t, sdhi_control_type_enumeration_t, sdhi_control_type_visual_enumeration_t> sdhi_control_t;
