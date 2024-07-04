@@ -2,6 +2,10 @@
 #include "pico/stdlib.h"
 #include "geometry.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {SIZE_13 = 0, SIZE_18 = 1, SIZE_28 = 2, SIZE_32 = 3} pio_display_font_size_t;
 
 void pio_display_init();
@@ -24,3 +28,7 @@ void pio_display_clear_current_framebuffer();
 void pio_display_update_and_flip();
 void pio_display_wait_for_finish_blocking();
 bool pio_display_can_wait_without_blocking();
+
+#ifdef __cplusplus
+}
+#endif

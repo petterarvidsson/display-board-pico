@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
   FM,
   AM,
@@ -95,3 +99,7 @@ void ymf262_start(uint8_t c);
 void ymf262_frequency(uint8_t c, float frequency);
 void ymf262_stop(uint8_t c);
 void ymf262_init(void);
+
+#ifdef __cplusplus
+}
+#endif

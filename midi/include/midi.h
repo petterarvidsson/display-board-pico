@@ -3,6 +3,10 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MIDI_MAX_SLOTS 6
 #define MIDI_EXCLUSIVE_MAX_LENGTH 16
 
@@ -85,3 +89,7 @@ void midi_set_slot_for_channel(const uint8_t channel, const uint8_t slot);
 void midi_clear_slot_for_channel(const uint8_t channel, const uint8_t slot);
 void midi_slots_status(midi_slot_t *midi_slots, const uint8_t size);
 float midi_note_to_frequency(const uint8_t note);
+
+#ifdef __cplusplus
+}
+#endif
