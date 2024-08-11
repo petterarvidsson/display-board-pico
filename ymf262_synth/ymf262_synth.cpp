@@ -233,7 +233,7 @@ static dl::Item double_quarter_sine_waveform_items[] = {
   dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 24), NODE_RADIUS),
   dl::Line(dl::Point(HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH / 2, 12), 0),
   dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
-  dl::SineSegment(dl::Point((HALF_LENGTH / 2), 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
+  dl::SineSegment(dl::Point(HALF_LENGTH, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
   dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), NODE_RADIUS),
   dl::Line(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), 0),
   dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), NODE_RADIUS)
@@ -274,7 +274,7 @@ static dl::Item derived_square_waveform_items[] = {
   dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
   dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
   dl::Line(dl::Point(0, 12), dl::Point(0, 22), 0),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 0), 0),
+  dl::Line(dl::Point(0, 22), dl::Point(FULL_LENGTH, 2), 0),
   dl::Line(dl::Point(FULL_LENGTH, 2), dl::Point(FULL_LENGTH, 12), 0)
 };
 
