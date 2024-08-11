@@ -29,7 +29,7 @@ namespace action {
     int32_t * const values;
   public:
     uint8_t messages;
-    ActionExecutor(const value_t value, midi_message_t * const to_send, uint8_t * trigger_ymf262_channel, int32_t * const values) : value(value), to_send(to_send), trigger_ymf262_channel(trigger_ymf262_channel), values(values) {}
+    ActionExecutor(const value_t value, midi_message_t * const to_send, uint8_t * trigger_ymf262_channel, int32_t * const values) : value(value), to_send(to_send), trigger_ymf262_channel(trigger_ymf262_channel), values(values), messages(0) {}
 
     void operator()(const midi_controller_t c) {
       midi_message_t message;

@@ -79,7 +79,7 @@ namespace sdhi {
     const char * const panel_selector_title;
   } sdhi_t;
   const sdhi_control_description_t sdhi_description(const sdhi_control_t control);
-  const sdhi_control_t * const find_control(const int16_t id, const sdhi_t sdhi);
+  const std::optional<sdhi_control_t> find_control(const int16_t id, const sdhi_t sdhi);
   void sdhi_init(const sdhi_t sdhi);
   void sdhi_init_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi);
   bool sdhi_update_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi);

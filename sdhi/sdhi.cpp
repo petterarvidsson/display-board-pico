@@ -53,13 +53,12 @@ namespace sdhi {
     return *description;
   }
 
-  const sdhi_control_t * const find_control(const int16_t id, const sdhi_t sdhi) {
-    sdhi_control_t * match = NULL;
+  const std::optional<sdhi_control_t> find_control(const int16_t id, const sdhi_t sdhi) {
+    std::optional<sdhi_control_t> match = std::nullopt;
     for(auto control : sdhi.controls) {
       control.match([&match, id] (auto control){
         if(control.id == id) {
-          sdhi_control_t r = control;
-          match = &r;
+          match = control;
         }
       });
     }
@@ -93,8 +92,7 @@ namespace sdhi {
 
     for(uint8_t i = 0; i < sdhi.panels[current_panel].controls.size(); i++) {
       auto id = sdhi.panels[current_panel].controls[i];
-      auto control = find_control(id, sdhi);
-      if(control != NULL) {
+      if(auto control = find_control(id, sdhi)) {
         if(change[i] != 0) {
           control->match(
                          [i, id, values, change] (sdhi_control_type_integer_t integer_control) {
@@ -198,7 +196,7 @@ namespace sdhi {
   };
 
 
-  static void draw_control(const sdhi_control_t * const control, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
+  static void draw_control(const std::optional<sdhi_control_t> control_opt, const uint8_t x, const uint8_t y, const int32_t top_group, const int32_t bottom_group, const int32_t start_group, const int32_t end_group, const int32_t * const values) {
     int32_t group = EMPTY_GROUP;
     uint8_t top_start = x * 2 + y * 11;
     uint8_t top = x * 2 + 1 + y * 11;
@@ -209,7 +207,7 @@ namespace sdhi {
     uint8_t bottom = x * 2 + 1 + (y + 1) * 11;
     uint8_t bottom_end = x * 2 + 2 + (y + 1) * 11;
 
-    if(control != NULL) {
+    if(auto control = control_opt) {
       group = sdhi_description(*control).group;
       pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, sdhi_description(*control).title);
 
@@ -336,7 +334,7 @@ namespace sdhi {
         const int32_t bottom_group = find_group(x, y + 1, sdhi);
         const int32_t start_group = find_group(x - 1, y, sdhi);
         const int32_t end_group = find_group(x + 1, y, sdhi);
-        draw_control(control, x, y, top_group, bottom_group, start_group, end_group, values);
+        draw_control(find_control(panel.controls[i], sdhi), x, y, top_group, bottom_group, start_group, end_group, values);
       }
     }
     if(panel.display_list_generator != NULL) {
