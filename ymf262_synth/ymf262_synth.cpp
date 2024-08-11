@@ -450,7 +450,7 @@ midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
 static dl::Item items[] = {
   dl::FilledCircle(dl::Point(0, RADIUS), RADIUS),
-  dl::Line(dl::Point(0, RADIUS), dl::Point(0, RADIUS), 1),
+  dl::Line(dl::Point(0, RADIUS), dl::Point(0, RADIUS + 45), 1),
   dl::FilledCircle(dl::Point(10, RADIUS + 45), RADIUS),
   dl::Line(dl::Point(0, RADIUS + 45), dl::Point(0, 0), 1),
   dl::FilledCircle(dl::Point(0, 0), RADIUS),
