@@ -330,7 +330,6 @@ namespace sdhi {
     for(uint8_t x = 0; x < 3; x++) {
       for(uint8_t y = 0; control_index(x, y) < 8; y++) {
         uint8_t i = control_index(x, y);
-        const sdhi_control_t * const control = find_control(sdhi.panels[current_panel].controls[i], sdhi);
         const int32_t top_group = find_group(x, y - 1, sdhi);
         const int32_t bottom_group = find_group(x, y + 1, sdhi);
         const int32_t start_group = find_group(x - 1, y, sdhi);
