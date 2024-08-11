@@ -108,9 +108,9 @@ namespace sdhi {
                          [i, id, values, change] (sdhi_control_type_visual_enumeration_t visual_enumeration_control) {
                            values[id] = update_enumeration((int32_t)visual_enumeration_control.values.size() - 1, values[id], change[i]);
                          });
-          if(button_change[i] != I2C_CONTROLLER_NO_CHANGE) {
-            button[sdhi_description(*control).id] = button_change[i];
-          }
+        }
+        if(button_change[i] != I2C_CONTROLLER_NO_CHANGE) {
+          button[sdhi_description(*control).id] = button_change[i];
         }
       }
     }
