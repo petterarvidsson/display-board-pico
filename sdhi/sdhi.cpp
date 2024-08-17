@@ -245,7 +245,7 @@ namespace sdhi {
                        pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, enumeration_control.values[(uint32_t)(values[enumeration_control.id] & 0xFFFFFF)].name);
                      },
                      [values, bottom] (sdhi_control_type_visual_enumeration_t enumeration) {
-                       const shdi_control_type_visual_enumeration_value_t value = enumeration.values[(uint32_t)(values[enumeration.id] & 0xFFFFFF)];
+                       const EnumVisual value = enumeration.values[(uint32_t)(values[enumeration.id] & 0xFFFFFF)];
                        pio_display_list((127 - enumeration.width) / 2, 63 - 28, value.display_list, bottom);
                      });
     }

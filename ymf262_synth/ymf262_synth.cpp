@@ -2,9 +2,10 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "ymf262_synth.hpp"
-#include "ymf262.h"
+#include "dsl.hpp"
 
 using namespace setup;
+using namespace dsl;
 enum groups {
   SINGLE = -1,
   PATCH,
@@ -12,7 +13,7 @@ enum groups {
   EFFECT,
   KEY_SCALE
 };
-static sdhi_group_t groups[] = {
+static sdhi::sdhi_group_t groups[] = {
   {
     .id = PATCH,
     .title = "Patch"
@@ -146,205 +147,205 @@ uint16_t patch_ids[] = {
   CTRL_WS_4
 };
 
-static const shdi_control_type_enumeration_value_t connection_values[] = {
-  { .name = "1>2",     .value = FM },
-  { .name = "1+2",     .value = AM },
-  { .name = "1>2>3>4", .value = FMFM },
-  { .name = "1>2+3>4", .value = FM_FM },
-  { .name = "1+2>3>4", .value = AM_FM },
-  { .name = "1+2>3+4", .value = AM_FM_AM }
+static const EnumValue connection_values[] = {
+  EnumValue("1>2", FM),
+  EnumValue("1+2", AM),
+  EnumValue("1>2>3>4", FMFM),
+  EnumValue("1>2+3>4", FM_FM),
+  EnumValue("1+2>3>4", AM_FM),
+  EnumValue("1+2>3+4", AM_FM_AM)
 };
 
-static const shdi_control_type_enumeration_value_t on_off_values[] = {
-  { .name = "off", .value = 0 },
-  { .name = "on",  .value = 1 }
+static const EnumValue on_off_values[] = {
+  EnumValue("off", 0),
+  EnumValue("on", 1)
 };
 
-static const shdi_control_type_enumeration_value_t vibrato_values[] = {
-  { .name = "7%",  .value = 0 },
-  { .name = "14%", .value = 1 }
+static const EnumValue vibrato_values[] = {
+  EnumValue("7%", 0),
+  EnumValue("14%", 1)
 };
 
-static const shdi_control_type_enumeration_value_t tremolo_values[] = {
-  { .name = "1dB",   .value = 0 },
-  { .name = "4.8dB", .value = 1 }
+static const EnumValue tremolo_values[] = {
+  EnumValue("1dB", 0),
+  EnumValue("4.8dB", 1)
 };
 
-static const shdi_control_type_enumeration_value_t multiplier_values[] = {
-  { .name = "0.5", .value = 0 },
-  { .name = "1",  .value = 1 },
-  { .name = "2", .value = 2 },
-  { .name = "3",  .value = 3 },
-  { .name = "4", .value = 4 },
-  { .name = "5",  .value = 5 },
-  { .name = "6", .value = 6 },
-  { .name = "7",  .value = 7 },
-  { .name = "8", .value = 8 },
-  { .name = "9",  .value = 9 },
-  { .name = "10", .value = 10 },
-  { .name = "12",  .value = 12 },
-  { .name = "15",  .value = 15 }
+static const EnumValue multiplier_values[] = {
+  EnumValue("0.5", 0),
+  EnumValue("1", 1),
+  EnumValue("2", 2),
+  EnumValue("3", 3),
+  EnumValue("4", 4),
+  EnumValue("5", 5),
+  EnumValue("6", 6),
+  EnumValue("7", 7),
+  EnumValue("8", 8),
+  EnumValue("9", 9),
+  EnumValue("10", 10),
+  EnumValue("12", 12),
+  EnumValue("15", 15)
 };
 
-static const shdi_control_type_enumeration_value_t egt_values[] = {
-  { .name = "decay", .value = 0 },
-  { .name = "sustained", .value = 1 }
+static const EnumValue egt_values[] = {
+  EnumValue("decay", 0),
+  EnumValue("sustained", 1)
 };
 
-static const shdi_control_type_enumeration_value_t low_high_values[] = {
-  { .name = "low", .value = 0 },
-  { .name = "high", .value = 1 }
+static const EnumValue low_high_values[] = {
+  EnumValue("low", 0),
+  EnumValue("high", 1)
 };
 
 #define NODE_RADIUS 2
 #define FULL_LENGTH 40
 #define HALF_LENGTH 20
 
-static dl::Item sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), FULL_LENGTH + 1, 12, 0, 17)
+static Item sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), FULL_LENGTH + 1, 12, 0, 17)
 };
-static dl::Item half_sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 9)
-};
-
-static dl::Item double_half_sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 9),
-  dl::SineSegment(dl::Point(HALF_LENGTH, 12), HALF_LENGTH + 1, 12, 0, 9)
+static Item half_sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), HALF_LENGTH + 1, 12, 0, 9)
 };
 
-static dl::Item double_quarter_sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
-  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 24), NODE_RADIUS),
-  dl::Line(dl::Point(HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH / 2, 12), 0),
-  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
-  dl::SineSegment(dl::Point(HALF_LENGTH, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
-  dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), NODE_RADIUS),
-  dl::Line(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 24), dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), 0),
-  dl::FilledCircle(dl::Point(HALF_LENGTH + HALF_LENGTH / 2, 12), NODE_RADIUS)
+static Item double_half_sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), HALF_LENGTH + 1, 12, 0, 9),
+  SineSegment(Point(HALF_LENGTH, 12), HALF_LENGTH + 1, 12, 0, 9)
 };
 
-static dl::Item double_frequency_sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), HALF_LENGTH + 1, 12, 0, 17),
-  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS)
-};
-static dl::Item double_frequency_double_half_sine_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::SineSegment(dl::Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 9),
-  dl::FilledCircle(dl::Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
-  dl::SineSegment(dl::Point((HALF_LENGTH / 2), 12), (HALF_LENGTH / 2) + 1, 12, 0, 9)
-};
-static dl::Item square_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::Line(dl::Point(0, 12), dl::Point(0, 22), 0),
-  dl::Line(dl::Point(0, 22), dl::Point(HALF_LENGTH, 22), 0),
-  dl::Line(dl::Point(HALF_LENGTH, 22), dl::Point(HALF_LENGTH, 2), 0),
-  dl::Line(dl::Point(HALF_LENGTH, 2), dl::Point(FULL_LENGTH, 2), 0),
-  dl::Line(dl::Point(FULL_LENGTH, 2), dl::Point(FULL_LENGTH, 12), 0)
+static Item double_quarter_sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
+  FilledCircle(Point(HALF_LENGTH / 2, 24), NODE_RADIUS),
+  Line(Point(HALF_LENGTH / 2, 24), Point(HALF_LENGTH / 2, 12), 0),
+  FilledCircle(Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
+  SineSegment(Point(HALF_LENGTH, 12), (HALF_LENGTH / 2) + 1, 12, 0, 5),
+  FilledCircle(Point(HALF_LENGTH + HALF_LENGTH / 2, 24), NODE_RADIUS),
+  Line(Point(HALF_LENGTH + HALF_LENGTH / 2, 24), Point(HALF_LENGTH + HALF_LENGTH / 2, 12), 0),
+  FilledCircle(Point(HALF_LENGTH + HALF_LENGTH / 2, 12), NODE_RADIUS)
 };
 
-static dl::Item derived_square_waveform_items[] = {
-  dl::FilledCircle(dl::Point(0, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(HALF_LENGTH, 12), NODE_RADIUS),
-  dl::FilledCircle(dl::Point(FULL_LENGTH, 12), NODE_RADIUS),
-  dl::Line(dl::Point(0, 12), dl::Point(FULL_LENGTH, 12), 0),
-  dl::Line(dl::Point(0, 12), dl::Point(0, 22), 0),
-  dl::Line(dl::Point(0, 22), dl::Point(FULL_LENGTH, 2), 0),
-  dl::Line(dl::Point(FULL_LENGTH, 2), dl::Point(FULL_LENGTH, 12), 0)
+static Item double_frequency_sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), HALF_LENGTH + 1, 12, 0, 17),
+  FilledCircle(Point(HALF_LENGTH / 2, 12), NODE_RADIUS)
+};
+static Item double_frequency_double_half_sine_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  SineSegment(Point(0, 12), (HALF_LENGTH / 2) + 1, 12, 0, 9),
+  FilledCircle(Point(HALF_LENGTH / 2, 12), NODE_RADIUS),
+  SineSegment(Point((HALF_LENGTH / 2), 12), (HALF_LENGTH / 2) + 1, 12, 0, 9)
+};
+static Item square_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  Line(Point(0, 12), Point(0, 22), 0),
+  Line(Point(0, 22), Point(HALF_LENGTH, 22), 0),
+  Line(Point(HALF_LENGTH, 22), Point(HALF_LENGTH, 2), 0),
+  Line(Point(HALF_LENGTH, 2), Point(FULL_LENGTH, 2), 0),
+  Line(Point(FULL_LENGTH, 2), Point(FULL_LENGTH, 12), 0)
 };
 
-static const shdi_control_type_visual_enumeration_value_t waveform_values[] = {
-  shdi_control_type_visual_enumeration_value_t(make_span(sine_waveform_items), 0),
-  shdi_control_type_visual_enumeration_value_t(make_span(half_sine_waveform_items), 1),
-  shdi_control_type_visual_enumeration_value_t(make_span(double_half_sine_waveform_items), 2),
-  shdi_control_type_visual_enumeration_value_t(make_span(double_quarter_sine_waveform_items), 3),
-  shdi_control_type_visual_enumeration_value_t(make_span(double_frequency_sine_waveform_items), 4),
-  shdi_control_type_visual_enumeration_value_t(make_span(double_frequency_double_half_sine_waveform_items), 5),
-  shdi_control_type_visual_enumeration_value_t(make_span(square_waveform_items), 6),
-  shdi_control_type_visual_enumeration_value_t(make_span(derived_square_waveform_items), 7)
+static Item derived_square_waveform_items[] = {
+  FilledCircle(Point(0, 12), NODE_RADIUS),
+  FilledCircle(Point(HALF_LENGTH, 12), NODE_RADIUS),
+  FilledCircle(Point(FULL_LENGTH, 12), NODE_RADIUS),
+  Line(Point(0, 12), Point(FULL_LENGTH, 12), 0),
+  Line(Point(0, 12), Point(0, 22), 0),
+  Line(Point(0, 22), Point(FULL_LENGTH, 2), 0),
+  Line(Point(FULL_LENGTH, 2), Point(FULL_LENGTH, 12), 0)
 };
 
-static sdhi_control_t controls[] = {
-  sdhi_control_type_integer_t(LOAD, "Load from", PATCH, 0, 127),
-  sdhi_control_type_integer_t(SAVE, "Save to", PATCH, 0, 127),
-  sdhi_control_type_enumeration_t(CONNECTION, "Connection", SINGLE, connection_values, AM),
-  sdhi_control_type_integer_t(FEEDBACK, "Feedback", SINGLE, 0, 7),
-  sdhi_control_type_enumeration_t(TREMOLO_DEPTH, "Tremolo depth", EFFECT, tremolo_values, 0),
-  sdhi_control_type_enumeration_t(VIBRATO_DEPTH, "Vibrato depth", EFFECT, vibrato_values, 0),
-  sdhi_control_type_enumeration_t(OCTAVE_SPLIT, "Octave Split", SINGLE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_TREM_1, "Tremolo", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_TREM_2, "Tremolo", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_TREM_3, "Tremolo", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_TREM_4, "Tremolo", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_VIB_1, "Vibrato", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_VIB_2, "Vibrato", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_VIB_3, "Vibrato", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_VIB_4, "Vibrato", EFFECT, on_off_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_EGT_1, "EG Type", SINGLE, egt_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_EGT_2, "EG Type", SINGLE, egt_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_EGT_3, "EG Type", SINGLE, egt_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_EGT_4, "EG Type", SINGLE, egt_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSR_1, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSR_2, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSR_3, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSR_4, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSL_1, "Key Scale Level", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSL_2, "Key Scale Level", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSL_3, "Key Scale Level", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_KSL_4, "Key Scale Level", KEY_SCALE, low_high_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_MULT_1, "Multiplier", SINGLE, multiplier_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_MULT_2, "Multiplier", SINGLE, multiplier_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_MULT_3, "Multiplier", SINGLE, multiplier_values, 0),
-  sdhi_control_type_enumeration_t(CTRL_MULT_4, "Multiplier", SINGLE, multiplier_values, 0),
-  sdhi_control_type_integer_t(CTRL_TL_1, "Level", SINGLE, 0, 31),
-  sdhi_control_type_integer_t(CTRL_TL_2, "Level", SINGLE, 0, 31),
-  sdhi_control_type_integer_t(CTRL_TL_3, "Level", SINGLE, 0, 31),
-  sdhi_control_type_integer_t(CTRL_TL_4, "Level", SINGLE, 0, 31),
-  sdhi_control_type_integer_t(CTRL_AR_1, "Attack", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_AR_2, "Attack", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_AR_3, "Attack", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_AR_4, "Attack", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_DR_1, "Decay", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_DR_2, "Decay", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_DR_3, "Decay", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_DR_4, "Decay", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_SL_1, "Sustain", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_SL_2, "Sustain", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_SL_3, "Sustain", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_SL_4, "Sustain", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_RR_1, "Release", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_RR_2, "Release", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_RR_3, "Release", ADSR, 0, 15),
-  sdhi_control_type_integer_t(CTRL_RR_4, "Release", ADSR, 0, 15),
-  sdhi_control_type_visual_enumeration_t(CTRL_WS_1, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
-  sdhi_control_type_visual_enumeration_t(CTRL_WS_2, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
-  sdhi_control_type_visual_enumeration_t(CTRL_WS_3, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
-  sdhi_control_type_visual_enumeration_t(CTRL_WS_4, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+static const EnumVisual waveform_values[] = {
+  EnumVisual(make_span(sine_waveform_items), 0),
+  EnumVisual(make_span(half_sine_waveform_items), 1),
+  EnumVisual(make_span(double_half_sine_waveform_items), 2),
+  EnumVisual(make_span(double_quarter_sine_waveform_items), 3),
+  EnumVisual(make_span(double_frequency_sine_waveform_items), 4),
+  EnumVisual(make_span(double_frequency_double_half_sine_waveform_items), 5),
+  EnumVisual(make_span(square_waveform_items), 6),
+  EnumVisual(make_span(derived_square_waveform_items), 7)
+};
+
+static sdhi::sdhi_control_t controls[] = {
+  Control(LOAD, "Load from", PATCH, 0, 127),
+  Control(SAVE, "Save to", PATCH, 0, 127),
+  Control(CONNECTION, "Connection", SINGLE, connection_values, AM),
+  Control(FEEDBACK, "Feedback", SINGLE, 0, 7),
+  Control(TREMOLO_DEPTH, "Tremolo depth", EFFECT, tremolo_values, 0),
+  Control(VIBRATO_DEPTH, "Vibrato depth", EFFECT, vibrato_values, 0),
+  Control(OCTAVE_SPLIT, "Octave Split", SINGLE, low_high_values, 0),
+  Control(CTRL_TREM_1, "Tremolo", EFFECT, on_off_values, 0),
+  Control(CTRL_TREM_2, "Tremolo", EFFECT, on_off_values, 0),
+  Control(CTRL_TREM_3, "Tremolo", EFFECT, on_off_values, 0),
+  Control(CTRL_TREM_4, "Tremolo", EFFECT, on_off_values, 0),
+  Control(CTRL_VIB_1, "Vibrato", EFFECT, on_off_values, 0),
+  Control(CTRL_VIB_2, "Vibrato", EFFECT, on_off_values, 0),
+  Control(CTRL_VIB_3, "Vibrato", EFFECT, on_off_values, 0),
+  Control(CTRL_VIB_4, "Vibrato", EFFECT, on_off_values, 0),
+  Control(CTRL_EGT_1, "EG Type", SINGLE, egt_values, 0),
+  Control(CTRL_EGT_2, "EG Type", SINGLE, egt_values, 0),
+  Control(CTRL_EGT_3, "EG Type", SINGLE, egt_values, 0),
+  Control(CTRL_EGT_4, "EG Type", SINGLE, egt_values, 0),
+  Control(CTRL_KSR_1, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSR_2, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSR_3, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSR_4, "Key Scale Rate", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSL_1, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSL_2, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSL_3, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_KSL_4, "Key Scale Level", KEY_SCALE, low_high_values, 0),
+  Control(CTRL_MULT_1, "Multiplier", SINGLE, multiplier_values, 0),
+  Control(CTRL_MULT_2, "Multiplier", SINGLE, multiplier_values, 0),
+  Control(CTRL_MULT_3, "Multiplier", SINGLE, multiplier_values, 0),
+  Control(CTRL_MULT_4, "Multiplier", SINGLE, multiplier_values, 0),
+  Control(CTRL_TL_1, "Level", SINGLE, 0, 31),
+  Control(CTRL_TL_2, "Level", SINGLE, 0, 31),
+  Control(CTRL_TL_3, "Level", SINGLE, 0, 31),
+  Control(CTRL_TL_4, "Level", SINGLE, 0, 31),
+  Control(CTRL_AR_1, "Attack", ADSR, 0, 15),
+  Control(CTRL_AR_2, "Attack", ADSR, 0, 15),
+  Control(CTRL_AR_3, "Attack", ADSR, 0, 15),
+  Control(CTRL_AR_4, "Attack", ADSR, 0, 15),
+  Control(CTRL_DR_1, "Decay", ADSR, 0, 15),
+  Control(CTRL_DR_2, "Decay", ADSR, 0, 15),
+  Control(CTRL_DR_3, "Decay", ADSR, 0, 15),
+  Control(CTRL_DR_4, "Decay", ADSR, 0, 15),
+  Control(CTRL_SL_1, "Sustain", ADSR, 0, 15),
+  Control(CTRL_SL_2, "Sustain", ADSR, 0, 15),
+  Control(CTRL_SL_3, "Sustain", ADSR, 0, 15),
+  Control(CTRL_SL_4, "Sustain", ADSR, 0, 15),
+  Control(CTRL_RR_1, "Release", ADSR, 0, 15),
+  Control(CTRL_RR_2, "Release", ADSR, 0, 15),
+  Control(CTRL_RR_3, "Release", ADSR, 0, 15),
+  Control(CTRL_RR_4, "Release", ADSR, 0, 15),
+  Control(CTRL_WS_1, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  Control(CTRL_WS_2, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  Control(CTRL_WS_3, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
+  Control(CTRL_WS_4, "Waveform", SINGLE, waveform_values, 0, FULL_LENGTH),
 };
 
 static int32_t values[CONTROLS];
@@ -448,70 +449,70 @@ midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
 
 #define RADIUS 4
 
-static dl::Item items[] = {
-  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS),
-  dl::Line(dl::Point(0, RADIUS), dl::Point(0, RADIUS + 45), 1),
-  dl::FilledCircle(dl::Point(10, RADIUS + 45), RADIUS),
-  dl::Line(dl::Point(0, RADIUS + 45), dl::Point(0, 0), 1),
-  dl::FilledCircle(dl::Point(0, 0), RADIUS),
-  dl::Line(dl::Point(0, 0), dl::Point(0, RADIUS), 1),
-  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS),
-  dl::Line(dl::Point(0, 31), dl::Point(0, RADIUS), 1),
-  dl::FilledCircle(dl::Point(0, RADIUS), RADIUS)
+static Item items[] = {
+  FilledCircle(Point(0, RADIUS), RADIUS),
+  Line(Point(0, RADIUS), Point(0, RADIUS + 45), 1),
+  FilledCircle(Point(10, RADIUS + 45), RADIUS),
+  Line(Point(0, RADIUS + 45), Point(0, 0), 1),
+  FilledCircle(Point(0, 0), RADIUS),
+  Line(Point(0, 0), Point(0, RADIUS), 1),
+  FilledCircle(Point(0, RADIUS), RADIUS),
+  Line(Point(0, 31), Point(0, RADIUS), 1),
+  FilledCircle(Point(0, RADIUS), RADIUS)
 };
 
 auto list = make_span(items);
 
-static span<dl::Item> generator(const int32_t * const values, const void * const sdhi_ptr,
+static span<Item> generator(const int32_t * const values, const void * const sdhi_ptr,
                                 const uint16_t attack_id, const uint16_t decay_id,
                                 const uint16_t sustain_id, const uint16_t release_id,
                                 const uint16_t type_id) {
-  const sdhi_t sdhi = *((sdhi_t*)sdhi_ptr);
-  const uint8_t attack = 30 - sdhi_integer(attack_id, values, sdhi) * 2;
-  const int8_t decay = 30 - sdhi_integer(decay_id, values, sdhi) * 2;
-  const uint8_t sustain_y = 45 - sdhi_integer(sustain_id, values, sdhi) * 3;
-  const uint8_t sustain = sdhi_integer(type_id, values, sdhi) ? 30 : 0;
-  const uint8_t release = 30 - sdhi_integer(release_id, values, sdhi) * 2;
+  const sdhi::sdhi_t sdhi = *((sdhi::sdhi_t*)sdhi_ptr);
+  const uint8_t attack = 30 - sdhi::sdhi_integer(attack_id, values, sdhi) * 2;
+  const int8_t decay = 30 - sdhi::sdhi_integer(decay_id, values, sdhi) * 2;
+  const uint8_t sustain_y = 45 - sdhi::sdhi_integer(sustain_id, values, sdhi) * 3;
+  const uint8_t sustain = sdhi::sdhi_integer(type_id, values, sdhi) ? 30 : 0;
+  const uint8_t release = 30 - sdhi::sdhi_integer(release_id, values, sdhi) * 2;
   const uint8_t offset = (127 - (attack + decay + sustain + release)) / 2;
 
-  items[0].get_unchecked<dl::FilledCircle>().center.x = offset;
-  items[1].get_unchecked<dl::Line>().start.x = offset;
-  items[1].get_unchecked<dl::Line>().end.x = attack + offset;
-  items[2].get_unchecked<dl::FilledCircle>().center.x = attack + offset;
-  items[3].get_unchecked<dl::Line>().start.x = attack + offset;
-  items[3].get_unchecked<dl::Line>().end.x = attack + decay + offset;
-  items[3].get_unchecked<dl::Line>().end.y = sustain_y + RADIUS;
-  items[4].get_unchecked<dl::FilledCircle>().center.x = attack + decay + offset;
-  items[4].get_unchecked<dl::FilledCircle>().center.y = sustain_y + RADIUS;
-  items[5].get_unchecked<dl::Line>().start.x = attack + decay + offset;
-  items[5].get_unchecked<dl::Line>().start.y = sustain_y + RADIUS;
-  items[5].get_unchecked<dl::Line>().end.x = attack + decay + sustain + offset;
-  items[5].get_unchecked<dl::Line>().end.y = sustain_y + RADIUS;
-  items[6].get_unchecked<dl::FilledCircle>().center.x = attack + decay + sustain + offset;
-  items[6].get_unchecked<dl::FilledCircle>().center.y = sustain_y + RADIUS;
-  items[7].get_unchecked<dl::Line>().start.x = attack + decay + sustain + offset;
-  items[7].get_unchecked<dl::Line>().start.y = sustain_y + RADIUS;
-  items[7].get_unchecked<dl::Line>().end.x = attack + decay + sustain + release + offset;
-  items[8].get_unchecked<dl::FilledCircle>().center.x = attack + decay + sustain + release + offset;
+  items[0].get_unchecked<FilledCircle>().center.x = offset;
+  items[1].get_unchecked<Line>().start.x = offset;
+  items[1].get_unchecked<Line>().end.x = attack + offset;
+  items[2].get_unchecked<FilledCircle>().center.x = attack + offset;
+  items[3].get_unchecked<Line>().start.x = attack + offset;
+  items[3].get_unchecked<Line>().end.x = attack + decay + offset;
+  items[3].get_unchecked<Line>().end.y = sustain_y + RADIUS;
+  items[4].get_unchecked<FilledCircle>().center.x = attack + decay + offset;
+  items[4].get_unchecked<FilledCircle>().center.y = sustain_y + RADIUS;
+  items[5].get_unchecked<Line>().start.x = attack + decay + offset;
+  items[5].get_unchecked<Line>().start.y = sustain_y + RADIUS;
+  items[5].get_unchecked<Line>().end.x = attack + decay + sustain + offset;
+  items[5].get_unchecked<Line>().end.y = sustain_y + RADIUS;
+  items[6].get_unchecked<FilledCircle>().center.x = attack + decay + sustain + offset;
+  items[6].get_unchecked<FilledCircle>().center.y = sustain_y + RADIUS;
+  items[7].get_unchecked<Line>().start.x = attack + decay + sustain + offset;
+  items[7].get_unchecked<Line>().start.y = sustain_y + RADIUS;
+  items[7].get_unchecked<Line>().end.x = attack + decay + sustain + release + offset;
+  items[8].get_unchecked<FilledCircle>().center.x = attack + decay + sustain + release + offset;
   return list;
 }
 
-static span<dl::Item> osc1_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<Item> osc1_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_1, CTRL_DR_1, CTRL_SL_1, CTRL_RR_1, CTRL_EGT_1);
 }
 
-static span<dl::Item> osc2_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<Item> osc2_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_2, CTRL_DR_2, CTRL_SL_2, CTRL_RR_2, CTRL_EGT_2);
 }
 
-static span<dl::Item> osc3_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<Item> osc3_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_3, CTRL_DR_3, CTRL_SL_3, CTRL_RR_3, CTRL_EGT_3);
 }
 
-static span<dl::Item> osc4_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
+static span<Item> osc4_env_generator(const int32_t * const values, const void * const sdhi_ptr) {
   return generator(values, sdhi_ptr, CTRL_AR_4, CTRL_DR_4, CTRL_SL_4, CTRL_RR_3, CTRL_EGT_4);
 }
-static sdhi_panel_t panels[] = {
+static sdhi::sdhi_panel_t panels[] = {
   {
     "Global",
     NULL,
@@ -612,7 +613,7 @@ static sdhi_panel_t panels[] = {
     NULL
   }
 };
-static sdhi_t sdhi_setup = {
+static sdhi::sdhi_t sdhi_setup = {
   .controls = controls,
   .groups = groups,
   .panels = panels,
