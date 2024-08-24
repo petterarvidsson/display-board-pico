@@ -353,96 +353,96 @@ static i2c_controller_button_t buttons[CONTROLS];
 
 static action_t actions[] = {
   // Initial actions set up six midi slots (0-5) responding to MIDI on channel 0
-  slot_t(0, 0),
-  slot_t(0, 1),
-  slot_t(0, 2),
-  slot_t(0, 3),
-  slot_t(0, 4),
-  slot_t(0, 5),
+  Slot(0, 0),
+  Slot(0, 1),
+  Slot(0, 2),
+  Slot(0, 3),
+  Slot(0, 4),
+  Slot(0, 5),
   // Set up the six 4 OP channels (0 - 5) to accept value changes from slots 0 - 5
-  ymf262_slot_state_t(0, parameter_midi_note_t(0, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(0, PARAMETER_MIDI_NOTE_VALUE)),
-  ymf262_slot_state_t(1, parameter_midi_note_t(1, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(1, PARAMETER_MIDI_NOTE_VALUE)),
-  ymf262_slot_state_t(2, parameter_midi_note_t(2, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(2, PARAMETER_MIDI_NOTE_VALUE)),
-  ymf262_slot_state_t(3, parameter_midi_note_t(3, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(3, PARAMETER_MIDI_NOTE_VALUE)),
-  ymf262_slot_state_t(4, parameter_midi_note_t(4, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(4, PARAMETER_MIDI_NOTE_VALUE)),
-  ymf262_slot_state_t(5, parameter_midi_note_t(5, PARAMETER_MIDI_NOTE_STATE), parameter_midi_note_t(5, PARAMETER_MIDI_NOTE_VALUE)),
+  YMF262Slot(0, Midi(0, STATE), Midi(0, VALUE)),
+  YMF262Slot(1, Midi(1, STATE), Midi(1, VALUE)),
+  YMF262Slot(2, Midi(2, STATE), Midi(2, VALUE)),
+  YMF262Slot(3, Midi(3, STATE), Midi(3, VALUE)),
+  YMF262Slot(4, Midi(4, STATE), Midi(4, VALUE)),
+  YMF262Slot(5, Midi(5, STATE), Midi(5, VALUE)),
   // Load
-  load_values_t(trigger_button_t(LOAD), parameter_control_t(LOAD), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
+  Load(Trigger(LOAD), Parameter(LOAD), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
   // Save
-  save_values_t(trigger_button_t(SAVE), parameter_control_t(SAVE), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
+  Save(Trigger(SAVE), Parameter(SAVE), patch_ids, sizeof(patch_ids) / sizeof(uint16_t)),
   // Connection
-  ymf262_connection_t(parameter_control_t(CONNECTION)),
+  YMF262Connection(Parameter(CONNECTION)),
   // FEEDBACK
-  action_ymf262_parameter_t(FB, parameter_control_t(FEEDBACK)),
+  YMF262Parameter(FB, Parameter(FEEDBACK)),
   // TREMOLO DEPTH
-  action_ymf262_parameter_t(DAM, parameter_control_t(TREMOLO_DEPTH)),
+  YMF262Parameter(DAM, Parameter(TREMOLO_DEPTH)),
   // VIBRATO DEPTH
-  action_ymf262_parameter_t(DVB, parameter_control_t(VIBRATO_DEPTH)),
+  YMF262Parameter(DVB, Parameter(VIBRATO_DEPTH)),
   // OCTAVE SPLIT
-  action_ymf262_parameter_t(NTS, parameter_control_t(OCTAVE_SPLIT)),
+  YMF262Parameter(NTS, Parameter(OCTAVE_SPLIT)),
   // Tremolo
-  action_ymf262_parameter_t(AM_1, parameter_control_t(CTRL_TREM_1)),
-  action_ymf262_parameter_t(AM_2, parameter_control_t(CTRL_TREM_2)),
-  action_ymf262_parameter_t(AM_3, parameter_control_t(CTRL_TREM_3)),
-  action_ymf262_parameter_t(AM_4, parameter_control_t(CTRL_TREM_4)),
+  YMF262Parameter(AM_1, Parameter(CTRL_TREM_1)),
+  YMF262Parameter(AM_2, Parameter(CTRL_TREM_2)),
+  YMF262Parameter(AM_3, Parameter(CTRL_TREM_3)),
+  YMF262Parameter(AM_4, Parameter(CTRL_TREM_4)),
   // Vibrato
-  action_ymf262_parameter_t(VIB_1, parameter_control_t(CTRL_VIB_1)),
-  action_ymf262_parameter_t(VIB_2, parameter_control_t(CTRL_VIB_2)),
-  action_ymf262_parameter_t(VIB_3, parameter_control_t(CTRL_VIB_3)),
-  action_ymf262_parameter_t(VIB_4, parameter_control_t(CTRL_VIB_4)),
+  YMF262Parameter(VIB_1, Parameter(CTRL_VIB_1)),
+  YMF262Parameter(VIB_2, Parameter(CTRL_VIB_2)),
+  YMF262Parameter(VIB_3, Parameter(CTRL_VIB_3)),
+  YMF262Parameter(VIB_4, Parameter(CTRL_VIB_4)),
   // EG Type
-  action_ymf262_parameter_t(EGT_1, parameter_control_t(CTRL_EGT_1)),
-  action_ymf262_parameter_t(EGT_2, parameter_control_t(CTRL_EGT_2)),
-  action_ymf262_parameter_t(EGT_3, parameter_control_t(CTRL_EGT_3)),
-  action_ymf262_parameter_t(EGT_4, parameter_control_t(CTRL_EGT_4)),
+  YMF262Parameter(EGT_1, Parameter(CTRL_EGT_1)),
+  YMF262Parameter(EGT_2, Parameter(CTRL_EGT_2)),
+  YMF262Parameter(EGT_3, Parameter(CTRL_EGT_3)),
+  YMF262Parameter(EGT_4, Parameter(CTRL_EGT_4)),
   // KSL
-  action_ymf262_parameter_t(KSL_1, parameter_control_t(CTRL_KSL_1)),
-  action_ymf262_parameter_t(KSL_2, parameter_control_t(CTRL_KSL_2)),
-  action_ymf262_parameter_t(KSL_3, parameter_control_t(CTRL_KSL_3)),
-  action_ymf262_parameter_t(KSL_4, parameter_control_t(CTRL_KSL_4)),
+  YMF262Parameter(KSL_1, Parameter(CTRL_KSL_1)),
+  YMF262Parameter(KSL_2, Parameter(CTRL_KSL_2)),
+  YMF262Parameter(KSL_3, Parameter(CTRL_KSL_3)),
+  YMF262Parameter(KSL_4, Parameter(CTRL_KSL_4)),
   // KSR
-  action_ymf262_parameter_t(KSR_1, parameter_control_t(CTRL_KSR_1)),
-  action_ymf262_parameter_t(KSR_2, parameter_control_t(CTRL_KSR_2)),
-  action_ymf262_parameter_t(KSR_3, parameter_control_t(CTRL_KSR_3)),
-  action_ymf262_parameter_t(KSR_4, parameter_control_t(CTRL_KSR_4)),
+  YMF262Parameter(KSR_1, Parameter(CTRL_KSR_1)),
+  YMF262Parameter(KSR_2, Parameter(CTRL_KSR_2)),
+  YMF262Parameter(KSR_3, Parameter(CTRL_KSR_3)),
+  YMF262Parameter(KSR_4, Parameter(CTRL_KSR_4)),
   // Multiplier
-  action_ymf262_parameter_t(MULT_1, parameter_control_t(CTRL_MULT_1)),
-  action_ymf262_parameter_t(MULT_2, parameter_control_t(CTRL_MULT_2)),
-  action_ymf262_parameter_t(MULT_3, parameter_control_t(CTRL_MULT_3)),
-  action_ymf262_parameter_t(MULT_4, parameter_control_t(CTRL_MULT_4)),
+  YMF262Parameter(MULT_1, Parameter(CTRL_MULT_1)),
+  YMF262Parameter(MULT_2, Parameter(CTRL_MULT_2)),
+  YMF262Parameter(MULT_3, Parameter(CTRL_MULT_3)),
+  YMF262Parameter(MULT_4, Parameter(CTRL_MULT_4)),
   // Total level
-  action_ymf262_parameter_t(TL_1, parameter_control_t(CTRL_TL_1)),
-  action_ymf262_parameter_t(TL_2, parameter_control_t(CTRL_TL_2)),
-  action_ymf262_parameter_t(TL_3, parameter_control_t(CTRL_TL_3)),
-  action_ymf262_parameter_t(TL_4, parameter_control_t(CTRL_TL_4)),
+  YMF262Parameter(TL_1, Parameter(CTRL_TL_1)),
+  YMF262Parameter(TL_2, Parameter(CTRL_TL_2)),
+  YMF262Parameter(TL_3, Parameter(CTRL_TL_3)),
+  YMF262Parameter(TL_4, Parameter(CTRL_TL_4)),
   // Attack Rate
-  action_ymf262_parameter_t(AR_1, parameter_control_t(CTRL_AR_1)),
-  action_ymf262_parameter_t(AR_2, parameter_control_t(CTRL_AR_2)),
-  action_ymf262_parameter_t(AR_3, parameter_control_t(CTRL_AR_3)),
-  action_ymf262_parameter_t(AR_4, parameter_control_t(CTRL_AR_4)),
+  YMF262Parameter(AR_1, Parameter(CTRL_AR_1)),
+  YMF262Parameter(AR_2, Parameter(CTRL_AR_2)),
+  YMF262Parameter(AR_3, Parameter(CTRL_AR_3)),
+  YMF262Parameter(AR_4, Parameter(CTRL_AR_4)),
   // Decay rate
-  action_ymf262_parameter_t(DR_1, parameter_control_t(CTRL_DR_1)),
-  action_ymf262_parameter_t(DR_2, parameter_control_t(CTRL_DR_2)),
-  action_ymf262_parameter_t(DR_3, parameter_control_t(CTRL_DR_3)),
-  action_ymf262_parameter_t(DR_4, parameter_control_t(CTRL_DR_4)),
+  YMF262Parameter(DR_1, Parameter(CTRL_DR_1)),
+  YMF262Parameter(DR_2, Parameter(CTRL_DR_2)),
+  YMF262Parameter(DR_3, Parameter(CTRL_DR_3)),
+  YMF262Parameter(DR_4, Parameter(CTRL_DR_4)),
   // Sustain level
-  action_ymf262_parameter_t(SL_1, parameter_control_t(CTRL_SL_1)),
-  action_ymf262_parameter_t(SL_2, parameter_control_t(CTRL_SL_2)),
-  action_ymf262_parameter_t(SL_3, parameter_control_t(CTRL_SL_3)),
-  action_ymf262_parameter_t(SL_4, parameter_control_t(CTRL_SL_4)),
+  YMF262Parameter(SL_1, Parameter(CTRL_SL_1)),
+  YMF262Parameter(SL_2, Parameter(CTRL_SL_2)),
+  YMF262Parameter(SL_3, Parameter(CTRL_SL_3)),
+  YMF262Parameter(SL_4, Parameter(CTRL_SL_4)),
   // Release rate
-  action_ymf262_parameter_t(RR_1, parameter_control_t(CTRL_RR_1)),
-  action_ymf262_parameter_t(RR_2, parameter_control_t(CTRL_RR_2)),
-  action_ymf262_parameter_t(RR_3, parameter_control_t(CTRL_RR_3)),
-  action_ymf262_parameter_t(RR_4, parameter_control_t(CTRL_RR_4)),
+  YMF262Parameter(RR_1, Parameter(CTRL_RR_1)),
+  YMF262Parameter(RR_2, Parameter(CTRL_RR_2)),
+  YMF262Parameter(RR_3, Parameter(CTRL_RR_3)),
+  YMF262Parameter(RR_4, Parameter(CTRL_RR_4)),
   // Waveform select
-  action_ymf262_parameter_t(WS_1, parameter_control_t(CTRL_WS_1)),
-  action_ymf262_parameter_t(WS_2, parameter_control_t(CTRL_WS_2)),
-  action_ymf262_parameter_t(WS_3, parameter_control_t(CTRL_WS_3)),
-  action_ymf262_parameter_t(WS_4, parameter_control_t(CTRL_WS_4))
+  YMF262Parameter(WS_1, Parameter(CTRL_WS_1)),
+  YMF262Parameter(WS_2, Parameter(CTRL_WS_2)),
+  YMF262Parameter(WS_3, Parameter(CTRL_WS_3)),
+  YMF262Parameter(WS_4, Parameter(CTRL_WS_4))
 };
 static const uint32_t actions_size = sizeof(actions) / sizeof(action_t);
-static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
+static StoredValue action_values[sizeof(actions) / sizeof(action_t)];
 
 #define MIDI_SLOTS_SIZE 6
 midi_slot_t midi_slots[MIDI_SLOTS_SIZE];

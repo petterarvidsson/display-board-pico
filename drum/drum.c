@@ -598,7 +598,7 @@ void copy_actions() {
   }
 }
 
-static action_value_t action_values[sizeof(actions) / sizeof(action_t)];
+static StoredValue action_values[sizeof(actions) / sizeof(action_t)];
 
 setup_t drum_init() {
   copy();

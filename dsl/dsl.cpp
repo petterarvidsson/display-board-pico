@@ -24,4 +24,16 @@ namespace dsl {
   sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const tcb::span<const EnumVisual> values, const uint32_t initial, const uint8_t width) {
     return sdhi::sdhi_control_type_visual_enumeration_t(id, title, group, values, initial, width);
   }
+
+  action::Parameter Parameter(const int16_t id, const int32_t offset) {
+    return action::ParameterControl(id, offset);
+  }
+
+  action::Parameter Parameter(const int16_t id) {
+    return action::ParameterControl(id);
+  }
+
+  action::Parameter Midi(const uint8_t slot, const action::MidiNoteType type) {
+    return action::ParameterMidiNote(slot, type);
+  }
 }

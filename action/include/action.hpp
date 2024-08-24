@@ -10,132 +10,132 @@
 
 namespace action {
 
-  struct value_t {
+  struct Value {
     int32_t v1;
     int32_t v2;
     int32_t v3;
     uint8_t trigger;
   };
 
-  struct action_value_t {
-    value_t computed;
-    value_t sent;
+  struct StoredValue {
+    Value computed;
+    Value sent;
   };
 
-  bool operator== (const value_t lhs, const value_t rhs);
+  bool operator== (const Value lhs, const Value rhs);
 
-  typedef enum {
-    PARAMETER_MIDI_NOTE_VALUE,
-    PARAMETER_MIDI_NOTE_VELOCITY,
-    PARAMETER_MIDI_NOTE_STATE
-  } parameter_midi_note_parameter_t;
+  enum MidiNoteType {
+    VALUE,
+    VELOCITY,
+    STATE
+  };
 
-  struct parameter_control_t {
+  struct ParameterControl {
     int16_t id;
     int32_t offset;
-    parameter_control_t(const int16_t id, const int32_t offset) : id(id), offset(offset) {}
-    parameter_control_t(const int16_t id) : id(id), offset(0) {}
+    ParameterControl(const int16_t id, const int32_t offset) : id(id), offset(offset) {}
+    ParameterControl(const int16_t id) : id(id), offset(0) {}
   };
 
-  struct parameter_midi_note_t {
+  struct ParameterMidiNote {
     uint8_t slot;
-    parameter_midi_note_parameter_t parameter;
-    parameter_midi_note_t(const uint8_t slot, const parameter_midi_note_parameter_t parameter) : slot(slot), parameter(parameter) {}
+    MidiNoteType type;
+    ParameterMidiNote(const uint8_t slot, const MidiNoteType type) : slot(slot), type(type) {}
   };
 
-  typedef mapbox::util::variant<int, parameter_control_t, parameter_midi_note_t> parameter_t;
+  typedef mapbox::util::variant<int, ParameterControl, ParameterMidiNote> Parameter;
 
-  struct trigger_button_t {
+  struct Trigger {
     int16_t id;
-    trigger_button_t(const int16_t id) : id(id) {}
+    Trigger(const int16_t id) : id(id) {}
   };
 
-  struct midi_controller_t {
+  struct MidiCC {
     uint8_t channel;
-    parameter_t number;
-    parameter_t value;
-    midi_controller_t(const uint8_t channel, const parameter_t number, parameter_t value) : channel(channel), number(number), value(value) {}
+    Parameter number;
+    Parameter value;
+    MidiCC(const uint8_t channel, const Parameter number, Parameter value) : channel(channel), number(number), value(value) {}
   };
 
-  struct midi_bank_change_t {
+  struct MidiBank {
     uint8_t channel;
-    parameter_t value;
-    midi_bank_change_t(const uint8_t channel, const parameter_t value) : channel(channel), value(value) {}
+    Parameter value;
+    MidiBank(const uint8_t channel, const Parameter value) : channel(channel), value(value) {}
   };
 
-  struct midi_rpn_t {
+  struct MidiRPN {
     uint8_t channel;
-    parameter_t msb;
-    parameter_t lsb;
-    parameter_t value;
-    midi_rpn_t(const uint8_t channel, const parameter_t msb, const parameter_t lsb, const parameter_t value) : channel(channel), msb(msb), lsb(lsb), value(value) {}
+    Parameter msb;
+    Parameter lsb;
+    Parameter value;
+    MidiRPN(const uint8_t channel, const Parameter msb, const Parameter lsb, const Parameter value) : channel(channel), msb(msb), lsb(lsb), value(value) {}
   };
 
-  struct midi_nrpn_t {
+  struct MidiNRPN {
     uint8_t channel;
-    parameter_t msb;
-    parameter_t lsb;
-    parameter_t value;
-    midi_nrpn_t(const uint8_t channel, const parameter_t msb, const parameter_t lsb, const parameter_t value) : channel(channel), msb(msb), lsb(lsb), value(value) {}
+    Parameter msb;
+    Parameter lsb;
+    Parameter value;
+    MidiNRPN(const uint8_t channel, const Parameter msb, const Parameter lsb, const Parameter value) : channel(channel), msb(msb), lsb(lsb), value(value) {}
   };
 
-  struct midi_mapping_t {
+  struct MidiMapping {
     uint8_t channel;
-    parameter_t note;
-    parameter_t value;
-    midi_mapping_t(const uint8_t channel, const parameter_t note, const parameter_t value) : channel(channel), note(note), value(value) {}
+    Parameter note;
+    Parameter value;
+    MidiMapping(const uint8_t channel, const Parameter note, const Parameter value) : channel(channel), note(note), value(value) {}
   };
 
-  struct slot_t {
+  struct Slot {
     uint8_t channel;
-    parameter_t slot;
-    slot_t(const uint8_t channel, const parameter_t slot) : channel(channel), slot(slot) {}
+    Parameter slot;
+    Slot(const uint8_t channel, const Parameter slot) : channel(channel), slot(slot) {}
   };
 
-  struct xg_parameter_change_1_t {
+  struct XGParameter {
     uint8_t channel;
-    parameter_t parameter;
-    parameter_t value;
-    xg_parameter_change_1_t(const uint8_t channel, const parameter_t parameter, const parameter_t value) : channel(channel), parameter(parameter), value(value) {}
+    Parameter parameter;
+    Parameter value;
+    XGParameter(const uint8_t channel, const Parameter parameter, const Parameter value) : channel(channel), parameter(parameter), value(value) {}
   };
 
-  struct ymf262_slot_state_t {
-    parameter_t slot;
-    parameter_t state;
-    parameter_t note;
-    ymf262_slot_state_t(const parameter_t slot, const parameter_t state, const parameter_t note) : slot(slot), state(state), note(note) {}
+  struct YMF262Slot {
+    Parameter slot;
+    Parameter state;
+    Parameter note;
+    YMF262Slot(const Parameter slot, const Parameter state, const Parameter note) : slot(slot), state(state), note(note) {}
   };
 
-  struct action_ymf262_parameter_t {
-    parameter_t parameter;
-    parameter_t value;
-    action_ymf262_parameter_t(const parameter_t parameter, const parameter_t value) : parameter(parameter), value(value) {}
-    action_ymf262_parameter_t(const ymf262_parameter_t parameter, const parameter_t value) : parameter((int)parameter), value(value) {}
+  struct YMF262Parameter {
+    Parameter parameter;
+    Parameter value;
+    YMF262Parameter(const Parameter parameter, const Parameter value) : parameter(parameter), value(value) {}
+    YMF262Parameter(const ymf262_parameter_t parameter, const Parameter value) : parameter((int)parameter), value(value) {}
   };
 
-  struct ymf262_connection_t {
-    parameter_t connection;
-    ymf262_connection_t(const parameter_t connection) : connection(connection) {}
+  struct YMF262Connection {
+    Parameter connection;
+    YMF262Connection(const Parameter connection) : connection(connection) {}
   };
 
-  struct load_values_t {
-    trigger_button_t trigger;
-    parameter_t patch;
+  struct Load {
+    Trigger trigger;
+    Parameter patch;
     uint16_t *ids;
     uint16_t ids_size;
-    load_values_t(const trigger_button_t trigger, const parameter_t patch, uint16_t * const ids, const uint16_t ids_size) : trigger(trigger), patch(patch), ids(ids), ids_size(ids_size) {}
+    Load(const Trigger trigger, const Parameter patch, uint16_t * const ids, const uint16_t ids_size) : trigger(trigger), patch(patch), ids(ids), ids_size(ids_size) {}
   };
 
-  struct save_values_t {
-    trigger_button_t trigger;
-    parameter_t patch;
+  struct Save {
+    Trigger trigger;
+    Parameter patch;
     uint16_t *ids;
     uint16_t ids_size;
-    save_values_t(const trigger_button_t trigger, const parameter_t patch, uint16_t * const ids, const uint16_t ids_size) : trigger(trigger), patch(patch), ids(ids), ids_size(ids_size) {}
+    Save(const Trigger trigger, const Parameter patch, uint16_t * const ids, const uint16_t ids_size) : trigger(trigger), patch(patch), ids(ids), ids_size(ids_size) {}
   };
 
-  typedef mapbox::util::variant<midi_controller_t, midi_bank_change_t, midi_rpn_t, midi_nrpn_t, midi_mapping_t, slot_t, xg_parameter_change_1_t, ymf262_slot_state_t, action_ymf262_parameter_t, ymf262_connection_t, load_values_t, save_values_t> action_t;
+  typedef mapbox::util::variant<MidiCC, MidiBank, MidiRPN, MidiNRPN, MidiMapping, Slot, XGParameter, YMF262Slot, YMF262Parameter, YMF262Connection, Load, Save> action_t;
 
-  void action_init(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
-  void action_update(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, action_value_t * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+  void action_init(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
+  void action_update(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size);
 };
