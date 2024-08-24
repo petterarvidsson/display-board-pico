@@ -9,7 +9,7 @@ target_link_libraries(display_board PRIVATE
         i2c_controller
         sdhi
         midi
-        action_pp
+        action
         setup
         ymf262
         ymf262_synth
