@@ -1,6 +1,7 @@
 #pragma once
 #include "pico/stdlib.h"
-#include <mapbox/variant.hpp>
+#include <variant>
+
 namespace display_list {
   struct Point {
     uint8_t x;
@@ -36,5 +37,5 @@ namespace display_list {
     SineSegment(const Point start, const uint8_t length, const uint8_t amplitude, const uint8_t from, const uint8_t until) : start(start), length(length), amplitude(amplitude), from(from), until(until) {}
   };
 
-  using Item = mapbox::util::variant<Line, Circle, FilledCircle, SineSegment>;
+  using Item = std::variant<Line, Circle, FilledCircle, SineSegment>;
 }

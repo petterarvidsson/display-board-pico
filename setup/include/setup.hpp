@@ -9,7 +9,7 @@ namespace setup {
     sdhi::sdhi_t sdhi;
     int32_t *values;
     i2c_controller_button_t *buttons;
-    tcb::span<action::action_t> actions;
+    tcb::span<action::Action> actions;
     action::StoredValue *action_values;
     midi_slot_t *midi_slots;
     uint8_t midi_slots_size;

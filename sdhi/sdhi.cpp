@@ -2,7 +2,7 @@
 #include <optional>
 #include <pio_display.h>
 #include <sdhi.hpp>
-
+#include <overloaded.hpp>
 #define EMPTY_GROUP -2
 #define NO_GROUP -1
 
@@ -15,6 +15,7 @@
 
 
 namespace sdhi {
+  using util::overloaded;
 
   static void draw_lower_column(uint8_t * const fd) {
     pio_display_fill_rectangle(fd, COLUMN_LEFT, 0, COLUMN_RIGHT, ROW_TOP);
@@ -48,22 +49,24 @@ namespace sdhi {
 
   const sdhi_control_description_t sdhi_description(const sdhi_control_t control) {
     sdhi_control_description_t *description = NULL;
-    control.match([&description] (auto control) {
-      description = &control;
-    });
+    std::visit(overloaded {
+        [&description] (auto control) {
+          description = &control;
+        }},
+      control);
     return *description;
   }
 
   const std::optional<sdhi_control_t> find_control(const int16_t id, const sdhi_t sdhi) {
-    std::optional<sdhi_control_t> match = std::nullopt;
+    bool found = false;
     for(auto control : sdhi.controls) {
-      control.match([&match, id] (auto control){
-        if(control.id == id) {
-          match = control;
-        }
-      });
+      std::visit(overloaded {[&found, id] (auto it){
+        found = it.id == id;
+      }}, control);
+      if(found)
+        return control;
     }
-    return match;
+    return {};
   }
 
   static int32_t update(const int32_t value, const int32_t change, const int32_t min, const int32_t max) {
@@ -95,7 +98,7 @@ namespace sdhi {
       auto id = sdhi.panels[current_panel].controls[i];
       if(auto control = find_control(id, sdhi)) {
         if(change[i] != 0) {
-          control->match(
+          std::visit(overloaded {
                          [i, id, values, change] (sdhi_control_type_integer_t integer_control) {
                            values[id] = update_integer(integer_control, values[id], change[i]);
                          },
@@ -107,7 +110,8 @@ namespace sdhi {
                          },
                          [i, id, values, change] (sdhi_control_type_visual_enumeration_t visual_enumeration_control) {
                            values[id] = update_enumeration((int32_t)visual_enumeration_control.values.size() - 1, values[id], change[i]);
-                         });
+                         }
+            }, *control);
         }
         if(button_change[i] != I2C_CONTROLLER_NO_CHANGE) {
           button[sdhi_description(*control).id] = button_change[i];
@@ -139,7 +143,7 @@ namespace sdhi {
   void sdhi_init_values(int32_t * const values, i2c_controller_button_t * const button, const sdhi_t sdhi) {
     for(uint16_t i = 0; i < sdhi.controls.size(); i++) {
       const sdhi_control_t control = sdhi.controls[i];
-      control.match(
+      std::visit(overloaded {
                     [values] (sdhi_control_type_integer_t integer_control) {
                       values[integer_control.id] = integer_control.initial;
                     },
@@ -151,7 +155,8 @@ namespace sdhi {
                     },
                     [values] (sdhi_control_type_visual_enumeration_t visual_enumeration_control) {
                       values[visual_enumeration_control.id] = visual_enumeration_control.initial;
-                    });
+                    }
+        }, control);
       button[sdhi_description(control).id] = I2C_CONTROLLER_NO_CHANGE;
     }
   }
@@ -162,32 +167,33 @@ namespace sdhi {
   }
 
   float sdhi_real(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
-    return values[id] * mapbox::util::get_unchecked<sdhi_control_type_real_t>(*find_control(id, sdhi)).step;
+    return values[id] * std::get<sdhi_control_type_real_t>(*find_control(id, sdhi)).step;
   }
 
   int32_t sdhi_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
-    return mapbox::util::get_unchecked<sdhi_control_type_enumeration_t>(*find_control(id, sdhi)).values[(uint32_t)(values[id] & 0xFFFFFF)].value;
+    return std::get<sdhi_control_type_enumeration_t>(*find_control(id, sdhi)).values[(uint32_t)(values[id] & 0xFFFFFF)].value;
   }
 
   int32_t sdhi_visual_enumeration(const uint16_t id, const int32_t * const values, const sdhi_t sdhi) {
-    return mapbox::util::get_unchecked<sdhi_control_type_visual_enumeration_t>(*find_control(id, sdhi)).values[(uint32_t)(values[id] & 0xFFFFFF)].value;
+    return std::get<sdhi_control_type_visual_enumeration_t>(*find_control(id, sdhi)).values[(uint32_t)(values[id] & 0xFFFFFF)].value;
   }
 
   static void display_list_item(const uint8_t x_offset, const uint8_t y_offset, const display_list::Item item, const uint8_t display) {
     uint8_t * const fb = pio_display_get(display);
-    item.match(
-               [x_offset, y_offset, fb] (display_list::Line line) {
-                 pio_display_draw_line(fb, line.start.x + x_offset, line.start.y + y_offset, line.end.x  + x_offset, line.end.y  + y_offset, line.size);
-               },
-               [x_offset, y_offset, fb] (display_list::Circle circle) {
-                 pio_display_draw_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
-               },
-               [x_offset, y_offset, fb] (display_list::FilledCircle circle) {
-                 pio_display_draw_filled_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
-               },
-               [x_offset, y_offset, fb] (display_list::SineSegment sine) {
-                 pio_display_draw_sine(fb, sine.from, sine.until, sine.start.x + x_offset, sine.start.y + y_offset, sine.length, sine.amplitude);
-               });
+    std::visit(overloaded {
+        [x_offset, y_offset, fb] (display_list::Line line) {
+          pio_display_draw_line(fb, line.start.x + x_offset, line.start.y + y_offset, line.end.x  + x_offset, line.end.y  + y_offset, line.size);
+        },
+        [x_offset, y_offset, fb] (display_list::Circle circle) {
+          pio_display_draw_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
+        },
+        [x_offset, y_offset, fb] (display_list::FilledCircle circle) {
+          pio_display_draw_filled_circle(fb, circle.center.x + x_offset, circle.center.y + y_offset, circle.radius);
+        },
+        [x_offset, y_offset, fb] (display_list::SineSegment sine) {
+          pio_display_draw_sine(fb, sine.from, sine.until, sine.start.x + x_offset, sine.start.y + y_offset, sine.length, sine.amplitude);
+        }
+      }, item);
   }
 
   static void pio_display_list(const uint8_t x_offset, const uint8_t y_offset, const tcb::span<display_list::Item> list, const uint8_t display) {
@@ -212,42 +218,43 @@ namespace sdhi {
       group = sdhi_description(*control).group;
       pio_display_print_center(pio_display_get(top), 0, SIZE_13, true, sdhi_description(*control).title);
 
-      control->match(
-                     [values, bottom] (sdhi_control_type_integer_t integer_control) {
-                       char value[16];
-                       snprintf(value, 16, "%d", values[integer_control.id]);
-                       pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
-                       int32_t min = integer_control.min;
-                       int32_t max = integer_control.max;
+      std::visit(overloaded {
+          [values, bottom] (sdhi_control_type_integer_t integer_control) {
+            char value[16];
+            snprintf(value, 16, "%d", values[integer_control.id]);
+            pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
+            int32_t min = integer_control.min;
+            int32_t max = integer_control.max;
 
-                       uint32_t total = (uint8_t)((float)(values[integer_control.id] - min) / (float)(max - min) * 96);
-                       uint32_t middle = (uint8_t)((float)(integer_control.middle - min) / (float)(max - min) * 96);
-                       uint32_t start;
-                       uint32_t end;
-                       if(values[integer_control.id] <= integer_control.middle) {
-                         start = 17 + total;
-                         end = 17 + middle;
-                       } else {
-                         start = 17 + middle;
-                         end = 17 + total;
-                       }
-                       pio_display_fill_rectangle(pio_display_get(bottom), start, 63 - 4, end, 63);
-                     },
-                     [values, bottom] (sdhi_control_type_real_t real_control) {
-                       char value[16];
-                       snprintf(value, 16, "%.2f", values[real_control.id] * real_control.step);
-                       pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
-                       int32_t min = (int32_t)(real_control.min / real_control.step);
-                       int32_t max = (int32_t)(real_control.max / real_control.step);
-                       pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[real_control.id] - min) / (float)(max - min) * 96), 63);
-                     },
-                     [values, bottom] (sdhi_control_type_enumeration_t enumeration_control) {
-                       pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, enumeration_control.values[(uint32_t)(values[enumeration_control.id] & 0xFFFFFF)].name);
-                     },
-                     [values, bottom] (sdhi_control_type_visual_enumeration_t enumeration) {
-                       const EnumVisual value = enumeration.values[(uint32_t)(values[enumeration.id] & 0xFFFFFF)];
-                       pio_display_list((127 - enumeration.width) / 2, 63 - 28, value.display_list, bottom);
-                     });
+            uint32_t total = (uint8_t)((float)(values[integer_control.id] - min) / (float)(max - min) * 96);
+            uint32_t middle = (uint8_t)((float)(integer_control.middle - min) / (float)(max - min) * 96);
+            uint32_t start;
+            uint32_t end;
+            if(values[integer_control.id] <= integer_control.middle) {
+              start = 17 + total;
+              end = 17 + middle;
+            } else {
+              start = 17 + middle;
+              end = 17 + total;
+            }
+            pio_display_fill_rectangle(pio_display_get(bottom), start, 63 - 4, end, 63);
+          },
+          [values, bottom] (sdhi_control_type_real_t real_control) {
+            char value[16];
+            snprintf(value, 16, "%.2f", values[real_control.id] * real_control.step);
+            pio_display_print_center(pio_display_get(bottom), 63 - 13 - 8, SIZE_13, true, value);
+            int32_t min = (int32_t)(real_control.min / real_control.step);
+            int32_t max = (int32_t)(real_control.max / real_control.step);
+            pio_display_fill_rectangle(pio_display_get(bottom), 16, 63 - 4, 16 + (uint8_t)((float)(values[real_control.id] - min) / (float)(max - min) * 96), 63);
+          },
+          [values, bottom] (sdhi_control_type_enumeration_t enumeration_control) {
+            pio_display_print_center(pio_display_get(bottom), 63 - 13, SIZE_13, true, enumeration_control.values[(uint32_t)(values[enumeration_control.id] & 0xFFFFFF)].name);
+          },
+          [values, bottom] (sdhi_control_type_visual_enumeration_t enumeration) {
+            const EnumVisual value = enumeration.values[(uint32_t)(values[enumeration.id] & 0xFFFFFF)];
+            pio_display_list((127 - enumeration.width) / 2, 63 - 28, value.display_list, bottom);
+          }
+        }, *control);
     }
 
     if(group == NO_GROUP || group != top_group) {

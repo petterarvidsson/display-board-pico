@@ -9,7 +9,7 @@ namespace dsl {
   using sdhi::EnumValue;
   using sdhi::EnumVisual;
   using action::StoredValue;
-  using action::action_t;
+  using action::Action;
 
   using action::Trigger;
   using action::MidiCC;
@@ -29,13 +29,39 @@ namespace dsl {
   using action::MidiNoteType::STATE;
   using action::MidiNoteType::VELOCITY;
 
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial, const int32_t middle);
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial);
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max);
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const float min, const float max, const float step);
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const tcb::span<const EnumValue> values, const uint32_t initial);
-  sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const tcb::span<const EnumVisual> values, const uint32_t initial, const uint8_t width);
-  action::Parameter Parameter(const int16_t id, const int32_t offset);
-  action::Parameter Parameter(const int16_t id);
-  action::Parameter Midi(const uint8_t slot, const action::MidiNoteType type);
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial, const int32_t middle) {
+    return sdhi::sdhi_control_type_integer_t(id, title, group, min, max, initial, middle);
+  }
+
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max, const int32_t initial) {
+    return sdhi::sdhi_control_type_integer_t(id, title, group, min, max, initial, 0);
+  }
+
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const int32_t min, const int32_t max) {
+    return sdhi::sdhi_control_type_integer_t(id, title, group, min, max, 0, 0);
+  }
+
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const float min, const float max, const float step) {
+    return sdhi::sdhi_control_type_real_t(id, title, group, min, max, step);
+  }
+
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const tcb::span<const EnumValue> values, const uint32_t initial) {
+    return sdhi::sdhi_control_type_enumeration_t(id, title, group, values, initial);
+  }
+
+  constexpr sdhi::sdhi_control_t Control(const uint16_t id, const char * title, const int16_t group, const tcb::span<const EnumVisual> values, const uint32_t initial, const uint8_t width) {
+    return sdhi::sdhi_control_type_visual_enumeration_t(id, title, group, values, initial, width);
+  }
+
+  constexpr action::Parameter Parameter(const int16_t id, const int32_t offset) {
+    return action::ParameterControl(id, offset);
+  }
+
+  constexpr action::Parameter Parameter(const int16_t id) {
+    return action::ParameterControl(id);
+  }
+
+  constexpr action::Parameter Midi(const uint8_t slot, const action::MidiNoteType type) {
+    return action::ParameterMidiNote(slot, type);
+  }
 };

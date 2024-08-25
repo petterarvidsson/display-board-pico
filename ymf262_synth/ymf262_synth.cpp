@@ -351,7 +351,7 @@ static sdhi::sdhi_control_t controls[] = {
 static int32_t values[CONTROLS];
 static i2c_controller_button_t buttons[CONTROLS];
 
-static action_t actions[] = {
+static Action actions[] = {
   // Initial actions set up six midi slots (0-5) responding to MIDI on channel 0
   Slot(0, 0),
   Slot(0, 1),
@@ -441,8 +441,8 @@ static action_t actions[] = {
   YMF262Parameter(WS_3, Parameter(CTRL_WS_3)),
   YMF262Parameter(WS_4, Parameter(CTRL_WS_4))
 };
-static const uint32_t actions_size = sizeof(actions) / sizeof(action_t);
-static StoredValue action_values[sizeof(actions) / sizeof(action_t)];
+static const uint32_t actions_size = sizeof(actions) / sizeof(Action);
+static StoredValue action_values[sizeof(actions) / sizeof(Action)];
 
 #define MIDI_SLOTS_SIZE 6
 midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
@@ -475,25 +475,25 @@ static span<Item> generator(const int32_t * const values, const void * const sdh
   const uint8_t release = 30 - sdhi::sdhi_integer(release_id, values, sdhi) * 2;
   const uint8_t offset = (127 - (attack + decay + sustain + release)) / 2;
 
-  items[0].get_unchecked<FilledCircle>().center.x = offset;
-  items[1].get_unchecked<Line>().start.x = offset;
-  items[1].get_unchecked<Line>().end.x = attack + offset;
-  items[2].get_unchecked<FilledCircle>().center.x = attack + offset;
-  items[3].get_unchecked<Line>().start.x = attack + offset;
-  items[3].get_unchecked<Line>().end.x = attack + decay + offset;
-  items[3].get_unchecked<Line>().end.y = sustain_y + RADIUS;
-  items[4].get_unchecked<FilledCircle>().center.x = attack + decay + offset;
-  items[4].get_unchecked<FilledCircle>().center.y = sustain_y + RADIUS;
-  items[5].get_unchecked<Line>().start.x = attack + decay + offset;
-  items[5].get_unchecked<Line>().start.y = sustain_y + RADIUS;
-  items[5].get_unchecked<Line>().end.x = attack + decay + sustain + offset;
-  items[5].get_unchecked<Line>().end.y = sustain_y + RADIUS;
-  items[6].get_unchecked<FilledCircle>().center.x = attack + decay + sustain + offset;
-  items[6].get_unchecked<FilledCircle>().center.y = sustain_y + RADIUS;
-  items[7].get_unchecked<Line>().start.x = attack + decay + sustain + offset;
-  items[7].get_unchecked<Line>().start.y = sustain_y + RADIUS;
-  items[7].get_unchecked<Line>().end.x = attack + decay + sustain + release + offset;
-  items[8].get_unchecked<FilledCircle>().center.x = attack + decay + sustain + release + offset;
+  std::get<FilledCircle>(items[0]).center.x = offset;
+  std::get<Line>(items[1]).start.x = offset;
+  std::get<Line>(items[1]).end.x = attack + offset;
+  std::get<FilledCircle>(items[2]).center.x = attack + offset;
+  std::get<Line>(items[3]).start.x = attack + offset;
+  std::get<Line>(items[3]).end.x = attack + decay + offset;
+  std::get<Line>(items[3]).end.y = sustain_y + RADIUS;
+  std::get<FilledCircle>(items[4]).center.x = attack + decay + offset;
+  std::get<FilledCircle>(items[4]).center.y = sustain_y + RADIUS;
+  std::get<Line>(items[5]).start.x = attack + decay + offset;
+  std::get<Line>(items[5]).start.y = sustain_y + RADIUS;
+  std::get<Line>(items[5]).end.x = attack + decay + sustain + offset;
+  std::get<Line>(items[5]).end.y = sustain_y + RADIUS;
+  std::get<FilledCircle>(items[6]).center.x = attack + decay + sustain + offset;
+  std::get<FilledCircle>(items[6]).center.y = sustain_y + RADIUS;
+  std::get<Line>(items[7]).start.x = attack + decay + sustain + offset;
+  std::get<Line>(items[7]).start.y = sustain_y + RADIUS;
+  std::get<Line>(items[7]).end.x = attack + decay + sustain + release + offset;
+  std::get<FilledCircle>(items[8]).center.x = attack + decay + sustain + release + offset;
   return list;
 }
 

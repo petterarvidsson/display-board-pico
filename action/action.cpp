@@ -2,8 +2,10 @@
 #include "action.hpp"
 #include "midi.h"
 #include "ymf262.h"
+#include<overloaded.hpp>
 
 namespace action {
+  using util::overloaded;
   typedef struct {
     const midi_slot_t * const slots;
     const uint8_t size;
@@ -158,11 +160,11 @@ namespace action {
     }
 
   };
-  static bool execute_action(const action_t action, const Value value, uint8_t * trigger_ymf262_channel, int32_t * const values) {
+  static bool execute_action(const Action action, const Value value, uint8_t * trigger_ymf262_channel, int32_t * const values) {
     uint8_t messages = 0;
     ActionExecutor executor(value, action_messages, trigger_ymf262_channel, values);
 
-    mapbox::util::apply_visitor(executor, action);
+    std::visit(executor, action);
 
     if(executor.messages < midi_can_send_messages()) {
       midi_send_messages(action_messages, executor.messages);
@@ -172,7 +174,7 @@ namespace action {
     }
   }
 
-  static void execute_actions(const tcb::span<const action_t> actions, StoredValue * action_values, int32_t * const values) {
+  static void execute_actions(const tcb::span<const Action> actions, StoredValue * action_values, int32_t * const values) {
     if(!actions.empty()) {
       uint8_t last_action;
       uint8_t trigger_ymf262_channel = 0;
@@ -200,10 +202,10 @@ namespace action {
   }
   static int32_t parameter_value(const Parameter parameter, const sdhi::sdhi_t sdhi, const int32_t * const values, const slots_t slots) {
     int32_t value = -1;
-    parameter.match(
+    std::visit(overloaded {
         [&value, sdhi, values] (ParameterControl control) {
           const sdhi::sdhi_control_t sdhi_control = *sdhi::find_control(control.id, sdhi);
-          sdhi_control.match(
+          visit(overloaded {
                              [&value, sdhi, values, control] (sdhi::sdhi_control_type_integer_t integer_control) {
                                value = sdhi_integer(control.id, values, sdhi) + control.offset;
                              },
@@ -214,7 +216,8 @@ namespace action {
                              },
                              [&value, sdhi, values, control] (sdhi::sdhi_control_type_visual_enumeration_t visual_enumeration_control) {
                                value = sdhi_visual_enumeration(control.id, values, sdhi) + control.offset;
-                             });
+                             }
+            }, sdhi_control);
         },
         [&value] (int32_t parameter) {
           value = parameter;
@@ -234,7 +237,7 @@ namespace action {
             }
           }
         }
-      );
+      }, parameter);
     return value;
   }
 
@@ -247,9 +250,9 @@ namespace action {
     }
   }
 
-  static void update_computed_values(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const slots_t slots) {
+  static void update_computed_values(const tcb::span<const Action> actions, const sdhi::sdhi_t sdhi, const int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const slots_t slots) {
     for(uint8_t i = 0; i < actions.size(); i++) {
-      actions[i].match(
+      std::visit(overloaded {
                    [i, action_values, sdhi, values, slots] (MidiCC controller) {
                      action_values[i].computed.v1 = parameter_value(controller.number, sdhi, values, slots);
                      action_values[i].computed.v2 = parameter_value(controller.value, sdhi, values, slots);
@@ -319,11 +322,12 @@ namespace action {
                      action_values[i].computed.v2 = 0;
                      action_values[i].computed.v3 = 0;
                      trigger_value(save.trigger, button, &(action_values[i].computed.trigger));
-                   });
+                   }
+        }, actions[i]);
     }
   }
 
-  void action_init(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+  void action_init(const tcb::span<const Action> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
     current_action = 0;
     slots_t internal = {
       .slots = slots,
@@ -341,7 +345,7 @@ namespace action {
     }
   }
 
-  void action_update(const tcb::span<const action_t> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
+  void action_update(const tcb::span<const Action> actions, const sdhi::sdhi_t sdhi, int32_t * const values, const i2c_controller_button_t * const button, StoredValue * action_values, const midi_slot_t * const slots, const uint8_t slots_size) {
     slots_t internal = {
       .slots = slots,
       .size = slots_size
