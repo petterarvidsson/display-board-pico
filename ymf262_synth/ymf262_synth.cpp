@@ -351,7 +351,7 @@ static sdhi::sdhi_control_t controls[] = {
 static int32_t values[CONTROLS];
 static i2c_controller_button_t buttons[CONTROLS];
 
-static Action actions[] = {
+static Action actions_arr[] = {
   // Initial actions set up six midi slots (0-5) responding to MIDI on channel 0
   Slot(0, 0),
   Slot(0, 1),
@@ -441,8 +441,7 @@ static Action actions[] = {
   YMF262Parameter(WS_3, Parameter(CTRL_WS_3)),
   YMF262Parameter(WS_4, Parameter(CTRL_WS_4))
 };
-static const uint32_t actions_size = sizeof(actions) / sizeof(Action);
-static StoredValue action_values[sizeof(actions) / sizeof(Action)];
+static StoredValue action_values[tcb::span(actions_arr).size()];
 
 #define MIDI_SLOTS_SIZE 6
 midi_slot_t midi_slots[MIDI_SLOTS_SIZE];
@@ -623,17 +622,6 @@ static sdhi::sdhi_t sdhi_setup = {
 
 Setup ymf262_synth_init() {
   ymf262_init();
-  Setup ymf262_synth = {
-    .sdhi = sdhi_setup,
-    .values = values,
-    .buttons = buttons,
-    .actions = {
-      .actions = actions,
-      .size = actions_size
-    },
-    .action_values = action_values,
-    .midi_slots = midi_slots,
-    .midi_slots_size = MIDI_SLOTS_SIZE
-  };
+  Setup ymf262_synth(sdhi_setup, values, buttons, actions_arr, action_values, midi_slots, MIDI_SLOTS_SIZE);
   return ymf262_synth;
 }
