@@ -25,7 +25,7 @@ static const uint8_t controller_connections[CONTROLLERS][3] = {
   {18, 19, 20}, // E8 0xFFEFFFFF
   {30, 31, 17}  // E9 0x3FFDFFFF
 };
-static uint8_t old_a[] = {
+static uint8_t old_b[] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
@@ -60,14 +60,14 @@ void i2c_controller_run() {
   for(uint8_t i = 0; i < CONTROLLERS; i++) {
     uint8_t a = (rxdata >> controller_connections[i][0]) & 0x1;
     uint8_t b = (rxdata >> controller_connections[i][1]) & 0x1;
-    if(a == 1 && a != old_a[i]) {
+    if(b != old_b[i] && a == 0) {
       if(b) {
         change[i]--;
       } else {
         change[i]++;
       }
     }
-    old_a[i] = a;
+    old_b[i] = b;
   }
   mutex_exit(&mutex);
 }

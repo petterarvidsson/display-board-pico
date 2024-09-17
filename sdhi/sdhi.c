@@ -69,24 +69,7 @@ static int32_t update_real(const sdhi_control_type_real_t real, const int32_t va
 }
 
 static int32_t update_enumeration(const sdhi_control_type_enumeration_t enumeration, const int32_t value, const int32_t change) {
-  const int32_t max = (int32_t)enumeration.size - 1;
-  int8_t acc = (value >> 24) & 0xFF;
-  acc += change;
-  int32_t i = value & 0xFFFFFF;
-  if(i == 0 && acc < 0) {
-    acc = 0;
-  } else if(i == max && acc > 0) {
-    acc = 0;
-  }
-
-  if(acc >= 3) {
-    i = update(i, 1, 0, max);
-    acc = 0;
-  } else if(acc <= -3){
-    i = update(i, -1, 0, max);
-    acc = 0;
-  }
-  return (acc << 24) + i;
+  return update(value, change, 0, (int32_t)enumeration.size - 1);
 }
 
 static void update_values(int32_t * const values, const int32_t * const change, const sdhi_t sdhi) {

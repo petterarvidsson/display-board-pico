@@ -147,6 +147,8 @@ void pio_display_init() {
 
   pio = pio0;
 
+  gpio_set_drive_strength(SCLK, GPIO_DRIVE_STRENGTH_12MA);
+  gpio_set_drive_strength(MOSI, GPIO_DRIVE_STRENGTH_12MA);
   uint offset = pio_add_program(pio, &spi_program);
   uint sm = pio_claim_unused_sm(pio, true);
 
